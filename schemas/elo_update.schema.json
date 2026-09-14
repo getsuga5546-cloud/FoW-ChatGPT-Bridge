@@ -1,0 +1,15 @@
+{
+  "type": "elo_update",
+  "request_id": "ELO-YYYYMMDD-001",
+  "created_by": "chatgpt",
+  "event_type": "Grease",
+  "clubs": [
+    {
+      "club": "FoW CodeX",
+      "new_elo": 6032,
+      "opponent": "Opponent Club",
+      "opponent_elo_before": 5980,
+      "result": "win"
+    }
+  ]
+}
