@@ -1,0 +1,33 @@
+{
+  "type": "elo_update",
+  "request_id": "ELO-20260914-002",
+  "created_by": "chatgpt",
+  "event_type": "SCREENSHOT_UPDATE",
+  "dry_run": false,
+  "clubs": [
+    {"club":"FoW Empress Enclave","new_elo":6530,"opponent":"FoW Flower Garden","opponent_elo_before":6388,"result":"win"},
+    {"club":"FoW Flower Garden","new_elo":6388,"opponent":"FoW Empress Enclave","opponent_elo_before":6530,"result":"loss"},
+    {"club":"Force of War IV","new_elo":6359,"opponent":"FoW Iron Horn Brigade","opponent_elo_before":6254,"result":"win"},
+    {"club":"FoW Iron Horn Brigade","new_elo":6254,"opponent":"Force of War IV","opponent_elo_before":6359,"result":"loss"},
+    {"club":"FoW Magslingers","new_elo":6485,"opponent":"FoW Neverland","opponent_elo_before":6331,"result":"win"},
+    {"club":"FoW Neverland","new_elo":6331,"opponent":"FoW Magslingers","opponent_elo_before":6485,"result":"loss"},
+    {"club":"FoW Peace Keeper","new_elo":6211,"opponent":"FoW Fero's Legacy","opponent_elo_before":6086,"result":"win"},
+    {"club":"FoW Fero's Legacy","new_elo":6086,"opponent":"FoW Peace Keeper","opponent_elo_before":6211,"result":"loss"},
+    {"club":"FoW Royal Abattoir","new_elo":6317,"opponent":"Force of War III","opponent_elo_before":6231,"result":"win"},
+    {"club":"Force of War III","new_elo":6231,"opponent":"FoW Royal Abattoir","opponent_elo_before":6317,"result":"loss"},
+    {"club":"FoW RingoRacoons","new_elo":6205,"opponent":"FoW Sentinels 4","opponent_elo_before":6091,"result":"win"},
+    {"club":"FoW Sentinels 4","new_elo":6091,"opponent":"FoW RingoRacoons","opponent_elo_before":6205,"result":"loss"},
+    {"club":"Force of War VI","new_elo":6206,"opponent":"FoW Warmonger Bulls","opponent_elo_before":6071,"result":"win"},
+    {"club":"FoW Warmonger Bulls","new_elo":6071,"opponent":"Force of War VI","opponent_elo_before":6206,"result":"loss"},
+    {"club":"FoW Jewelry Brigade","new_elo":6177,"opponent":"FoW Regalia Realms","opponent_elo_before":6035,"result":"win"},
+    {"club":"FoW Regalia Realms","new_elo":6035,"opponent":"FoW Jewelry Brigade","opponent_elo_before":6177,"result":"loss"},
+    {"club":"Force of War VIII","new_elo":6073,"opponent":"Force of War VII","opponent_elo_before":5923,"result":"win"},
+    {"club":"Force of War VII","new_elo":5923,"opponent":"Force of War VIII","opponent_elo_before":6073,"result":"loss"},
+    {"club":"FoW Berserker","new_elo":5957,"opponent":"FoW Imperial Legacy","opponent_elo_before":5841,"result":"win"},
+    {"club":"FoW Imperial Legacy","new_elo":5841,"opponent":"FoW Berserker","opponent_elo_before":5957,"result":"loss"},
+    {"club":"FoW Icebears Drei","new_elo":5954,"opponent":"FoW Hellblade","opponent_elo_before":5806,"result":"win"},
+    {"club":"FoW Hellblade","new_elo":5806,"opponent":"FoW Icebears Drei","opponent_elo_before":5954,"result":"loss"},
+    {"club":"FoW RascalRacoons","new_elo":6023,"opponent":"FoW Adeptus Astartes","opponent_elo_before":5912,"result":"win"},
+    {"club":"FoW Adeptus Astartes","new_elo":5912,"opponent":"FoW RascalRacoons","opponent_elo_before":6023,"result":"loss"}
+  ]
+}
