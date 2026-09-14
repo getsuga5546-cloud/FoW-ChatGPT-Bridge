@@ -1,0 +1,16 @@
+{
+  "type": "manual_matchmaking",
+  "request_id": "MM-ISSUE-PROD-001",
+  "created_by": "chatgpt",
+  "dry_run": false,
+  "execute": true,
+  "max_gap": 100,
+  "pairs": [
+    {
+      "club_a": "FoW Empress Enclave",
+      "club_b": "FoW Magslingers",
+      "winner": null,
+      "note": "Production bridge test"
+    }
+  ]
+}
