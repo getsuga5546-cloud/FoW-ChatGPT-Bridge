@@ -1,0 +1,16 @@
+{
+  "type": "manual_matchmaking",
+  "request_id": "MM-ISSUE-TEST-002",
+  "created_by": "chatgpt",
+  "dry_run": true,
+  "execute": false,
+  "max_gap": 100,
+  "pairs": [
+    {
+      "club_a": "FoW Empress Enclave",
+      "club_b": "FoW Magslingers",
+      "winner": null,
+      "note": "Issue Bridge manual matchmaking dry-run test"
+    }
+  ]
+}
