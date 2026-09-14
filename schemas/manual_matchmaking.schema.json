@@ -1,0 +1,18 @@
+{
+  "type": "manual_matchmaking",
+  "request_id": "MM-YYYYMMDD-001",
+  "created_by": "chatgpt",
+  "elo_range": {
+    "min": 0,
+    "max": 9999
+  },
+  "max_gap": 100,
+  "pairs": [
+    {
+      "club_a": "Club Name A",
+      "club_b": "Club Name B",
+      "winner": null,
+      "note": null
+    }
+  ]
+}
