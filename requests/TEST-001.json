@@ -1,0 +1,13 @@
+{
+  "type": "elo_update",
+  "request_id": "TEST-001",
+  "created_by": "chatgpt",
+  "event_type": "TEST",
+  "dry_run": true,
+  "clubs": [
+    {
+      "club": "FoW CodeX",
+      "new_elo": 6032
+    }
+  ]
+}
