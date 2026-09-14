@@ -1,1 +1,18 @@
-
+{
+  "id": "ELO-TEST-003",
+  "type": "elo_update",
+  "dry_run": true,
+  "execute": false,
+  "updates": [
+    {
+      "club": "FoW Eternal Wanderer³",
+      "elo": 5345,
+      "result": "WIN"
+    },
+    {
+      "club": "The FoW Beach House",
+      "elo": 5191,
+      "result": "LOSS"
+    }
+  ]
+}
