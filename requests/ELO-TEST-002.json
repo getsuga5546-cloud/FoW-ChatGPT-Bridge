@@ -1,0 +1,23 @@
+{
+  "type": "elo_update",
+  "request_id": "ELO-TEST-002",
+  "created_by": "chatgpt",
+  "event_type": "TEST",
+  "dry_run": true,
+  "clubs": [
+    {
+      "club": "FoW Eternal Wanderer³",
+      "new_elo": 5345,
+      "opponent": "The FoW Beach House",
+      "opponent_elo_before": 5191,
+      "result": "win"
+    },
+    {
+      "club": "The FoW Beach House",
+      "new_elo": 5191,
+      "opponent": "FoW Eternal Wanderer³",
+      "opponent_elo_before": 5345,
+      "result": "loss"
+    }
+  ]
+}
