@@ -1,0 +1,15 @@
+{
+  "type": "manual_matchmaking",
+  "request_id": "MM-20260916-HIGH-001",
+  "created_by": "chatgpt",
+  "dry_run": false,
+  "execute": true,
+  "max_gap": 100,
+  "channel_set": "high",
+  "pairs": [
+    {"club_a":"FoW Berserker","club_b":"FoW Hellblade","winner":null,"note":"11.25 vs Auralis | ELO 5931 vs 5835 | gap 96 | Strong different-tier pairing / Cross match"},
+    {"club_a":"FoW Icebears Drei","club_b":"FoW Adeptus Astartes","winner":null,"note":"MRH2 vs Issac 27 | ELO 5922 vs 5887 | gap 35"},
+    {"club_a":"Twist Of Fate","club_b":"FoW Imperial Legacy","winner":null,"note":"n28.10 Oolong vs May 2 | ELO 5792 vs 5692 | gap 100 | Strong different-tier pairing / Cross match"},
+    {"club_a":"FoW Stranger Things","club_b":"FoW Eternal Wanderer 2","winner":null,"note":"Achernar vs 764 | ELO 5772 vs 5696 | gap 76 | Strong different-tier pairing / Cross match"}
+  ]
+}
