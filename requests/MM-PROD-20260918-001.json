@@ -1,0 +1,17 @@
+{
+  "type": "manual_matchmaking",
+  "request_id": "MM-PROD-20260918-001",
+  "created_by": "chatgpt",
+  "dry_run": false,
+  "execute": true,
+  "target": "high",
+  "max_gap": 100,
+  "pairs": [
+    {
+      "club_a": "FoW Iron Horn Brigade",
+      "club_b": "Force of War VI",
+      "winner": "FoW Iron Horn Brigade",
+      "note": "Production execution after successful dry-run"
+    }
+  ]
+}
