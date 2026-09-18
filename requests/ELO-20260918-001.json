@@ -1,0 +1,59 @@
+{
+  "type": "elo_update",
+  "request_id": "ELO-20260918-001",
+  "created_by": "chatgpt",
+  "event_type": "WAR_REPORT",
+  "dry_run": false,
+  "execute": true,
+  "channel_set": "elo-update",
+  "clubs": [
+    {
+      "club": "Force of War IX",
+      "new_elo": 5749
+    },
+    {
+      "club": "FoW Encore Racoons",
+      "new_elo": 5596
+    },
+    {
+      "club": "FoW Stranger Things",
+      "new_elo": 5770
+    },
+    {
+      "club": "FoW Imperial Legacy",
+      "new_elo": 5636
+    },
+    {
+      "club": "FoW Diamond Dust",
+      "new_elo": 5738
+    },
+    {
+      "club": "FoW Sentinels",
+      "new_elo": 5583
+    },
+    {
+      "club": "FoW Ice Bears",
+      "new_elo": 5719
+    },
+    {
+      "club": "FoW Blue Crown",
+      "new_elo": 5571
+    },
+    {
+      "club": "Force Of War II",
+      "new_elo": 5661
+    },
+    {
+      "club": "FoW Bope",
+      "new_elo": 5596
+    },
+    {
+      "club": "FoW Eternal Wanderer 2",
+      "new_elo": 5696
+    },
+    {
+      "club": "FoW Firebirds",
+      "new_elo": 5562
+    }
+  ]
+}
