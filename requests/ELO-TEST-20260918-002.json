@@ -1,0 +1,14 @@
+{
+  "type": "elo_update",
+  "request_id": "ELO-TEST-20260918-002",
+  "created_by": "chatgpt",
+  "dry_run": true,
+  "execute": false,
+  "channel_set": "elo-update",
+  "clubs": [
+    {
+      "club": "Force of War IX",
+      "new_elo": 5749
+    }
+  ]
+}
