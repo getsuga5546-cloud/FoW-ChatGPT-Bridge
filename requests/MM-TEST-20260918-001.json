@@ -1,0 +1,17 @@
+{
+  "type": "manual_matchmaking",
+  "request_id": "MM-TEST-20260918-001",
+  "created_by": "chatgpt",
+  "dry_run": true,
+  "execute": false,
+  "target": "low",
+  "max_gap": 100,
+  "pairs": [
+    {
+      "club_a": "FoW Iron Horn Brigade",
+      "club_b": "Force of War VI",
+      "winner": "FoW Iron Horn Brigade",
+      "note": "Bridge header test only"
+    }
+  ]
+}
