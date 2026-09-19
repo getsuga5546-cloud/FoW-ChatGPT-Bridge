@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-19T16:35:44.148Z",
+  "generated_at": "2026-09-19T21:00:52.408Z",
   "count": 82,
   "clubs": [
     {
@@ -330,14 +330,14 @@
       "president": "shot 7"
     },
     {
+      "elo": 5216,
+      "club": "FoW Twin Essence",
+      "president": "X10"
+    },
+    {
       "elo": 5206,
       "club": "FoW Cheers!",
       "president": "Melo's Warehouse"
-    },
-    {
-      "elo": 5187,
-      "club": "FoW Twin Essence",
-      "president": "X10"
     },
     {
       "elo": 5183,
