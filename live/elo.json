@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-20T07:03:10.039Z",
+  "generated_at": "2026-09-20T07:46:12.104Z",
   "count": 82,
   "clubs": [
     {
@@ -350,6 +350,11 @@
       "president": "NightScorpion"
     },
     {
+      "elo": 5169,
+      "club": "The FoW Beach House",
+      "president": "MN 2"
+    },
+    {
       "elo": 5147,
       "club": "FoW Tutelaries",
       "president": "MN13"
@@ -358,11 +363,6 @@
       "elo": 5145,
       "club": "FoW Rocket Racoons",
       "president": "Queen Champ"
-    },
-    {
-      "elo": 5135,
-      "club": "The FoW Beach House",
-      "president": "MN 2"
     },
     {
       "elo": 5120,
