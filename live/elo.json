@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-20T17:21:55.881Z",
+  "generated_at": "2026-09-20T17:53:05.385Z",
   "count": 82,
   "clubs": [
     {
@@ -340,14 +340,14 @@
       "president": "Melo's Warehouse"
     },
     {
+      "elo": 5203,
+      "club": "FoW CodeX",
+      "president": "NightScorpion"
+    },
+    {
       "elo": 5183,
       "club": "FoW SunWings",
       "president": "X13"
-    },
-    {
-      "elo": 5175,
-      "club": "FoW CodeX",
-      "president": "NightScorpion"
     },
     {
       "elo": 5173,
