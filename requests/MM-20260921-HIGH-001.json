@@ -1,0 +1,59 @@
+{
+  "type": "manual_matchmaking",
+  "request_id": "MM-20260921-HIGH-001",
+  "created_by": "chatgpt",
+  "dry_run": false,
+  "execute": true,
+  "max_gap": 100,
+  "channel_set": "high",
+  "pairs": [
+    {
+      "club_a": "FoW Magslingers",
+      "club_b": "Force of War IV",
+      "winner": null,
+      "note": "FKR 25 vs FL 13 | ELO 6547 vs 6476 | gap 71"
+    },
+    {
+      "club_a": "FoW Empress Enclave",
+      "club_b": "FoW Royal Abattoir",
+      "winner": null,
+      "note": "Hot 2 vs Steakopolis | ELO 6468 vs 6374 | gap 94 | Strong cross match"
+    },
+    {
+      "club_a": "FoW Flower Garden",
+      "club_b": "FoW Jewelry Brigade",
+      "winner": null,
+      "note": "1445 vs BP-2 | ELO 6333 vs 6234 | gap 99 | Strong cross match"
+    },
+    {
+      "club_a": "FoW Iron Horn Brigade",
+      "club_b": "Force of War III",
+      "winner": null,
+      "note": "AK-131 vs Celestra | ELO 6286 vs 6232 | gap 54"
+    },
+    {
+      "club_a": "FoW Neverland",
+      "club_b": "Force of War VI",
+      "winner": null,
+      "note": "ASH2 vs Dec-2 | ELO 6270 vs 6203 | gap 67"
+    },
+    {
+      "club_a": "FoW Peace Keeper",
+      "club_b": "FoW Sentinels 4",
+      "winner": null,
+      "note": "Mahkota 2 vs Mrh 9 | ELO 6239 vs 6153 | gap 86 | Strong cross match"
+    },
+    {
+      "club_a": "FoW RingoRacoons",
+      "club_b": "FoW Fero's Legacy",
+      "winner": null,
+      "note": "SP-2 vs CranBerry | ELO 6232 vs 6147 | gap 85 | Strong cross match"
+    },
+    {
+      "club_a": "Force of War VIII",
+      "club_b": "FoW Warmonger Bulls",
+      "winner": null,
+      "note": "At-2 vs WarHawk | ELO 6129 vs 6098 | gap 31"
+    }
+  ]
+}
