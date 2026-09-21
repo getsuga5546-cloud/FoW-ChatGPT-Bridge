@@ -8843,6 +8843,7 @@ async function interpretHsConversationIntent(content, session) {
     `change_timer\n` +
     `start_event\n` +
     `end_event\n` +
+    `transition_event\n` +
     `show_event_stats\n` +
     `add_derby_club\n` +
     `remove_derby_club\n` +
@@ -8869,12 +8870,17 @@ async function interpretHsConversationIntent(content, session) {
     `  "timer_type": null,\n` +
     `  "requested_hours": null,\n` +
     `  "event_type": null,\n` +
+    `  "from_event": null,\n` +
+    `  "to_event": null,\n` +
     `  "reference_number": null,\n` +
     `  "requires_clarification": false,\n` +
     `  "clarification_question": null\n` +
     `}\n\n` +
 
     `Destination must be one of high, mid, low, additional, test, or null.\n` +
+    `Event values must be one of normal, lightning, grease, or null.\n` +
+    `If one message asks to close/end one event and start another event, use transition_event with from_event and to_event.\n` +
+    `Examples: close normal event and start lightning event => transition_event normal to lightning; close lightning and start grease event => transition_event lightning to grease; close grease and return to normal => transition_event grease to normal.\n` +
     `Do not treat ordinary conversation as an operational command.\n` +
     `A confirmation such as yes, ya, proceed, confirm, teruskan refers only to pendingAction from context.\n` +
     `A cancellation such as no, cancel, batal refers only to pendingAction from context.\n\n` +
@@ -8916,6 +8922,7 @@ async function interpretHsConversationIntent(content, session) {
       "change_timer",
       "start_event",
       "end_event",
+      "transition_event",
       "show_event_stats",
       "add_derby_club",
       "remove_derby_club",
@@ -9303,6 +9310,126 @@ function prepareHsConversationalDestination(message, destinationKey) {
       `Review the destination, then use the button below.\n\n` +
       `🔒 No Match ID created yet. No database changes.`
   };
+}
+
+// ============================================================
+// HS PHASE 6.1D — CONVERSATIONAL EVENT TRANSITION CONFIRMATION
+// Normal is represented by no active special event.
+// Reuses existing eventStore persistence; timer/War Monitor logic is untouched.
+// ============================================================
+const hsEventTransitionDrafts = new Map();
+const HS_EVENT_TRANSITION_TTL_MS = 10 * 60 * 1000;
+
+function normalizeHsEventMode(value) {
+  const v = String(value || "").trim().toLowerCase();
+  if (!v) return null;
+  if (/^normal$/.test(v)) return "normal";
+  if (/^lightning$/.test(v)) return "lightning";
+  if (/^(?:grease|grease lightning)$/.test(v)) return "grease";
+  return null;
+}
+
+function hsEventModeLabel(mode) {
+  if (mode === "grease") return "GREASE LIGHTNING";
+  if (mode === "lightning") return "LIGHTNING";
+  return "NORMAL";
+}
+
+function cleanupHsEventTransitionDrafts() {
+  const now = Date.now();
+  for (const [id, draft] of hsEventTransitionDrafts.entries()) {
+    if (!draft || now - Number(draft.updatedAt || draft.createdAt || 0) > HS_EVENT_TRANSITION_TTL_MS) {
+      hsEventTransitionDrafts.delete(id);
+    }
+  }
+}
+
+function prepareHsEventTransition(message, intent) {
+  cleanupHsEventTransitionDrafts();
+  autoExpireActiveEvent();
+
+  const currentMode = getNaturalControlOperationalMode();
+  const requestedFrom = normalizeHsEventMode(intent?.from_event);
+  const requestedTo = normalizeHsEventMode(intent?.to_event || intent?.event_type);
+
+  if (!requestedTo) {
+    return { ok:false, response:"❓ **HS needs clarification**\n\nWhich event should start next: **Normal**, **Lightning**, or **Grease Lightning**?\n\n🔒 No production data changed.", components:[] };
+  }
+
+  if (requestedFrom && requestedFrom !== currentMode) {
+    return {
+      ok:false,
+      response:`⚠️ **Event state changed / mismatch**\n\nCurrent production mode: **${hsEventModeLabel(currentMode)}**\nRequested transition starts from: **${hsEventModeLabel(requestedFrom)}**\n\nPlease send the event transition again using the current mode.\n\n🔒 No production data changed.`,
+      components:[]
+    };
+  }
+
+  if (requestedTo === currentMode) {
+    return { ok:false, response:`ℹ️ **${hsEventModeLabel(currentMode)}** is already the current event mode.\n\n🔒 No production data changed.`, components:[] };
+  }
+
+  const id = `HSEV-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`;
+  const draft = {
+    id,
+    userId:String(message.author.id),
+    guildId:String(message.guildId || ""),
+    channelId:String(message.channelId || ""),
+    fromMode:currentMode,
+    toMode:requestedTo,
+    createdAt:Date.now(),
+    updatedAt:Date.now()
+  };
+  hsEventTransitionDrafts.set(id,draft);
+
+  const components=[new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`hsev_confirm:${id}`).setLabel("CONFIRM EVENT CHANGE").setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`hsev_cancel:${id}`).setLabel("CANCEL").setStyle(ButtonStyle.Danger)
+  )];
+
+  return {
+    ok:true,draft,components,
+    response:
+      `⚡ **HS Event Control — Confirmation Required**\n\n` +
+      `Current: **${hsEventModeLabel(currentMode)}**\n` +
+      `Requested:\n1. Close **${hsEventModeLabel(currentMode)}**\n2. Start **${hsEventModeLabel(requestedTo)}**\n\n` +
+      `⚠️ This will change the active production event.\n` +
+      `Timer and War Monitor logic will not be modified by this action.\n\n` +
+      `🔒 No production data changed yet.`
+  };
+}
+
+async function applyHsEventTransition(draft, userId) {
+  autoExpireActiveEvent();
+  const currentMode=getNaturalControlOperationalMode();
+  if (currentMode !== draft.fromMode) {
+    return {ok:false,message:`❌ Event mode changed before confirmation. Current mode is **${hsEventModeLabel(currentMode)}**. Nothing was changed.`};
+  }
+
+  const ended=getActiveEvent();
+  let endedSummary=null;
+  if (ended) {
+    endedSummary=buildEventSummary(ended);
+    endedSummary.completedAt=Date.now();
+    eventStore.summaries.push(endedSummary);
+    eventStore.active=null;
+  }
+
+  if (draft.toMode !== "normal") {
+    const now=Date.now();
+    const days=eventDurationDays(draft.toMode);
+    eventStore.active={
+      id:`EV${now.toString(36).toUpperCase()}`,
+      type:draft.toMode,
+      name:draft.toMode==="grease"?"Grease Lightning":"Lightning",
+      status:"active",
+      startAt:now,
+      endAt:now+days*86400000,
+      createdBy:String(userId)
+    };
+  }
+
+  await saveEventStoreNow();
+  return {ok:true,ended,endedSummary,active:getActiveEvent(),toMode:draft.toMode};
 }
 
 const NATURAL_CONTROL_TTL_MS = 30 * 60 * 1000;
@@ -13595,6 +13722,35 @@ client.on(
                 `🔒 No production data changed.`;
 
             } else if (
+              hsConversationIntent.intent === "transition_event" ||
+              hsConversationIntent.intent === "start_event" ||
+              hsConversationIntent.intent === "end_event"
+            ) {
+              let eventIntent = hsConversationIntent;
+
+              if (hsConversationIntent.intent === "start_event") {
+                eventIntent = {
+                  ...hsConversationIntent,
+                  from_event: getNaturalControlOperationalMode(),
+                  to_event: hsConversationIntent.event_type
+                };
+              } else if (hsConversationIntent.intent === "end_event") {
+                eventIntent = {
+                  ...hsConversationIntent,
+                  from_event: getNaturalControlOperationalMode(),
+                  to_event: "normal"
+                };
+              }
+
+              const eventResult = prepareHsEventTransition(message,eventIntent);
+              response=eventResult.response;
+              if (eventResult.components?.length) hsReplyComponents=eventResult.components;
+              if (eventResult.ok) {
+                hsConversation.pendingAction={type:"event_transition",draftId:eventResult.draft.id};
+                hsConversation.updatedAt=Date.now();
+              }
+
+            } else if (
               hsConversationIntent.intent === "set_destination"
             ) {
               const destinationResult =
@@ -14535,7 +14691,63 @@ New: **${op.club}**
           ""
         );
 
-      if(customId.startsWith('match_cancel_request:')){
+      if(customId.startsWith('hsev_confirm:') || customId.startsWith('hsev_cancel:')){
+        cleanupHsEventTransitionDrafts();
+        const [action,draftId]=customId.split(':');
+        const draft=hsEventTransitionDrafts.get(draftId);
+
+        if(!draft){
+          await interaction.reply({content:"❌ This event confirmation has expired. Send the event request again.",flags:MessageFlags.Ephemeral}).catch(()=>{});
+          return;
+        }
+        if(String(interaction.user.id)!==String(draft.userId)){
+          await interaction.reply({content:"❌ Only the user who requested this event change can confirm it.",flags:MessageFlags.Ephemeral}).catch(()=>{});
+          return;
+        }
+        if(draft.guildId && String(interaction.guildId||"")!==String(draft.guildId)){
+          await interaction.reply({content:"❌ This event confirmation belongs to another server.",flags:MessageFlags.Ephemeral}).catch(()=>{});
+          return;
+        }
+
+        if(action==='hsev_cancel'){
+          hsEventTransitionDrafts.delete(draftId);
+          await interaction.update({content:`❌ **Event change cancelled**\n\n${hsEventModeLabel(draft.fromMode)} remains unchanged.\n🔒 No production event data changed.`,components:[]});
+          return;
+        }
+
+        try{
+          await interaction.deferUpdate();
+          const result=await applyHsEventTransition(draft,interaction.user.id);
+          hsEventTransitionDrafts.delete(draftId);
+          if(!result.ok){
+            await interaction.editReply({content:result.message,components:[]});
+            return;
+          }
+
+          const active=result.active;
+          const detail=active
+            ? `\nDuration: **${eventDurationDays(result.toMode)} days**\n${result.toMode==='grease'?'Preparation: **None**\nKO: **2 hours**':'Preparation: **6 hours**\nKO: **2 hours**'}`
+            : `\nMode: **NORMAL**`;
+
+          await interaction.editReply({
+            content:
+              `✅ **EVENT TRANSITION COMPLETE**\n\n` +
+              `Closed: **${hsEventModeLabel(draft.fromMode)}**\n` +
+              `Started: **${hsEventModeLabel(draft.toMode)}**` +
+              detail +
+              `\n\n☁️ **Event state synchronized with Supabase.**`,
+            components:[]
+          });
+          return;
+        }catch(error){
+          console.error("❌ HS event transition failed:",error);
+          hsEventTransitionDrafts.delete(draftId);
+          try{await interaction.editReply({content:"❌ Event transition failed. Production state was not intentionally advanced further; check logs before retrying.",components:[]});}catch{}
+          return;
+        }
+      }
+
+            if(customId.startsWith('match_cancel_request:')){
         const id=normalizeMatchId(customId.split(':')[1]);
         const plan=getMatchPlan(id);
 
