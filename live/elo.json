@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-21T19:40:10.423Z",
+  "generated_at": "2026-09-21T20:25:51.109Z",
   "count": 82,
   "clubs": [
     {
@@ -30,89 +30,89 @@
       "president": "Skorvazon"
     },
     {
-      "elo": 6547,
+      "elo": 6576,
       "club": "FoW Magslingers",
       "president": "FKR 25"
     },
     {
-      "elo": 6476,
-      "club": "Force of War IV",
-      "president": "FL 13"
-    },
-    {
-      "elo": 6468,
+      "elo": 6496,
       "club": "FoW Empress Enclave",
       "president": "Hot 2"
     },
     {
-      "elo": 6374,
-      "club": "FoW Royal Abattoir",
-      "president": "Steakopolis"
+      "elo": 6447,
+      "club": "Force of War IV",
+      "president": "FL 13"
     },
     {
-      "elo": 6333,
+      "elo": 6361,
       "club": "FoW Flower Garden",
       "president": "1445"
     },
     {
-      "elo": 6286,
+      "elo": 6346,
+      "club": "FoW Royal Abattoir",
+      "president": "Steakopolis"
+    },
+    {
+      "elo": 6316,
       "club": "FoW Iron Horn Brigade",
       "president": "AK-131"
     },
     {
-      "elo": 6270,
+      "elo": 6299,
       "club": "FoW Neverland",
       "president": "ASH2"
     },
     {
-      "elo": 6239,
+      "elo": 6267,
       "club": "FoW Peace Keeper",
       "president": "Mahkota 2"
     },
     {
-      "elo": 6234,
-      "club": "FoW Jewelry Brigade",
-      "president": "BP-2"
-    },
-    {
-      "elo": 6232,
+      "elo": 6260,
       "club": "FoW RingoRacoons",
       "president": "SP-2"
     },
     {
-      "elo": 6232,
+      "elo": 6206,
+      "club": "FoW Jewelry Brigade",
+      "president": "BP-2"
+    },
+    {
+      "elo": 6202,
       "club": "Force of War III",
       "president": "Celestra"
     },
     {
-      "elo": 6203,
+      "elo": 6174,
       "club": "Force of War VI",
       "president": "Dec-2"
     },
     {
-      "elo": 6153,
-      "club": "FoW Sentinels 4",
-      "president": "Mrh 9"
-    },
-    {
-      "elo": 6147,
-      "club": "FoW Fero's Legacy",
-      "president": "CranBerry"
-    },
-    {
-      "elo": 6129,
+      "elo": 6160,
       "club": "Force of War VIII",
       "president": "At-2"
     },
     {
-      "elo": 6098,
-      "club": "FoW Warmonger Bulls",
-      "president": "WarHawk"
+      "elo": 6125,
+      "club": "FoW Sentinels 4",
+      "president": "Mrh 9"
+    },
+    {
+      "elo": 6119,
+      "club": "FoW Fero's Legacy",
+      "president": "CranBerry"
     },
     {
       "elo": 6078,
       "club": "FoW RascalRacoons",
       "president": "Mercury"
+    },
+    {
+      "elo": 6067,
+      "club": "FoW Warmonger Bulls",
+      "president": "WarHawk"
     },
     {
       "elo": 6064,
