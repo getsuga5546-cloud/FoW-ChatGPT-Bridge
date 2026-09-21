@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-20T17:53:05.385Z",
+  "generated_at": "2026-09-21T01:19:52.103Z",
   "count": 82,
   "clubs": [
     {
@@ -360,6 +360,11 @@
       "president": "MN 2"
     },
     {
+      "elo": 5149,
+      "club": "FoW Trailblazers",
+      "president": "Jan 3"
+    },
+    {
       "elo": 5147,
       "club": "FoW Tutelaries",
       "president": "MN13"
@@ -368,11 +373,6 @@
       "elo": 5120,
       "club": "FoW Sweet Garden",
       "president": "PawStormX"
-    },
-    {
-      "elo": 5114,
-      "club": "FoW Trailblazers",
-      "president": "Jan 3"
     },
     {
       "elo": 4896,
