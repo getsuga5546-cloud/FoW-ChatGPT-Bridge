@@ -11535,13 +11535,13 @@ client.on(
     // Test channel only • Mention only • Read only
     // ============================================================
     const HS_TEST_CHANNEL_ID = "1256056255890587648";
-    const HS_EXCLUDED_CHANNEL_ID = "1551275848663826593";
 
     const HS_NO_MENTION_CHANNEL_IDS = new Set([
       "1551169287962628157",
       "1551169775714041887",
       "1551169605056209018",
-      "1551170391387406356"
+      "1551170391387406356",
+      "1551275848663826593"
     ]);
 
     const hsNoMentionChannel =
@@ -11553,17 +11553,12 @@ client.on(
     const hsDiscordMention =
       client.user &&
       message.mentions?.users?.has(client.user.id);
-    const hsExcludedChannel = String(message.channelId) === HS_EXCLUDED_CHANNEL_ID;
-
     if (
-      !hsExcludedChannel &&
       (
-        (
-          String(message.channelId) === HS_TEST_CHANNEL_ID &&
-          (hsLiteralMention || hsDiscordMention)
-        ) ||
-        hsNoMentionChannel
-      )
+        String(message.channelId) === HS_TEST_CHANNEL_ID &&
+        (hsLiteralMention || hsDiscordMention)
+      ) ||
+      hsNoMentionChannel
     ) {
       try {
         const cleaned = content
