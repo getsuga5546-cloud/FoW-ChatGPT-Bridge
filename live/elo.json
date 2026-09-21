@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-21T18:07:56.444Z",
+  "generated_at": "2026-09-21T19:40:10.423Z",
   "count": 82,
   "clubs": [
     {
@@ -110,59 +110,54 @@
       "president": "WarHawk"
     },
     {
-      "elo": 6049,
+      "elo": 6078,
       "club": "FoW RascalRacoons",
       "president": "Mercury"
     },
     {
-      "elo": 6034,
+      "elo": 6064,
       "club": "FoW Eternal Crown",
       "president": "MY-6"
     },
     {
-      "elo": 5989,
+      "elo": 6018,
       "club": "FoW Berserker",
       "president": "11.25"
     },
     {
-      "elo": 5980,
+      "elo": 5950,
       "club": "FoW Icebears Drei",
       "president": "MRH2"
     },
     {
-      "elo": 5978,
+      "elo": 5949,
       "club": "Force Of War VII",
       "president": "Aug-2"
     },
     {
-      "elo": 5915,
+      "elo": 5886,
       "club": "FoW Adeptus Astartes",
       "president": "Issac 27"
     },
     {
-      "elo": 5840,
+      "elo": 5868,
       "club": "FoW Hellblade",
       "president": "Auralis"
     },
     {
-      "elo": 5835,
+      "elo": 5864,
       "club": "FoW Regalia Realms",
       "president": "CoCoa Peeble"
     },
     {
-      "elo": 5820,
+      "elo": 5851,
       "club": "FoW Neverland II",
       "president": "Ash-13"
     },
     {
-      "elo": 5799,
+      "elo": 5768,
       "club": "FoW Stranger Things",
       "president": "Achernar"
-    },
-    {
-      "elo": 5777,
-      "club": "Force of War IX",
-      "president": "Uranium"
     },
     {
       "elo": 5761,
@@ -170,19 +165,24 @@
       "president": "n28.10 Oolong"
     },
     {
-      "elo": 5747,
-      "club": "FoW Ice Bears",
-      "president": "July-1"
+      "elo": 5748,
+      "club": "Force of War IX",
+      "president": "Uranium"
     },
     {
-      "elo": 5708,
+      "elo": 5736,
       "club": "FoW Diamond Dust",
       "president": "IRIS-3"
     },
     {
-      "elo": 5667,
-      "club": "FoW Eternal Wanderer 2",
-      "president": "764"
+      "elo": 5719,
+      "club": "FoW Ice Bears",
+      "president": "July-1"
+    },
+    {
+      "elo": 5655,
+      "club": "FoW Encore Racoons",
+      "president": "Wn-3"
     },
     {
       "elo": 5654,
@@ -195,6 +195,11 @@
       "president": "Mahkota 3"
     },
     {
+      "elo": 5639,
+      "club": "FoW Eternal Wanderer 2",
+      "president": "764"
+    },
+    {
       "elo": 5633,
       "club": "Force Of War II",
       "president": "BarBerry"
@@ -205,19 +210,14 @@
       "president": "QC-1"
     },
     {
-      "elo": 5624,
-      "club": "FoW Encore Racoons",
-      "president": "Wn-3"
-    },
-    {
-      "elo": 5611,
-      "club": "FoW Eternal Wanderer ",
-      "president": "42 Ingot"
-    },
-    {
-      "elo": 5608,
+      "elo": 5580,
       "club": "FoW Imperial Legacy",
       "president": "May 2"
+    },
+    {
+      "elo": 5580,
+      "club": "FoW Eternal Wanderer ",
+      "president": "42 Ingot"
     },
     {
       "elo": 5520,
