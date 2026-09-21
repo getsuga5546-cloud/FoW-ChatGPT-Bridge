@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-21T20:38:49.223Z",
+  "generated_at": "2026-09-21T23:00:26.769Z",
   "count": 82,
   "clubs": [
     {
@@ -155,14 +155,14 @@
       "president": "Ash-13"
     },
     {
+      "elo": 5789,
+      "club": "Twist Of Fate",
+      "president": "n28.10 Oolong"
+    },
+    {
       "elo": 5768,
       "club": "FoW Stranger Things",
       "president": "Achernar"
-    },
-    {
-      "elo": 5761,
-      "club": "Twist Of Fate",
-      "president": "n28.10 Oolong"
     },
     {
       "elo": 5748,
