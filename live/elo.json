@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-21T01:19:52.103Z",
+  "generated_at": "2026-09-21T01:54:40.685Z",
   "count": 82,
   "clubs": [
     {
@@ -330,6 +330,11 @@
       "president": "X10"
     },
     {
+      "elo": 5215,
+      "club": "FoW SunWings",
+      "president": "X13"
+    },
+    {
       "elo": 5211,
       "club": "FoW Shooters",
       "president": "shot 7"
@@ -343,11 +348,6 @@
       "elo": 5203,
       "club": "FoW CodeX",
       "president": "NightScorpion"
-    },
-    {
-      "elo": 5183,
-      "club": "FoW SunWings",
-      "president": "X13"
     },
     {
       "elo": 5173,
