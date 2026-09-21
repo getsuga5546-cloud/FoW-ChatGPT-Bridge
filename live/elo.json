@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-21T01:54:40.685Z",
+  "generated_at": "2026-09-21T18:07:56.444Z",
   "count": 82,
   "clubs": [
     {
@@ -185,24 +185,29 @@
       "president": "764"
     },
     {
+      "elo": 5654,
+      "club": "FoW Bope",
+      "president": "Issac 32"
+    },
+    {
+      "elo": 5641,
+      "club": "FoW Sentinels",
+      "president": "Mahkota 3"
+    },
+    {
       "elo": 5633,
       "club": "Force Of War II",
       "president": "BarBerry"
     },
     {
-      "elo": 5626,
-      "club": "FoW Bope",
-      "president": "Issac 32"
+      "elo": 5632,
+      "club": "FoW Blue Crown",
+      "president": "QC-1"
     },
     {
       "elo": 5624,
       "club": "FoW Encore Racoons",
       "president": "Wn-3"
-    },
-    {
-      "elo": 5613,
-      "club": "FoW Sentinels",
-      "president": "Mahkota 3"
     },
     {
       "elo": 5611,
@@ -215,29 +220,14 @@
       "president": "May 2"
     },
     {
-      "elo": 5603,
-      "club": "FoW Blue Crown",
-      "president": "QC-1"
-    },
-    {
-      "elo": 5535,
-      "club": "FoW Soul Guard",
-      "president": "June 2"
-    },
-    {
-      "elo": 5532,
-      "club": "FoW Firebirds",
-      "president": "Altair"
-    },
-    {
       "elo": 5520,
       "club": "FoW Synédrion Xenon",
       "president": "Jan 9"
     },
     {
-      "elo": 5515,
-      "club": "FoW Minotaurs",
-      "president": "Pricess Melo"
+      "elo": 5506,
+      "club": "FoW Soul Guard",
+      "president": "June 2"
     },
     {
       "elo": 5506,
@@ -246,8 +236,23 @@
     },
     {
       "elo": 5504,
+      "club": "FoW Firebirds",
+      "president": "Altair"
+    },
+    {
+      "elo": 5504,
       "club": "FoW S34h3hs77u2h",
       "president": "s76 Honeysuckle"
+    },
+    {
+      "elo": 5487,
+      "club": "FoW Minotaurs",
+      "president": "Pricess Melo"
+    },
+    {
+      "elo": 5485,
+      "club": "FoW Space Sheep",
+      "president": "Navy"
     },
     {
       "elo": 5479,
@@ -255,17 +260,12 @@
       "president": "Mahkota 5"
     },
     {
-      "elo": 5457,
-      "club": "FoW Space Sheep",
-      "president": "Navy"
-    },
-    {
-      "elo": 5434,
+      "elo": 5462,
       "club": "FoW Eternal Wanderer 3",
       "president": "Ingot Landing"
     },
     {
-      "elo": 5421,
+      "elo": 5449,
       "club": "FoW Bartenders",
       "president": "FL-2"
     },
@@ -273,11 +273,6 @@
       "elo": 5369,
       "club": "Road to FoW",
       "president": "NightBloom"
-    },
-    {
-      "elo": 5359,
-      "club": "FoW IceBears Deux",
-      "president": "IBS 8"
     },
     {
       "elo": 5358,
@@ -295,12 +290,17 @@
       "president": "Hokusai 20"
     },
     {
-      "elo": 5337,
+      "elo": 5331,
+      "club": "FoW IceBears Deux",
+      "president": "IBS 8"
+    },
+    {
+      "elo": 5309,
       "club": "FoW Soul Society",
       "president": "Amethys"
     },
     {
-      "elo": 5329,
+      "elo": 5301,
       "club": "FoW Sentinels 5",
       "president": "S5 Prez"
     },
