@@ -1,0 +1,46 @@
+# Secrets / environment
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Bot backups / archives
+bot.js.backup*
+bot.js.backup-*
+bot-v75-*.js
+backup-*/
+*.zip
+
+# Database / runtime state
+elo_database.json
+elo_database_default.json
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs / PM2
+*.log
+logs/
+.pm2/
+
+# Temporary / editor / OS
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Certificates / private keys
+*.pem
+*.key
+*.crt
+
+# Production runtime / persistent state
+deploy-backups/
+derby_config.json
+elo_database_backup.json
+fow_matchmaking_sessions.json
+fow_timer_setup_sessions.json
+fow_timers.json
+push_reminders.json
