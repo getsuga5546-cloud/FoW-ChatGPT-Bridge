@@ -306,6 +306,23 @@ function saveDatabase() {
       );
     }
 
+    // Lightning research collector is observational only. It compares the
+    // previous live file with the new in-memory database before overwrite.
+    // Collector failure must NEVER block the production ELO save.
+    try {
+      const previousLive = fs.existsSync(DATABASE_FILE)
+        ? loadJsonDatabase(DATABASE_FILE)
+        : [];
+      recordLightningEloChanges(previousLive, leaderboardData, {
+        source: "database_save"
+      });
+    } catch (collectorError) {
+      console.error(
+        "⚠️ Lightning ELO collector failed; production save continues:",
+        collectorError?.message || collectorError
+      );
+    }
+
     // Overwrite LIVE database with latest data.
     fs.writeFileSync(
       DATABASE_FILE,
@@ -6410,6 +6427,65 @@ app.get(
   }
 );
 
+// Lightning research read-only APIs. Same Bearer token as /bridge/read/elo.
+// Optional ?event_id=... allows completed Lightning datasets to be queried.
+app.get(
+  "/bridge/read/lightning/history",
+  requireChatgptReadAuth,
+  (req, res) => {
+    const eventId = getLightningResearchEventId(req);
+    const observations = getLightningResearchObservations(eventId);
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      ok: true,
+      source: "fow-production",
+      timestamp: new Date().toISOString(),
+      event_id: eventId,
+      count: observations.length,
+      observations
+    });
+  }
+);
+
+app.get(
+  "/bridge/read/lightning/snapshot",
+  requireChatgptReadAuth,
+  (req, res) => {
+    const eventId = getLightningResearchEventId(req);
+    const baseline = eventId
+      ? lightningResearch.baselines?.[eventId] || null
+      : null;
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      ok: true,
+      source: "fow-production",
+      timestamp: new Date().toISOString(),
+      event_id: eventId,
+      baseline
+    });
+  }
+);
+
+app.get(
+  "/bridge/read/lightning/matches",
+  requireChatgptReadAuth,
+  (req, res) => {
+    const eventId = getLightningResearchEventId(req);
+    const plans = eventId
+      ? [...matchPlans.values()].filter(plan => plan?.eventId === eventId)
+      : [];
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      ok: true,
+      source: "fow-production",
+      timestamp: new Date().toISOString(),
+      event_id: eventId,
+      count: plans.length,
+      match_plans: plans
+    });
+  }
+);
+
 app.use(requireLeaderboardAuth);
 
 // MAIN LEADERBOARD
@@ -10506,6 +10582,7 @@ async function restoreRuntimeStateFromSupabaseBeforeDiscordStart() {
   await restoreMatchPlansFromSupabase();
   await restoreEventStoreFromSupabase();
   await restoreWarOperationsFromSupabase();
+  await restoreLightningResearchState();
 
   await restoreSupabaseRuntimeStateToLocalFiles();
 
@@ -10703,6 +10780,204 @@ function bridgeMatchmakingTargetRoute(payload, validPairs) {
   if (key === "mid") return { key, label: "MID SET (5600-5899)", channelId: CHATGPT_BRIDGE_MATCH_MID_CHANNEL_ID, explicit: true };
   if (key === "low") return { key, label: "LOW SET (5200-5599)", channelId: CHATGPT_BRIDGE_MATCH_LOW_CHANNEL_ID, explicit: true };
   return { key: "additional", label: "ADDITIONAL / CROSS-RANGE", channelId: CHATGPT_BRIDGE_MATCH_ADDITIONAL_CHANNEL_ID, explicit: true };
+}
+
+// ============================================================
+// LIGHTNING ELO RESEARCH COLLECTOR — Phase 1
+// ============================================================
+// Append-only observational layer for the active Lightning event.
+// It never changes matchmaking, timers, War Monitor, or ELO calculations.
+// Production ELO saves continue even if this collector cannot persist.
+const LIGHTNING_RESEARCH_STATE_KEY = "lightning_elo_research_v1";
+const LIGHTNING_RESEARCH_MAX_OBSERVATIONS = 20000;
+let lightningResearch = {
+  schema_version: 1,
+  baselines: {},
+  observations: []
+};
+
+function lightningActiveEvent() {
+  const ev = getActiveEvent();
+  return ev && String(ev.type || "").toLowerCase() === "lightning" ? ev : null;
+}
+
+function lightningEventSnapshot(event) {
+  return {
+    event_id: event.id,
+    event_type: "lightning",
+    event_name: event.name || "Lightning",
+    event_start_at: Number(event.startAt) || null,
+    event_end_at: Number(event.endAt) || null,
+    captured_at: new Date().toISOString(),
+    full_database: getSortedLeaderboard().map(item => ({
+      club: item.club,
+      president: item.president || "",
+      elo: Number(item.elo) || 0
+    })),
+    derby_database: getDerbyLeaderboard().map(item => ({
+      club: item.club,
+      president: item.president || "",
+      elo: Number(item.elo) || 0
+    })),
+    derby_excluded_clubs: [...derbyExcludedClubs]
+  };
+}
+
+function queueLightningResearchSave() {
+  try {
+    queueSupabaseStateSave(LIGHTNING_RESEARCH_STATE_KEY, lightningResearch);
+  } catch (error) {
+    console.error("⚠️ Lightning research persistence queue failed:", error?.message || error);
+  }
+}
+
+function ensureLightningBaseline() {
+  const event = lightningActiveEvent();
+  if (!event) return null;
+  if (!lightningResearch.baselines || typeof lightningResearch.baselines !== "object") {
+    lightningResearch.baselines = {};
+  }
+  if (!lightningResearch.baselines[event.id]) {
+    lightningResearch.baselines[event.id] = lightningEventSnapshot(event);
+    queueLightningResearchSave();
+    console.log(
+      `⚡ Lightning research baseline captured • event=${event.id} • full=${leaderboardData.length} • derby=${getDerbyLeaderboard().length}`
+    );
+  }
+  return lightningResearch.baselines[event.id];
+}
+
+function inferLightningMatchLink(eventId, clubName) {
+  try {
+    const candidates = [];
+    for (const plan of matchPlans.values()) {
+      if (!plan || plan.eventId !== eventId || !Array.isArray(plan.clubs)) continue;
+      const clubEntry = plan.clubs.find(item =>
+        areEquivalentClubNames(item?.club, clubName)
+      );
+      if (!clubEntry) continue;
+      const pairNo = Number(clubEntry.pairNo);
+      const opponentEntry = plan.clubs.find(item =>
+        Number(item?.pairNo) === pairNo &&
+        !areEquivalentClubNames(item?.club, clubName)
+      );
+      candidates.push({
+        match_id: plan.id || null,
+        pair_no: Number.isInteger(pairNo) ? pairNo : null,
+        opponent: opponentEntry?.club || null,
+        opponent_elo_before: Number.isFinite(Number(opponentEntry?.elo))
+          ? Number(opponentEntry.elo)
+          : null,
+        plan_created_at: Number(plan.createdAt) || 0
+      });
+    }
+    candidates.sort((a, b) => b.plan_created_at - a.plan_created_at);
+    return candidates[0] || null;
+  } catch {
+    return null;
+  }
+}
+
+function recordLightningEloChanges(beforeData, afterData, meta = {}) {
+  const event = lightningActiveEvent();
+  if (!event) return 0;
+
+  ensureLightningBaseline();
+
+  const beforeMap = new Map(
+    (Array.isArray(beforeData) ? beforeData : []).map(item => [
+      normalizeClubName(item?.club),
+      item
+    ])
+  );
+  const timestamp = new Date().toISOString();
+  let added = 0;
+
+  for (const current of (Array.isArray(afterData) ? afterData : [])) {
+    const previous = beforeMap.get(normalizeClubName(current?.club));
+    if (!previous) continue;
+    const eloBefore = Number(previous.elo);
+    const eloAfter = Number(current.elo);
+    if (!Number.isFinite(eloBefore) || !Number.isFinite(eloAfter) || eloBefore === eloAfter) continue;
+
+    const link = inferLightningMatchLink(event.id, current.club);
+    const opponentEloBefore = link?.opponent_elo_before ?? null;
+    const gapBefore = opponentEloBefore == null
+      ? null
+      : Math.abs(eloBefore - opponentEloBefore);
+
+    lightningResearch.observations.push({
+      observation_id:
+        `${event.id}:${Date.now()}:${normalizeClubName(current.club)}:${lightningResearch.observations.length}`,
+      event_id: event.id,
+      event_type: "lightning",
+      timestamp,
+      club: current.club,
+      president: current.president || previous.president || "",
+      elo_before: eloBefore,
+      elo_after: eloAfter,
+      delta: eloAfter - eloBefore,
+      direction: eloAfter > eloBefore ? "GAIN" : "LOSS",
+      match_id: link?.match_id || null,
+      pair_no: link?.pair_no || null,
+      opponent: link?.opponent || null,
+      opponent_elo_before: opponentEloBefore,
+      gap_before: gapBefore,
+      elo_position_before:
+        opponentEloBefore == null ? null :
+        eloBefore > opponentEloBefore ? "HIGHER" :
+        eloBefore < opponentEloBefore ? "LOWER" : "EQUAL",
+      link_status: link?.match_id ? "AUTO_LINKED" : "UNMATCHED",
+      source: String(meta.source || "database_save")
+    });
+    added += 1;
+  }
+
+  if (added) {
+    lightningResearch.observations =
+      lightningResearch.observations.slice(-LIGHTNING_RESEARCH_MAX_OBSERVATIONS);
+    queueLightningResearchSave();
+    console.log(
+      `⚡ Lightning ELO collector • event=${event.id} • observations_added=${added} • total=${lightningResearch.observations.length}`
+    );
+  }
+  return added;
+}
+
+async function restoreLightningResearchState() {
+  try {
+    const remote = await loadSupabaseState(LIGHTNING_RESEARCH_STATE_KEY);
+    if (remote && typeof remote === "object" && !Array.isArray(remote)) {
+      lightningResearch = {
+        schema_version: 1,
+        baselines:
+          remote.baselines && typeof remote.baselines === "object"
+            ? remote.baselines
+            : {},
+        observations: Array.isArray(remote.observations)
+          ? remote.observations.slice(-LIGHTNING_RESEARCH_MAX_OBSERVATIONS)
+          : []
+      };
+    }
+    ensureLightningBaseline();
+    console.log(
+      `⚡ Lightning research restored • observations=${lightningResearch.observations.length} • baselines=${Object.keys(lightningResearch.baselines || {}).length}`
+    );
+  } catch (error) {
+    console.error("⚠️ Lightning research restore failed:", error?.message || error);
+  }
+}
+
+function getLightningResearchEventId(req) {
+  const requested = String(req?.query?.event_id || "").trim();
+  if (requested) return requested;
+  return lightningActiveEvent()?.id || null;
+}
+
+function getLightningResearchObservations(eventId) {
+  return (lightningResearch.observations || []).filter(
+    row => !eventId || row?.event_id === eventId
+  );
 }
 
 let chatgptBridgeProcessed = {};
