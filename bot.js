@@ -13015,7 +13015,10 @@ client.on(
           /isolation|isolated|isolate|\\bstatus\\b|\\bcheck\\b/.test(q)
         ) {
           // HS-03: LIVE READ-ONLY isolation / war status lookup.
-          // Find the longest known club name mentioned in the user's text.
+          // Supports both a single-club lookup and a live list of all clubs
+          // currently unavailable to matchmaking.
+          reloadLatestDatabase();
+
           const qNorm = normalizeClubName(q);
 
           const mentionedClub = (leaderboardData || [])
@@ -13027,13 +13030,72 @@ client.on(
             .filter(c => c._norm && qNorm.includes(c._norm))
             .sort((a, b) => b._norm.length - a._norm.length)[0] || null;
 
-          if (!mentionedClub) {
+          const hsIsolationListRequest =
+            !mentionedClub &&
+            /\\b(?:list|show|send|which|what|all|clubs?)\\b/i.test(q) &&
+            /\\b(?:isolation|isolated|isolate|unavailable)\\b/i.test(q);
+
+          if (hsIsolationListRequest) {
+            const isolatedClubs = (leaderboardData || [])
+              .filter(item =>
+                item?.club &&
+                !isClubMatchmakingAvailable(item.club)
+              )
+              .map(item => {
+                const op = getWarOperation(item.club);
+                const clubKey = normalizeClubName(item.club);
+                const timer = (activeFowTimers || []).find(t =>
+                  !['completed', 'cancelled'].includes(
+                    String(t?.status || '').toLowerCase()
+                  ) &&
+                  t?.sent?.end !== true &&
+                  Array.isArray(t?.clubs) &&
+                  t.clubs.some(c =>
+                    normalizeClubName(c?.club) === clubKey
+                  )
+                );
+
+                const state = op?.status
+                  ? warStateLabel(op.status)
+                  : timer
+                    ? String(timer.type || timer.timerType || 'TIMER ISOLATED')
+                    : 'ISOLATED';
+
+                return {
+                  club: item.club,
+                  elo: Number(item.elo) || 0,
+                  state
+                };
+              })
+              .sort(
+                (a, b) =>
+                  b.elo - a.elo ||
+                  a.club.localeCompare(b.club)
+              );
+
+            const isolationLines = isolatedClubs.map(
+              (item, index) =>
+                `${index + 1}. **${item.club}** (${item.elo}) — ${item.state}`
+            );
+
+            response =
+              `🚫 **HS Live Isolation List**\n\n` +
+              (
+                isolationLines.length
+                  ? isolationLines.join("\n")
+                  : "No clubs are currently isolated."
+              ) +
+              `\n\nTotal Isolated: **${isolatedClubs.length}**\n\n` +
+              `🔒 Live operational state • Read-only`;
+
+          } else if (!mentionedClub) {
             response =
               `🚫 **Live Isolation Status**\n\n` +
               `I couldn't identify a club name from your message.\n\n` +
               `Try:\n` +
               `• @HS why FoW Neverland still isolated?\n` +
-              `• @HS check isolation FoW Mystic Mages\n\n` +
+              `• @HS check isolation FoW Mystic Mages\n` +
+              `• @HS send me list club under isolation\n\n` +
               `🔒 Read-only — no production state changed.`;
 
           } else {
