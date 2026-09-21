@@ -8146,6 +8146,26 @@ function parseManualMatchPaste(text){
   return {pairs,warnings,errors};
 }
 
+// HS PHASE 6.1E — pasted manual matchmaking conversational bridge.
+const hsManualPasteDrafts = new Map();
+const HS_MANUAL_PASTE_DRAFT_TTL_MS = 15 * 60 * 1000;
+function cleanupHsManualPasteDrafts(){const now=Date.now();for(const [id,d] of hsManualPasteDrafts.entries())if(!d||now-Number(d.updatedAt||d.createdAt||0)>HS_MANUAL_PASTE_DRAFT_TTL_MS)hsManualPasteDrafts.delete(id);}
+function looksLikeHsManualPairList(text){const v=String(text||"");const vs=(v.match(/^\s*(?:\*\*)?vs(?:\*\*)?\s*$/gim)||[]).length+(v.match(/^\s*(?:\*\*)?vs\s+.+$/gim)||[]).length;const clubs=(v.match(/\(\s*\d{3,5}\s*\)\s*(?:-|–|—)\s*[^\n]+/g)||[]).length;return /\b(?:matchmaking|match\s+making|matches|pairs?|proceed|use\s+these)\b/i.test(v)&&vs>=1&&clubs>=2;}
+function prepareHsManualPaste(message,text){
+  cleanupHsManualPasteDrafts();reloadLatestDatabase();const p=parseManualMatchPaste(text);
+  if(!p.pairs.length)return{ok:false,response:"❌ **Manual matchmaking could not be validated**\n\n"+(p.errors.slice(0,10).map(x=>"• "+x).join("\n")||"No valid pairs detected.")+"\n\n🔒 No Match ID created. No production data changed.",components:[]};
+  const id="HSMP-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7),d={id,userId:String(message.author.id),guildId:String(message.guildId||""),channelId:String(message.channelId||""),pairs:p.pairs,warnings:p.warnings,errors:p.errors,createdAt:Date.now(),updatedAt:Date.now()};hsManualPasteDrafts.set(id,d);
+  const lines=p.pairs.map((x,i)=>{const w=x.winnerSide==="b"?x.b:x.a,l=x.winnerSide==="b"?x.a:x.b,n=x.notes?.length?"\n   "+x.notes.join(" • "):"";return (i+1)+". **"+w.club+" ("+w.elo+") - "+(w.president||"Not Set")+"**\n   vs "+l.club+" ("+l.elo+") - "+(l.president||"Not Set")+"\n   **Gap: "+Math.abs(Number(x.a.elo)-Number(x.b.elo))+"**"+n;});
+  const issues=[];if(p.warnings.length)issues.push("⚠️ **Database corrections**\n"+p.warnings.slice(0,10).map(x=>"• "+x).join("\n"));if(p.errors.length)issues.push("❌ **Rejected pairs / issues**\n"+p.errors.slice(0,10).map(x=>"• "+x).join("\n"));
+  const components=[new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("hsmp_confirm:"+id).setLabel("CONFIRM MANUAL MATCH").setStyle(ButtonStyle.Success),new ButtonBuilder().setCustomId("hsmp_cancel:"+id).setLabel("CANCEL").setStyle(ButtonStyle.Danger))];
+  return{ok:true,draft:d,components,response:"⚔️ **HS Manual Matchmaking — Validated Preview**\n\nPairs ready: **"+p.pairs.length+"**\nValidation: live ELO • Derby membership • availability • max gap "+MATCHMAKING_MAX_GAP+" • duplicate clubs\n\n"+lines.join("\n\n")+(issues.length?"\n\n"+issues.join("\n\n"):"")+"\n\n⚠️ Confirming will create a production Match ID in this channel.\n🔒 No Match ID created yet. No timer or isolation started."};
+}
+async function createHsManualPastePlan(draft,interaction){
+  reloadLatestDatabase();const valid=[],used=new Set();
+  for(const source of draft.pairs||[]){const a=leaderboardData.find(x=>areEquivalentClubNames(x.club,source.a.club)),b=leaderboardData.find(x=>areEquivalentClubNames(x.club,source.b.club));if(!a||!b)return{ok:false,message:"❌ A club is no longer present in the live ELO database. Send the list again."};if(!isDerbyClub(a)||!isDerbyClub(b))return{ok:false,message:"❌ Derby membership changed. Send the list again."};if(!isClubMatchmakingAvailable(a.club)||!isClubMatchmakingAvailable(b.club))return{ok:false,message:"❌ Availability changed. A requested club is currently isolated/unavailable. Nothing was created."};const ak=normalizeClubName(a.club),bk=normalizeClubName(b.club);if(used.has(ak)||used.has(bk))return{ok:false,message:"❌ Duplicate club detected during final validation. Nothing was created."};const gap=Math.abs(Number(a.elo)-Number(b.elo));if(gap>MATCHMAKING_MAX_GAP)return{ok:false,message:"❌ Live ELO changed: "+a.club+" vs "+b.club+" now has gap "+gap+", over "+MATCHMAKING_MAX_GAP+". Nothing was created."};used.add(ak);used.add(bk);const sw=source.winnerSide==="b"?source.b.club:source.a.club,ws=areEquivalentClubNames(sw,b.club)?"b":"a";valid.push({a:{club:a.club,president:a.president||"",elo:Number(a.elo)||0},b:{club:b.club,president:b.president||"",elo:Number(b.elo)||0},winnerSide:ws});}
+  const matchId=nextMatchId(),clubs=[];valid.forEach((p,i)=>{for(const side of ["a","b"]){const x=p[side];clubs.push({club:x.club,president:x.president||"",elo:Number(x.elo)||0,status:"pending",failedAt:null,failedBy:null,matchRole:side===p.winnerSide?"win":"lose",pairNo:i+1});}});const elos=clubs.map(x=>Number(x.elo)||0);const plan={id:matchId,guildId:interaction.guildId||null,channelId:interaction.channelId,min:Math.min(...elos),max:Math.max(...elos),clubs,pairCount:valid.length,createdAt:Date.now(),createdBy:String(interaction.user.id),updatedAt:Date.now(),updatedBy:String(interaction.user.id),eventId:getActiveEvent()?.id||null,manual:true,source:"hs_conversation"};matchPlans.set(matchId,plan);await saveMatchPlansNow();return{ok:true,plan};
+}
+
 function createBulkAddModal() {
   return new ModalBuilder()
     .setCustomId(`bulk_modal:${createShortSessionId()}`)
@@ -11825,6 +11845,13 @@ client.on(
           }
 
         } else if (
+          looksLikeHsManualPairList(cleaned)
+        ) {
+          const manualResult=prepareHsManualPaste(message,cleaned);
+          response=manualResult.response;
+          if(manualResult.components?.length) hsReplyComponents=manualResult.components;
+
+        } else if (
           /manual[_ ]?matchmaking|manual matchmaking/.test(q)
         ) {
           response =
@@ -14690,6 +14717,15 @@ New: **${op.club}**
           interaction.customId ||
           ""
         );
+
+      if(customId.startsWith('hsmp_confirm:') || customId.startsWith('hsmp_cancel:')){
+        cleanupHsManualPasteDrafts();const [action,draftId]=customId.split(':');const draft=hsManualPasteDrafts.get(draftId);
+        if(!draft){await interaction.reply({content:"❌ This manual matchmaking confirmation expired. Paste the list again.",flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        if(String(interaction.user.id)!==String(draft.userId)){await interaction.reply({content:"❌ Only the user who submitted this matchmaking can confirm it.",flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        if(draft.guildId&&String(interaction.guildId||"")!==draft.guildId){await interaction.reply({content:"❌ This matchmaking confirmation belongs to another server.",flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        if(action==='hsmp_cancel'){hsManualPasteDrafts.delete(draftId);await interaction.update({content:"❌ Manual matchmaking cancelled. No Match ID created.",components:[]});return;}
+        try{await interaction.deferUpdate();const result=await createHsManualPastePlan(draft,interaction);if(!result.ok){hsManualPasteDrafts.delete(draftId);await interaction.editReply({content:result.message,components:[]});return;}hsManualPasteDrafts.delete(draftId);const chunks=splitDiscordText(formatManualPlanOutput(result.plan));await interaction.editReply({content:"✅ **MANUAL MATCHMAKING CREATED**\n🆔 Match ID: **"+result.plan.id+"**\n🤝 Pairs: **"+result.plan.pairCount+"**\n☁️ **Database synchronized with Supabase.**",components:[]});for(const chunk of chunks)await interaction.followUp({content:chunk});const controlsMsg=await interaction.followUp({content:"🆔 **"+result.plan.id+"** • Match controls",components:[buildMatchPlanKoButton(result.plan.id)]});result.plan.matchControlsMessageId=controlsMsg.id;result.plan.matchControlsChannelId=controlsMsg.channelId||interaction.channelId;result.plan.updatedAt=Date.now();matchPlans.set(result.plan.id,result.plan);await saveMatchPlansNow();return;}catch(error){console.error("❌ HS pasted manual matchmaking failed:",error);hsManualPasteDrafts.delete(draftId);try{await interaction.editReply({content:"❌ Failed to create manual matchmaking. Check logs before retrying.",components:[]});}catch{}return;}
+      }
 
       if(customId.startsWith('hsev_confirm:') || customId.startsWith('hsev_cancel:')){
         cleanupHsEventTransitionDrafts();
