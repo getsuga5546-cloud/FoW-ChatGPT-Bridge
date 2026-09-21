@@ -14173,14 +14173,30 @@ client.on(
         const output = formatManualPlanOutput(plan);
         const chunks = splitDiscordText(output, 1900);
 
+        let controlsMsg = null;
+
         for (let i = 0; i < chunks.length; i++) {
-          await target.send({
+          const sentMsg = await target.send({
             content: chunks[i],
             components:
               i === chunks.length - 1
                 ? [buildMatchPlanKoButton(matchId)]
                 : []
           });
+
+          if (i === chunks.length - 1) {
+            controlsMsg = sentMsg;
+          }
+        }
+
+        if (controlsMsg) {
+          plan.matchControlsMessageId = controlsMsg.id;
+          plan.matchControlsChannelId = controlsMsg.channelId || target.id;
+          plan.updatedAt = Date.now();
+          plan.updatedBy = interaction.user.id;
+
+          matchPlans.set(matchId, plan);
+          await saveMatchPlansNow();
         }
 
         hsControlRoomDrafts.delete(draftId);
