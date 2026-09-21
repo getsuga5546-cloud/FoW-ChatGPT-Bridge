@@ -13032,8 +13032,8 @@ client.on(
 
           const hsIsolationListRequest =
             !mentionedClub &&
-            /\\b(?:list|show|send|which|what|all|clubs?)\\b/i.test(q) &&
-            /\\b(?:isolation|isolated|isolate|unavailable)\\b/i.test(q);
+            /\b(?:list|show|send|which|what|all|clubs?)\b/i.test(q) &&
+            /\b(?:isolation|isolated|isolate|unavailable)\b/i.test(q);
 
           if (hsIsolationListRequest) {
             const isolatedClubs = (leaderboardData || [])
