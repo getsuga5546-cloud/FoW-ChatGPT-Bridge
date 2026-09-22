@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-22T12:49:48.374Z",
+  "generated_at": "2026-09-22T13:29:18.642Z",
   "count": 82,
   "clubs": [
     {
@@ -418,6 +418,12 @@
       "president": "shot 7"
     },
     {
+      "elo": 5178,
+      "club": "FoW Trailblazers",
+      "clubCode": "GMQJNC",
+      "president": "Jan 3"
+    },
+    {
       "elo": 5173,
       "club": "FoW Rocket Racoons",
       "clubCode": "GBCMTG",
@@ -434,12 +440,6 @@
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
-    },
-    {
-      "elo": 5149,
-      "club": "FoW Trailblazers",
-      "clubCode": "GMQJNC",
-      "president": "Jan 3"
     },
     {
       "elo": 5147,
