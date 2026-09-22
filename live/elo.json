@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-22T12:35:19.210Z",
+  "generated_at": "2026-09-22T12:49:48.374Z",
   "count": 82,
   "clubs": [
     {
@@ -29,13 +29,13 @@
       "president": "Warmongers Prez"
     },
     {
-      "elo": 6665,
+      "elo": 6693,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
     },
     {
-      "elo": 6576,
+      "elo": 6548,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
@@ -53,37 +53,37 @@
       "president": "FL 13"
     },
     {
-      "elo": 6361,
+      "elo": 6389,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6346,
+      "elo": 6374,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6316,
+      "elo": 6347,
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
     },
     {
-      "elo": 6299,
+      "elo": 6268,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
     },
     {
-      "elo": 6267,
+      "elo": 6239,
       "club": "FoW Peace Keeper",
       "clubCode": "CFSNDK",
       "president": "Mahkota 2"
     },
     {
-      "elo": 6260,
+      "elo": 6232,
       "club": "FoW RingoRacoons",
       "clubCode": "PLCJKH",
       "president": "SP-2"
