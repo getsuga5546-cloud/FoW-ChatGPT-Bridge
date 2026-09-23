@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-23T01:38:38.402Z",
+  "generated_at": "2026-09-23T04:52:31.154Z",
   "count": 82,
   "clubs": [
     {
@@ -376,6 +376,12 @@
       "president": "Lady Of Lightning"
     },
     {
+      "elo": 5223,
+      "club": "FoW Rhaezalix",
+      "clubCode": "SJJJTR",
+      "president": "OC20"
+    },
+    {
       "elo": 5222,
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
@@ -410,12 +416,6 @@
       "club": "FoW CodeX",
       "clubCode": "QQTFQL",
       "president": "NightScorpion"
-    },
-    {
-      "elo": 5192,
-      "club": "FoW Rhaezalix",
-      "clubCode": "SJJJTR",
-      "president": "OC20"
     },
     {
       "elo": 5183,
