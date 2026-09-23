@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-22T19:21:18.060Z",
+  "generated_at": "2026-09-23T01:29:20.950Z",
   "count": 82,
   "clubs": [
     {
@@ -125,118 +125,118 @@
       "president": "CranBerry"
     },
     {
+      "elo": 6106,
+      "club": "FoW RascalRacoons",
+      "clubCode": "GLTKGG",
+      "president": "Mercury"
+    },
+    {
       "elo": 6097,
       "club": "FoW Warmonger Bulls",
       "clubCode": "SQBDQT",
       "president": "WarHawk"
     },
     {
-      "elo": 6078,
-      "club": "FoW RascalRacoons",
-      "clubCode": "GLTKGG",
-      "president": "Mercury"
-    },
-    {
-      "elo": 6064,
+      "elo": 6092,
       "club": "FoW Eternal Crown",
       "clubCode": "NFLDLC",
       "president": "MY-6"
     },
     {
-      "elo": 5988,
+      "elo": 6016,
       "club": "FoW Berserker",
       "clubCode": "NFPJCN",
       "president": "11.25"
     },
     {
-      "elo": 5978,
+      "elo": 5950,
       "club": "FoW Icebears Drei",
       "clubCode": "CCGQHQ",
       "president": "MRH2"
     },
     {
-      "elo": 5977,
+      "elo": 5949,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
     },
     {
-      "elo": 5914,
+      "elo": 5942,
       "club": "FoW Adeptus Astartes",
       "clubCode": "HTMGCD",
       "president": "Issac 27"
     },
     {
-      "elo": 5896,
+      "elo": 5868,
       "club": "FoW Hellblade",
       "clubCode": "QPNJJH",
       "president": "Auralis"
     },
     {
-      "elo": 5836,
+      "elo": 5864,
       "club": "FoW Regalia Realms",
       "clubCode": "RTMJML",
       "president": "CoCoa Peeble"
     },
     {
-      "elo": 5823,
-      "club": "FoW Neverland II",
-      "clubCode": "BTDMNB",
-      "president": "Ash-13"
-    },
-    {
-      "elo": 5776,
+      "elo": 5804,
       "club": "Force of War IX",
       "clubCode": "HGNMSM",
       "president": "Uranium"
     },
     {
-      "elo": 5764,
+      "elo": 5796,
       "club": "FoW Diamond Dust",
       "clubCode": "CSDCQC",
       "president": "IRIS-3"
     },
     {
-      "elo": 5761,
-      "club": "Twist Of Fate",
-      "clubCode": "MNGBBC",
-      "president": "n28.10 Oolong"
+      "elo": 5795,
+      "club": "FoW Neverland II",
+      "clubCode": "BTDMNB",
+      "president": "Ash-13"
     },
     {
-      "elo": 5747,
-      "club": "FoW Ice Bears",
-      "clubCode": "DFTHCS",
-      "president": "July-1"
-    },
-    {
-      "elo": 5740,
+      "elo": 5768,
       "club": "FoW Stranger Things",
       "clubCode": "NHTMMJ",
       "president": "Achernar"
     },
     {
-      "elo": 5686,
+      "elo": 5729,
+      "club": "Twist Of Fate",
+      "clubCode": "MNGBBC",
+      "president": "n28.10 Oolong"
+    },
+    {
+      "elo": 5719,
+      "club": "FoW Ice Bears",
+      "clubCode": "DFTHCS",
+      "president": "July-1"
+    },
+    {
+      "elo": 5658,
       "club": "FoW Encore Racoons",
       "clubCode": "DRCQRR",
       "president": "Wn-3"
     },
     {
-      "elo": 5641,
-      "club": "FoW Sentinels",
-      "clubCode": "LNDGDP",
-      "president": "Mahkota 3"
-    },
-    {
-      "elo": 5626,
+      "elo": 5657,
       "club": "FoW Bope",
       "clubCode": "HDDKRN",
       "president": "Issac 32"
     },
     {
-      "elo": 5611,
+      "elo": 5643,
       "club": "FoW Eternal Wanderer 2",
       "clubCode": "RBLGNS",
       "president": "764"
+    },
+    {
+      "elo": 5613,
+      "club": "FoW Sentinels",
+      "clubCode": "LNDGDP",
+      "president": "Mahkota 3"
     },
     {
       "elo": 5609,
@@ -251,22 +251,22 @@
       "president": "42 Ingot"
     },
     {
-      "elo": 5604,
+      "elo": 5577,
+      "club": "FoW Synédrion Xenon",
+      "clubCode": "NFFJCN",
+      "president": "Jan 9"
+    },
+    {
+      "elo": 5572,
       "club": "FoW Blue Crown",
       "clubCode": "MGRRNS",
       "president": "QC-1"
     },
     {
-      "elo": 5602,
+      "elo": 5571,
       "club": "Force Of War II",
       "clubCode": "CGBHTG",
       "president": "BarBerry"
-    },
-    {
-      "elo": 5577,
-      "club": "FoW Synédrion Xenon",
-      "clubCode": "NFFJCN",
-      "president": "Jan 9"
     },
     {
       "elo": 5569,
