@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-23T04:52:31.154Z",
+  "generated_at": "2026-09-23T07:24:02.973Z",
   "count": 82,
   "clubs": [
     {
@@ -233,16 +233,16 @@
       "president": "764"
     },
     {
+      "elo": 5639,
+      "club": "FoW Imperial Legacy",
+      "clubCode": "HCFCRD",
+      "president": "May 2"
+    },
+    {
       "elo": 5613,
       "club": "FoW Sentinels",
       "clubCode": "LNDGDP",
       "president": "Mahkota 3"
-    },
-    {
-      "elo": 5609,
-      "club": "FoW Imperial Legacy",
-      "clubCode": "HCFCRD",
-      "president": "May 2"
     },
     {
       "elo": 5608,
@@ -251,10 +251,16 @@
       "president": "42 Ingot"
     },
     {
-      "elo": 5577,
+      "elo": 5605,
       "club": "FoW Synédrion Xenon",
       "clubCode": "NFFJCN",
       "president": "Jan 9"
+    },
+    {
+      "elo": 5597,
+      "club": "FoW Scorpion XX",
+      "clubCode": "RNCPLJ",
+      "president": "OC400"
     },
     {
       "elo": 5572,
@@ -269,46 +275,40 @@
       "president": "BarBerry"
     },
     {
-      "elo": 5569,
-      "club": "FoW Scorpion XX",
-      "clubCode": "RNCPLJ",
-      "president": "OC400"
-    },
-    {
-      "elo": 5565,
+      "elo": 5535,
       "club": "FoW Soul Guard",
       "clubCode": "BBGPGR",
       "president": "June 2"
     },
     {
-      "elo": 5503,
+      "elo": 5531,
       "club": "FoW S34h3hs77u2h",
       "clubCode": "LMKCMP",
       "president": "s76 Honeysuckle"
     },
     {
-      "elo": 5484,
-      "club": "FoW Minotaurs",
-      "clubCode": "DLBMTN",
-      "president": "Pricess Melo"
-    },
-    {
-      "elo": 5475,
-      "club": "FoW Firebirds",
-      "clubCode": "MRRDRS",
-      "president": "Altair"
-    },
-    {
-      "elo": 5462,
+      "elo": 5490,
       "club": "FoW Eternal Wanderer 3",
       "clubCode": "SDKHRT",
       "president": "Ingot Landing"
     },
     {
-      "elo": 5448,
+      "elo": 5478,
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
       "president": "FL-2"
+    },
+    {
+      "elo": 5456,
+      "club": "FoW Minotaurs",
+      "clubCode": "DLBMTN",
+      "president": "Pricess Melo"
+    },
+    {
+      "elo": 5447,
+      "club": "FoW Firebirds",
+      "clubCode": "MRRDRS",
+      "president": "Altair"
     },
     {
       "elo": 5426,
@@ -317,22 +317,16 @@
       "president": "Navy"
     },
     {
-      "elo": 5420,
+      "elo": 5392,
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
       "president": "Mahkota 5"
     },
     {
-      "elo": 5402,
+      "elo": 5372,
       "club": "FoW Sentinel 3",
       "clubCode": "GMPLQL",
       "president": "Hokusai 20"
-    },
-    {
-      "elo": 5369,
-      "club": "Road to FoW",
-      "clubCode": "BHJJDD",
-      "president": "NightBloom"
     },
     {
       "elo": 5358,
@@ -346,19 +340,25 @@
       "president": "July-12"
     },
     {
+      "elo": 5341,
+      "club": "Road to FoW",
+      "clubCode": "BHJJDD",
+      "president": "NightBloom"
+    },
+    {
+      "elo": 5335,
+      "club": "FoW Soul Society",
+      "clubCode": "LQNTCH",
+      "president": "Amethys"
+    },
+    {
       "elo": 5332,
       "club": "FoW IceBears Deux",
       "clubCode": "FDJKGL",
       "president": "IBS 8"
     },
     {
-      "elo": 5307,
-      "club": "FoW Soul Society",
-      "clubCode": "LQNTCH",
-      "president": "Amethys"
-    },
-    {
-      "elo": 5301,
+      "elo": 5330,
       "club": "FoW Sentinels 5",
       "clubCode": "JFPTQP",
       "president": "S5 Prez"
@@ -370,22 +370,10 @@
       "president": "Apr-3"
     },
     {
-      "elo": 5228,
-      "club": "FoW Whitecap Bay",
-      "clubCode": "TKPBKN",
-      "president": "Lady Of Lightning"
-    },
-    {
       "elo": 5223,
       "club": "FoW Rhaezalix",
       "clubCode": "SJJJTR",
       "president": "OC20"
-    },
-    {
-      "elo": 5222,
-      "club": "FoW BlackSite",
-      "clubCode": "DRTNBL",
-      "president": "Pearl"
     },
     {
       "elo": 5216,
@@ -416,6 +404,18 @@
       "club": "FoW CodeX",
       "clubCode": "QQTFQL",
       "president": "NightScorpion"
+    },
+    {
+      "elo": 5199,
+      "club": "FoW Whitecap Bay",
+      "clubCode": "TKPBKN",
+      "president": "Lady Of Lightning"
+    },
+    {
+      "elo": 5194,
+      "club": "FoW BlackSite",
+      "clubCode": "DRTNBL",
+      "president": "Pearl"
     },
     {
       "elo": 5183,
