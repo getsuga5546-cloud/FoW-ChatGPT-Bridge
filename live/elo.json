@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-23T09:33:19.131Z",
+  "generated_at": "2026-09-23T09:34:05.656Z",
   "count": 82,
   "clubs": [
     {
@@ -317,6 +317,11 @@
       "president": "Navy"
     },
     {
+      "elo": 5416,
+      "club": "The Drain",
+      "president": "July-12"
+    },
+    {
       "elo": 5392,
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
@@ -333,11 +338,6 @@
       "club": "FoW Destruction inc",
       "clubCode": "QHJCSB",
       "president": "MN9"
-    },
-    {
-      "elo": 5349,
-      "club": "The Drain",
-      "president": "July-12"
     },
     {
       "elo": 5341,
