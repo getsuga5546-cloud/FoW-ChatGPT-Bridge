@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-23T16:49:35.691Z",
+  "generated_at": "2026-09-23T16:58:31.080Z",
   "count": 82,
   "clubs": [
     {
@@ -23,13 +23,13 @@
       "president": "Evo Prez"
     },
     {
-      "elo": 6725,
+      "elo": 6756,
       "club": "Force Of Warmongers",
       "clubCode": "KQLLHJ",
       "president": "Warmongers Prez"
     },
     {
-      "elo": 6693,
+      "elo": 6662,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
@@ -41,7 +41,7 @@
       "president": "FKR 25"
     },
     {
-      "elo": 6475,
+      "elo": 6504,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
@@ -53,46 +53,34 @@
       "president": "Hot 2"
     },
     {
-      "elo": 6420,
+      "elo": 6391,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6343,
+      "elo": 6374,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6319,
-      "club": "FoW Iron Horn Brigade",
-      "clubCode": "GFKJFN",
-      "president": "AK-131"
-    },
-    {
-      "elo": 6298,
+      "elo": 6326,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
     },
     {
-      "elo": 6269,
+      "elo": 6298,
       "club": "FoW Peace Keeper",
       "clubCode": "CFSNDK",
       "president": "Mahkota 2"
     },
     {
-      "elo": 6202,
-      "club": "FoW RingoRacoons",
-      "clubCode": "PLCJKH",
-      "president": "SP-2"
-    },
-    {
-      "elo": 6202,
-      "club": "Force of War III",
-      "clubCode": "BKGGJL",
-      "president": "Celestra"
+      "elo": 6288,
+      "club": "FoW Iron Horn Brigade",
+      "clubCode": "GFKJFN",
+      "president": "AK-131"
     },
     {
       "elo": 6176,
@@ -105,6 +93,18 @@
       "club": "Force of War VI",
       "clubCode": "DNPGNR",
       "president": "Dec-2"
+    },
+    {
+      "elo": 6174,
+      "club": "Force of War III",
+      "clubCode": "BKGGJL",
+      "president": "Celestra"
+    },
+    {
+      "elo": 6173,
+      "club": "FoW RingoRacoons",
+      "clubCode": "PLCJKH",
+      "president": "SP-2"
     },
     {
       "elo": 6160,
