@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-23T07:24:02.973Z",
+  "generated_at": "2026-09-23T09:32:12.922Z",
   "count": 82,
   "clubs": [
     {
@@ -388,6 +388,12 @@
       "president": "X13"
     },
     {
+      "elo": 5214,
+      "club": "FoW Shooters",
+      "clubCode": "MMPTBB",
+      "president": "shot 7"
+    },
+    {
       "elo": 5206,
       "club": "FoW Cheers!",
       "clubCode": "KCJNLD",
@@ -416,12 +422,6 @@
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
       "president": "Pearl"
-    },
-    {
-      "elo": 5183,
-      "club": "FoW Shooters",
-      "clubCode": "MMPTBB",
-      "president": "shot 7"
     },
     {
       "elo": 5178,
