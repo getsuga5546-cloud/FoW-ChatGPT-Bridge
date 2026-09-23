@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-23T01:29:20.950Z",
+  "generated_at": "2026-09-23T01:38:38.402Z",
   "count": 82,
   "clubs": [
     {
@@ -35,70 +35,70 @@
       "president": "Skorvazon"
     },
     {
-      "elo": 6548,
+      "elo": 6578,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6496,
-      "club": "FoW Empress Enclave",
-      "clubCode": "LDTRJR",
-      "president": "Hot 2"
-    },
-    {
-      "elo": 6447,
+      "elo": 6475,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6389,
+      "elo": 6466,
+      "club": "FoW Empress Enclave",
+      "clubCode": "LDTRJR",
+      "president": "Hot 2"
+    },
+    {
+      "elo": 6420,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6374,
+      "elo": 6343,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6347,
+      "elo": 6319,
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
     },
     {
-      "elo": 6268,
+      "elo": 6298,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
     },
     {
-      "elo": 6239,
+      "elo": 6269,
       "club": "FoW Peace Keeper",
       "clubCode": "CFSNDK",
       "president": "Mahkota 2"
     },
     {
-      "elo": 6232,
+      "elo": 6202,
       "club": "FoW RingoRacoons",
       "clubCode": "PLCJKH",
       "president": "SP-2"
-    },
-    {
-      "elo": 6206,
-      "club": "FoW Jewelry Brigade",
-      "clubCode": "QCLNMD",
-      "president": "BP-2"
     },
     {
       "elo": 6202,
       "club": "Force of War III",
       "clubCode": "BKGGJL",
       "president": "Celestra"
+    },
+    {
+      "elo": 6176,
+      "club": "FoW Jewelry Brigade",
+      "clubCode": "QCLNMD",
+      "president": "BP-2"
     },
     {
       "elo": 6174,
