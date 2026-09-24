@@ -20,12 +20,12 @@ def once(old,new,label):
         die(label+' anchor count='+str(n))
     s=s.replace(old,new,1)
 
-# Hard prerequisites from current production baseline.
+# Current production landmarks.
 for req in (
     'new SlashCommandBuilder().setName("isolation_override")',
     'function setWarOperation(',
     'function areEquivalentClubNames(',
-    'const commands =',
+    'if (interaction.isModalSubmit()) {',
 ):
     if req not in s:
         die('required production landmark missing: '+req)
@@ -33,24 +33,19 @@ for req in (
 if 'isolation_override_bulk' in s:
     die('isolation_override_bulk already appears to be installed')
 
-# Require Discord modal builders to already be imported by production.
-for req in ('ModalBuilder','TextInputBuilder','TextInputStyle'):
+for req in ('ModalBuilder','TextInputBuilder','TextInputStyle','ActionRowBuilder'):
     if req not in s:
         die('Discord modal builder missing from production import: '+req)
 
-# 1) Register a separate bulk command. Existing isolation_override remains untouched.
+# 1) Register separate command. Existing isolation_override remains untouched.
 old_cmd='''  new SlashCommandBuilder().setName("isolation_override").setDescription("Master override: release selected clubs from all isolation").toJSON(),'''
 new_cmd='''  new SlashCommandBuilder().setName("isolation_override").setDescription("Master override: release selected clubs from all isolation").toJSON(),
   new SlashCommandBuilder().setName("isolation_override_bulk").setDescription("Bulk release clubs from isolation using paste list").toJSON(),'''
 once(old_cmd,new_cmd,'slash command registration')
 
-# 2) Add parser/helper before the existing war override handler. It accepts:
-# Club Name
-# Club Name (5987)
-# Club Name (5987) - President
-# numbered/bulleted lines
+# 2) Add command handler immediately before existing war_override handler.
 handler_anchor='''    if (interaction.commandName === "war_override") {'''
-helper=r'''    if (interaction.commandName === "isolation_override_bulk") {
+handler_code=r'''    if (interaction.commandName === "isolation_override_bulk") {
       if(!isWarAdminInteraction(interaction)){
         await interaction.reply({content:'⛔ You are not authorized to manage isolation.',flags:MessageFlags.Ephemeral});
         return;
@@ -70,80 +65,98 @@ helper=r'''    if (interaction.commandName === "isolation_override_bulk") {
     }
 
 '''
-once(handler_anchor,helper+handler_anchor,'bulk command handler')
+once(handler_anchor,handler_code+handler_anchor,'bulk command handler')
 
-# 3) Insert modal submit handler at the top of the interactionCreate callback body,
-# immediately before the first chat-input command gate. This keeps existing flows intact.
-modal_anchor='''    if (!interaction.isChatInputCommand()) return;'''
-modal_code=r'''    if (interaction.isModalSubmit() && interaction.customId === 'isolation_override_bulk_modal') {
-      if(!isWarAdminInteraction(interaction)){
-        await interaction.reply({content:'⛔ You are not authorized to manage isolation.',flags:MessageFlags.Ephemeral});
+# 3) Current production has one central modal block. Insert our handler at its top.
+modal_anchor='''    if (interaction.isModalSubmit()) {
+'''
+modal_code=r'''    if (interaction.isModalSubmit()) {
+      if(interaction.customId==='isolation_override_bulk_modal'){
+        try{
+          if(!isWarAdminInteraction(interaction)){
+            await interaction.reply({content:'⛔ You are not authorized to manage isolation.',flags:MessageFlags.Ephemeral});
+            return;
+          }
+
+          reloadLatestDatabase();
+
+          const raw=interaction.fields.getTextInputValue('clubs');
+          const lines=String(raw||'')
+            .split(/\r?\n/)
+            .map(x=>x.trim())
+            .filter(Boolean);
+
+          const found=[];
+          const missing=[];
+          const seen=new Set();
+
+          for(const source of lines){
+            const cleaned=String(source)
+              .replace(/^[-•*\d.)\s]+/,'')
+              .replace(/\s*\(\s*\d{3,5}\s*\).*$/,'')
+              .replace(/\s+-\s+[^\n]+$/,'')
+              .trim();
+            if(!cleaned) continue;
+
+            const db=leaderboardData.find(x=>
+              areEquivalentClubNames(x.club,cleaned)
+            );
+            if(!db){
+              missing.push(cleaned);
+              continue;
+            }
+
+            const key=normalizeClubName(db.club);
+            if(seen.has(key)) continue;
+            seen.add(key);
+            found.push(db);
+          }
+
+          const released=[];
+          for(const db of found){
+            const existing=getWarOperation(db.club);
+            const op=setWarOperation(db.club,{
+              status:'AVAILABLE',
+              isolated:false,
+              reminderPending:false,
+              nextReminderAt:null,
+              nextAckReminderAt:null,
+              lastReminderMessageId:null,
+              preparationEndAt:null,
+              coolingEndAt:null,
+              warning15mSent:true,
+              completionSent:true,
+              channelId:existing?.channelId||interaction.channelId,
+              guildId:interaction.guildId,
+              eventType:existing?.eventType||'normal'
+            },interaction.user.id,'ADMIN_BULK_ISOLATION_OVERRIDE');
+            released.push(op.club);
+          }
+
+          let content='✅ **BULK ISOLATION OVERRIDE**\n\n';
+          if(released.length){
+            content+='🟢 **AVAILABLE ('+released.length+')**\n'+
+              released.map(x=>'• '+x).join('\n');
+          }else{
+            content+='No clubs were released.';
+          }
+          if(missing.length){
+            content+='\n\n⚠️ **NOT FOUND ('+missing.length+')**\n'+
+              missing.map(x=>'• '+x).join('\n');
+          }
+          content+='\n\nMatchmaking isolation cleared for listed clubs.';
+
+          await interaction.reply({content,flags:MessageFlags.Ephemeral});
+        }catch(error){
+          console.error('❌ Bulk isolation override submit error:',error);
+          try{
+            await interaction.reply({content:'❌ Bulk isolation override failed.',flags:MessageFlags.Ephemeral});
+          }catch{}
+        }
         return;
       }
-
-      const raw=interaction.fields.getTextInputValue('clubs');
-      const lines=String(raw||'')
-        .split(/\r?\n/)
-        .map(x=>x.trim())
-        .filter(Boolean);
-
-      const requested=[];
-      const seen=new Set();
-      for(const source of lines){
-        const cleaned=String(source)
-          .replace(/^[-•*\d.)\s]+/,'')
-          .replace(/\s*\(\s*\d{3,5}\s*\).*$/,'')
-          .replace(/\s+-\s+[^\n]+$/,'')
-          .trim();
-        if(!cleaned) continue;
-        const db=leaderboardData.find(x=>areEquivalentClubNames(x.club,cleaned));
-        if(!db){
-          requested.push({input:cleaned,club:null});
-          continue;
-        }
-        const key=normalizeClubName(db.club);
-        if(seen.has(key)) continue;
-        seen.add(key);
-        requested.push({input:cleaned,club:db.club});
-      }
-
-      const released=[];
-      const missing=[];
-      for(const item of requested){
-        if(!item.club){ missing.push(item.input); continue; }
-        const existing=getWarOperation(item.club);
-        const op=setWarOperation(item.club,{
-          status:'AVAILABLE',
-          isolated:false,
-          reminderPending:false,
-          nextReminderAt:null,
-          nextAckReminderAt:null,
-          lastReminderMessageId:null,
-          preparationEndAt:null,
-          coolingEndAt:null,
-          warning15mSent:true,
-          completionSent:true,
-          channelId:existing?.channelId||interaction.channelId,
-          guildId:interaction.guildId,
-          eventType:existing?.eventType||'normal'
-        },interaction.user.id,'ADMIN_BULK_ISOLATION_OVERRIDE');
-        released.push(op.club);
-      }
-
-      let content='✅ **BULK ISOLATION OVERRIDE**\n\n';
-      if(released.length){
-        content+='🟢 **AVAILABLE ('+released.length+')**\n'+released.map(x=>'• '+x).join('\n');
-      }
-      if(missing.length){
-        content+=(released.length?'\n\n':'')+'⚠️ **NOT FOUND ('+missing.length+')**\n'+missing.map(x=>'• '+x).join('\n');
-      }
-      content+='\n\nMatchmaking isolation cleared for listed clubs.';
-      await interaction.reply({content,flags:MessageFlags.Ephemeral});
-      return;
-    }
-
 '''
-once(modal_anchor,modal_code+modal_anchor,'modal submit handler')
+once(modal_anchor,modal_code,'modal submit handler')
 
 p.write_text(s)
 r=subprocess.run(['node','--check',str(p)],capture_output=True,text=True)
@@ -154,11 +167,12 @@ final=p.read_text()
 checks=[
     ('bulk command',final.count('setName("isolation_override_bulk")')==1),
     ('bulk handler',final.count('interaction.commandName === "isolation_override_bulk"')==1),
-    ('bulk modal',final.count("customId === 'isolation_override_bulk_modal'")==1),
-    ('existing command preserved',final.count('setName("isolation_override")')==1),
+    ('bulk modal submit',final.count("interaction.customId==='isolation_override_bulk_modal'")==1),
+    ('existing isolation command preserved',final.count('setName("isolation_override")')==1),
     ('war override preserved',final.count('interaction.commandName === "war_override"')==1),
+    ('central modal block preserved',final.count('if (interaction.isModalSubmit()) {')==1),
 ]
-print('=== ISOLATION OVERRIDE BULK PASTE PATCH ===')
+print('=== ISOLATION OVERRIDE BULK PASTE PATCH V2 ===')
 for name,ok in checks:
     print('PASS' if ok else 'FAIL',name)
 if not all(ok for _,ok in checks):
