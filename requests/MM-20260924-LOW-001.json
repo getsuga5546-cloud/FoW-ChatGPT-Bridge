@@ -1,0 +1,16 @@
+{
+  "type": "manual_matchmaking",
+  "request_id": "MM-20260924-LOW-001",
+  "created_by": "chatgpt",
+  "dry_run": false,
+  "execute": true,
+  "target": "low",
+  "max_gap": 100,
+  "pairs": [
+    {"club_a":"Force Of War II","club_b":"FoW Soul Guard","winner":null},
+    {"club_a":"FoW S34h3hs77u2h","club_b":"FoW Minotaurs","winner":null},
+    {"club_a":"FoW Eternal Wanderer 3","club_b":"Road to FoW","winner":null},
+    {"club_a":"FoW Space Sheep","club_b":"Force Of War V","winner":null},
+    {"club_a":"FoW Sentinels 5","club_b":"FoW IceBears Deux","winner":null}
+  ]
+}
