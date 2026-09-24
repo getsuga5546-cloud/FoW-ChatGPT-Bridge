@@ -1,0 +1,11 @@
+{
+  "type": "war_override",
+  "request_id": "WAR-YYYYMMDD-001",
+  "created_by": "chatgpt",
+  "club": "Club Name",
+  "action": "available",
+  "clear_timers": true,
+  "clear_isolation": true,
+  "reason": "manual_override",
+  "note": null
+}
