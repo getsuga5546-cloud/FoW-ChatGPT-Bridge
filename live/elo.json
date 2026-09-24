@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-24T06:43:13.112Z",
+  "generated_at": "2026-09-24T12:05:23.473Z",
   "count": 82,
   "clubs": [
     {
@@ -376,6 +376,12 @@
       "president": "OC20"
     },
     {
+      "elo": 5245,
+      "club": "FoW Shooters",
+      "clubCode": "MMPTBB",
+      "president": "shot 7"
+    },
+    {
       "elo": 5216,
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
@@ -386,12 +392,6 @@
       "club": "FoW SunWings",
       "clubCode": "DQLBCD",
       "president": "X13"
-    },
-    {
-      "elo": 5214,
-      "club": "FoW Shooters",
-      "clubCode": "MMPTBB",
-      "president": "shot 7"
     },
     {
       "elo": 5214,
