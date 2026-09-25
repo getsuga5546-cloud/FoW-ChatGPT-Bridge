@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-25T03:18:47.171Z",
+  "generated_at": "2026-09-25T03:19:06.603Z",
   "count": 82,
   "clubs": [
     {
@@ -382,6 +382,12 @@
       "president": "shot 7"
     },
     {
+      "elo": 5243,
+      "club": "FoW Tutelaries",
+      "clubCode": "PRNNGT",
+      "president": "MN13"
+    },
+    {
       "elo": 5239,
       "club": "FoW IceBears Deux",
       "clubCode": "FDJKGL",
@@ -398,12 +404,6 @@
       "club": "FoW SunWings",
       "clubCode": "DQLBCD",
       "president": "X13"
-    },
-    {
-      "elo": 5214,
-      "club": "FoW Tutelaries",
-      "clubCode": "PRNNGT",
-      "president": "MN13"
     },
     {
       "elo": 5206,
