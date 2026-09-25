@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-25T03:16:17.947Z",
+  "generated_at": "2026-09-25T03:18:47.171Z",
   "count": 82,
   "clubs": [
     {
@@ -370,6 +370,12 @@
       "president": "OC20"
     },
     {
+      "elo": 5247,
+      "club": "FoW Trailblazers",
+      "clubCode": "GMQJNC",
+      "president": "Jan 3"
+    },
+    {
       "elo": 5245,
       "club": "FoW Shooters",
       "clubCode": "MMPTBB",
@@ -398,12 +404,6 @@
       "club": "FoW Tutelaries",
       "clubCode": "PRNNGT",
       "president": "MN13"
-    },
-    {
-      "elo": 5212,
-      "club": "FoW Trailblazers",
-      "clubCode": "GMQJNC",
-      "president": "Jan 3"
     },
     {
       "elo": 5206,
