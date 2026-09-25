@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-25T15:40:08.874Z",
+  "generated_at": "2026-09-25T17:01:03.589Z",
   "count": 82,
   "clubs": [
     {
@@ -206,7 +206,7 @@
       "elo": 5741,
       "club": "FoW Stranger Things",
       "clubCode": "NHTMMJ",
-      "president": "Achernar"
+      "president": "Rigel"
     },
     {
       "elo": 5737,
