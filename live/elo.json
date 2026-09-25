@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-25T06:26:40.608Z",
+  "generated_at": "2026-09-25T06:46:26.879Z",
   "count": 82,
   "clubs": [
     {
@@ -311,15 +311,15 @@
       "president": "Altair"
     },
     {
+      "elo": 5447,
+      "club": "The Drain",
+      "president": "July-12"
+    },
+    {
       "elo": 5422,
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
       "president": "FL-2"
-    },
-    {
-      "elo": 5416,
-      "club": "The Drain",
-      "president": "July-12"
     },
     {
       "elo": 5373,
