@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-26T04:07:10.412Z",
+  "generated_at": "2026-09-26T04:07:43.033Z",
   "count": 82,
   "clubs": [
     {
@@ -430,12 +430,6 @@
       "president": "Pearl"
     },
     {
-      "elo": 5173,
-      "club": "FoW Rocket Racoons",
-      "clubCode": "GBCMTG",
-      "president": "Queen Champ"
-    },
-    {
       "elo": 5167,
       "club": "FoW Whitecap Bay",
       "clubCode": "TKPBKN",
@@ -446,6 +440,12 @@
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
+    },
+    {
+      "elo": 5143,
+      "club": "FoW Rocket Racoons",
+      "clubCode": "GBCMTG",
+      "president": "Queen Champ"
     },
     {
       "elo": 4896,
