@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-26T14:11:37.961Z",
+  "generated_at": "2026-09-26T14:13:16.197Z",
   "count": 82,
   "clubs": [
     {
@@ -113,6 +113,12 @@
       "president": "At-2"
     },
     {
+      "elo": 6150,
+      "club": "FoW Eternal Crown",
+      "clubCode": "NFLDLC",
+      "president": "MY-6"
+    },
+    {
       "elo": 6147,
       "club": "FoW Fero's Legacy",
       "clubCode": "QTTBRF",
@@ -137,40 +143,22 @@
       "president": "WarHawk"
     },
     {
-      "elo": 6121,
-      "club": "FoW Eternal Crown",
-      "clubCode": "NFLDLC",
-      "president": "MY-6"
-    },
-    {
-      "elo": 6045,
-      "club": "FoW Berserker",
-      "clubCode": "NFPJCN",
-      "president": "11.25"
-    },
-    {
-      "elo": 6008,
+      "elo": 6036,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
     },
     {
-      "elo": 5953,
+      "elo": 6016,
+      "club": "FoW Berserker",
+      "clubCode": "NFPJCN",
+      "president": "11.25"
+    },
+    {
+      "elo": 5984,
       "club": "Force of War IX",
       "clubCode": "HGNMSM",
       "president": "Uranium"
-    },
-    {
-      "elo": 5922,
-      "club": "FoW Icebears Drei",
-      "clubCode": "CCGQHQ",
-      "president": "MRH2"
-    },
-    {
-      "elo": 5909,
-      "club": "FoW Adeptus Astartes",
-      "clubCode": "HTMGCD",
-      "president": "Issac 27"
     },
     {
       "elo": 5900,
@@ -179,16 +167,28 @@
       "president": "Auralis"
     },
     {
+      "elo": 5891,
+      "club": "FoW Icebears Drei",
+      "clubCode": "CCGQHQ",
+      "president": "MRH2"
+    },
+    {
+      "elo": 5881,
+      "club": "FoW Adeptus Astartes",
+      "clubCode": "HTMGCD",
+      "president": "Issac 27"
+    },
+    {
+      "elo": 5806,
+      "club": "FoW Ice Bears",
+      "clubCode": "DFTHCS",
+      "president": "July-1"
+    },
+    {
       "elo": 5804,
       "club": "FoW Regalia Realms",
       "clubCode": "RTMJML",
       "president": "CoCoa Peeble"
-    },
-    {
-      "elo": 5776,
-      "club": "FoW Ice Bears",
-      "clubCode": "DFTHCS",
-      "president": "July-1"
     },
     {
       "elo": 5770,
@@ -209,7 +209,7 @@
       "president": "n28.10 Oolong"
     },
     {
-      "elo": 5737,
+      "elo": 5707,
       "club": "FoW Neverland II",
       "clubCode": "BTDMNB",
       "president": "Ash-13"
