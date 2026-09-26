@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-26T14:13:16.197Z",
+  "generated_at": "2026-09-26T14:15:02.037Z",
   "count": 82,
   "clubs": [
     {
@@ -11,16 +11,10 @@
       "president": "Felicity"
     },
     {
-      "elo": 6854,
+      "elo": 6883,
       "club": "Force of War X",
       "clubCode": "KQHFPQ",
       "president": "X2"
-    },
-    {
-      "elo": 6785,
-      "club": "Force Of Warmongers",
-      "clubCode": "KQLLHJ",
-      "president": "Warmongers Prez"
     },
     {
       "elo": 6776,
@@ -29,49 +23,55 @@
       "president": "Evo Prez"
     },
     {
-      "elo": 6661,
+      "elo": 6756,
+      "club": "Force Of Warmongers",
+      "clubCode": "KQLLHJ",
+      "president": "Warmongers Prez"
+    },
+    {
+      "elo": 6689,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
     },
     {
-      "elo": 6562,
-      "club": "Force of War IV",
-      "clubCode": "RLBLPB",
-      "president": "FL 13"
-    },
-    {
-      "elo": 6550,
+      "elo": 6578,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6451,
-      "club": "FoW Flower Garden",
-      "clubCode": "NJPHDJ",
-      "president": "1445"
+      "elo": 6534,
+      "club": "Force of War IV",
+      "clubCode": "RLBLPB",
+      "president": "FL 13"
     },
     {
-      "elo": 6408,
+      "elo": 6436,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
     },
     {
-      "elo": 6372,
+      "elo": 6423,
+      "club": "FoW Flower Garden",
+      "clubCode": "NJPHDJ",
+      "president": "1445"
+    },
+    {
+      "elo": 6400,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6328,
+      "elo": 6300,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
     },
     {
-      "elo": 6288,
+      "elo": 6260,
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
