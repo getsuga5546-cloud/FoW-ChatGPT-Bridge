@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-26T04:07:43.033Z",
+  "generated_at": "2026-09-26T04:24:31.374Z",
   "count": 82,
   "clubs": [
     {
@@ -75,12 +75,6 @@
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
-    },
-    {
-      "elo": 6238,
-      "club": "FoW Peace Keeper",
-      "clubCode": "CFSNDK",
-      "president": "Mahkota 2"
     },
     {
       "elo": 6176,
@@ -207,6 +201,12 @@
       "club": "FoW Neverland II",
       "clubCode": "BTDMNB",
       "president": "Ash-13"
+    },
+    {
+      "elo": 5723,
+      "club": "FoW Peace Keeper",
+      "clubCode": "CFSNDK",
+      "president": "Mahkota 2"
     },
     {
       "elo": 5686,
