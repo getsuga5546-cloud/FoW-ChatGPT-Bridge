@@ -306,6 +306,23 @@ function saveDatabase() {
       );
     }
 
+    // Lightning research collector is observational only. It compares the
+    // previous live file with the new in-memory database before overwrite.
+    // Collector failure must NEVER block the production ELO save.
+    try {
+      const previousLive = fs.existsSync(DATABASE_FILE)
+        ? loadJsonDatabase(DATABASE_FILE)
+        : [];
+      recordLightningEloChanges(previousLive, leaderboardData, {
+        source: "database_save"
+      });
+    } catch (collectorError) {
+      console.error(
+        "⚠️ Lightning ELO collector failed; production save continues:",
+        collectorError?.message || collectorError
+      );
+    }
+
     // Overwrite LIVE database with latest data.
     fs.writeFileSync(
       DATABASE_FILE,
@@ -475,6 +492,100 @@ const clubAliases = {
   sentinels4: "FoW Sentinels 4",
   sentinel4: "FoW Sentinels 4"
 };
+
+// HS FINAL SHARED ENTITY RESOLVER - READ ONLY
+function resolveHsClubsByClubOrPresident(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return [];
+  const key = normalizeClubName(raw);
+  const out = [];
+  const seen = new Set();
+  for (const item of leaderboardData || []) {
+    const clubMatch =
+      normalizeClubName(item.club) === key ||
+      areEquivalentClubNames(item.club, raw);
+    const president = String(item.president || "").trim();
+    const presidentMatch =
+      president && normalizeClubName(president) === key;
+    if (!clubMatch && !presidentMatch) continue;
+    const k = normalizeClubName(item.club);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(item);
+  }
+  return out;
+}
+
+function extractHsClubsFromText(text) {
+  const raw = String(text || "");
+  const out = [];
+  const seen = new Set();
+  const add = item => {
+    if (!item?.club) return;
+    const k = normalizeClubName(item.club);
+    if (seen.has(k)) return;
+    seen.add(k);
+    out.push(item);
+  };
+  // IMPORTANT: do NOT substring-scan every database club here.
+  // A parent name such as "FORCE OF WAR" must never match
+  // "Force Of War II", "Force Of War V", "Force of War IX", etc.
+  // Club-list extraction below is line/exact resolver based.
+  for (const sourceLine of raw.split(/\r?\n/)) {
+    const line = String(sourceLine || "").trim();
+    if (!line) continue;
+
+    // Canonical HS list row:
+    // 12. Force Of War II (5633) - BarBerry
+    // Capture ONLY the entity before the ELO tuple.
+    const listMatch =
+      line.match(/^\s*(?:[-•*]|\d+[.)])?\s*(.+?)\s*\(\s*\d{3,5}\s*\)(?:\s+-.*)?$/);
+
+    const candidate = listMatch
+      ? String(listMatch[1] || "").trim()
+      : line
+          .replace(/^[-•*\d.)\s]+/, "")
+          .replace(/\s+-\s+[^\n]+$/, "")
+          .trim();
+
+    if (!candidate) continue;
+
+    // Exact club/president resolver only. Never parent/sub-string expansion.
+    for (const item of resolveHsClubsByClubOrPresident(candidate)) {
+      add(item);
+    }
+  }
+  return out;
+}
+
+function detectHsLocalOperationalIntent(text, session, resolvedClubs) {
+  const raw = String(text || "").trim();
+  const hasContext =
+    (Array.isArray(resolvedClubs) && resolvedClubs.length > 0) ||
+    (Array.isArray(session?.lastResults) && session.lastResults.length > 0) ||
+    Boolean(session?.lastClub) ||
+    Boolean(session?.lastRange) ||
+    Boolean(session?.lastMatchId);
+
+  if (/\b(?:war\s*status|status|availability|available|isolat(?:e|ed|ion)|elo|derby|leaderboard|club\s*code|codes?|matchmaking|match\s*making|pair(?:ing|ings)?|skip|must\s+win|must\s+lose|winner|loser|match\s*id|timer|preparation|cooling|push|war\s*monitor)\b/i.test(raw)) {
+    if (/\b(?:club\s*code|codes?)\b/i.test(raw)) return "club_code";
+    if (/\b(?:war\s*status|status|availability|available|isolat(?:e|ed|ion))\b/i.test(raw)) return "war_status";
+    if (/\b(?:elo|derby|leaderboard)\b/i.test(raw)) return "elo_domain";
+    if (/\b(?:matchmaking|match\s*making|pair(?:ing|ings)?|skip|must\s+win|must\s+lose|winner|loser)\b/i.test(raw)) return "matchmaking_domain";
+    return "hs_domain";
+  }
+
+  if (
+    hasContext &&
+    /\b(?:them|those|these|their|club|clubs|kelab|senarai|list|tadi|previous|above)\b/i.test(raw)
+  ) return "context_followup";
+
+  return null;
+}
+
+function isHsContextReference(text) {
+  return /\b(?:those|these|them|that list|this list|those clubs?|these clubs?|previous|above|tadi|yang tadi|senarai tadi|club tadi|kelab tadi)\b/i.test(String(text||""));
+}
 
 function areEquivalentClubNames(nameA, nameB) {
   const a =
@@ -2326,7 +2437,7 @@ function getFowTimerTitle(timer, stage) {
   }
 
   if (timer.type === "push") {
-    if (stage === "end") return "🏁⚔️ FOW PUSH ALERT — PREPARATION ENDED ⚔️🏁";
+    if (stage === "end") return "🏁⚔️ FOW PUSH ALERT — WAR STARTED ⚔️🏁";
     return "⏳⚔️ FoW WAR START ALERT ⚔️⏳";
   }
 
@@ -2529,6 +2640,58 @@ function buildFowTimerNotification(
         : timer.hours === 2
           ? "⏱️ KO Timer: **2 Hours**"
           : "⏱️ KO + Cooling Down: **14 Hours**";
+
+  // WAR MONITOR UI — presentation only.
+  // Does not modify timer, ELO, isolation, matchmaking or persistence state.
+  if (timer.type === "push" && stage === "end") {
+    const mode = String(timer.operationalMode || "normal").toLowerCase();
+
+    const eventLine =
+      mode === "lightning"
+        ? "⚡ **LIGHTNING EVENT**"
+        : mode === "grease"
+          ? "🔥 **GREASE LIGHTNING EVENT**"
+          : "⚔️ **NORMAL EVENT**";
+
+    const completedPreparation =
+      Number.isInteger(Number(timer.durationMinutes)) &&
+      Number(timer.durationMinutes) > 0
+        ? `${timer.durationMinutes} Minute${Number(timer.durationMinutes) === 1 ? "" : "s"}`
+        : `${timer.hours} Hours`;
+
+    let nextCheckLine = "";
+
+    // Standard War Monitor flow starts its first reminder two hours after
+    // preparation. Match-ID preparationControl has its own post-prep controls.
+    if (!timer.preparationControl) {
+      const nextReminderAt = Number(timer.endAt) + (2 * 60 * 60 * 1000);
+      nextCheckLine =
+        `\n\n🔔 **NEXT WAR CHECK**\n` +
+        `First status reminder: **<t:${Math.floor(nextReminderAt / 1000)}:R>**\n` +
+        `Next check: **<t:${Math.floor(nextReminderAt / 1000)}:t>**`;
+    }
+
+    return (
+      `${getFowTimerTitle(timer, stage)}\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `${eventLine}\n` +
+      `🔥 **WAR IS NOW ACTIVE**\n\n` +
+      `⏳ Preparation: **${completedPreparation} — COMPLETED**\n` +
+      `🏰 Clubs Entering War: **${timer.clubs.length}**` +
+      `${nextCheckLine}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `🏰 **CLUBS NOW AT WAR**\n\n` +
+      `${clubList}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `🚫 Matchmaking: **ISOLATED**\n` +
+      `🔔 War status monitoring is now active.\n\n` +
+      `${
+        reminderMentions.length
+          ? reminderMentions.join(" ")
+          : `<@${timer.userId}>`
+      }`
+    );
+  }
 
   return (
     `${getFowTimerTitle(timer, stage)}\n` +
@@ -3798,6 +3961,62 @@ function matchPlanHasWinLoseRoles(matchPlan) {
 const matchCancelSessions = new Map();
 const MATCH_CANCEL_PAGE_SIZE = 25;
 const MATCH_CANCEL_SESSION_TTL_MS = 30 * 60 * 1000;
+
+function inspectMatchPlanCancellation(plan) {
+  const timers = getActiveTimersForMatchId(plan?.id);
+  const warOps = getActiveWarOpsForMatchId(plan?.id);
+  const unsafeOps = warOps.filter(op => !["PREPARATION"].includes(String(op.status || "").toUpperCase()));
+  const clubs = [...new Set((plan?.clubs || []).map(item => item.club).filter(Boolean))];
+  return {timers,warOps,unsafeOps,clubs,canCancel:unsafeOps.length===0};
+}
+
+async function cancelMatchPlanAndPreparation(plan, userId) {
+  const check = inspectMatchPlanCancellation(plan);
+  if (!check.canCancel) return {ok:false,check};
+  const removeTimerIds = new Set(check.timers.map(timer => timer.id));
+  activeFowTimers = (activeFowTimers || []).filter(timer => !removeTimerIds.has(timer.id));
+  saveFowTimers();
+  await flushSupabaseStateSave("active_fow_timers");
+  let released = 0;
+  for (const op of check.warOps) {
+    if (String(op.status || "").toUpperCase() !== "PREPARATION") continue;
+    setWarOperation(op.club,{
+      status:"AVAILABLE",isolated:false,matchId:null,preparationEndAt:null,
+      monitorAfterPrep:false,reminderPending:false,nextReminderAt:null,nextAckReminderAt:null,
+      lastAckBy:null,lastAckAt:null,coolingEndAt:null,completionSent:true
+    },userId,"MATCH_ID_AND_PREPARATION_CANCELLED");
+    released++;
+  }
+  const now = Date.now();
+  plan.status="CANCELLED";
+  plan.cancelledAt=now;
+  plan.cancelledBy=String(userId);
+  plan.lifecycleTrackingStoppedAt=now;
+  plan.preparationCancelledAt=check.timers.length||check.warOps.length?now:null;
+  plan.updatedAt=now;
+  plan.updatedBy=String(userId);
+  matchPlans.set(plan.id,plan);
+  await saveMatchPlansNow();
+  const availableCount=check.clubs.filter(club=>isClubMatchmakingAvailable(club)).length;
+  try {
+    const channelId=plan.matchControlsChannelId||plan.channelId;
+    const channel=channelId?await client.channels.fetch(String(channelId)).catch(()=>null):null;
+    if(plan.matchControlsMessageId&&channel?.messages?.fetch){const old=await channel.messages.fetch(String(plan.matchControlsMessageId)).catch(()=>null);if(old)await old.edit({components:[]}).catch(()=>{});}
+    if(channel?.isTextBased?.())await channel.send(
+      `🛑 **MATCH ID & OPERATIONS CANCELLED**\n`+
+      `━━━━━━━━━━━━━━━━━━━━\n\n`+
+      `🆔 Match ID: **${plan.id}**\n`+
+      `⏱️ Preparation Timer: **${check.timers.length?"STOPPED":"NOT ACTIVE"}**\n`+
+      `⚔️ War Monitor: **${check.warOps.length?"REMOVED":"NOT ACTIVE"}**\n`+
+      `🔔 Future Reminders: **CANCELLED**\n`+
+      `🔓 Isolation: **RELEASED**\n`+
+      `🟢 Clubs Available: **${availableCount}/${check.clubs.length}**\n`+
+      `👤 Cancelled by: <@${userId}>\n\n`+
+      `${availableCount===check.clubs.length?"✅ Clubs may now be used for matchmaking/rematch.":"⚠️ Clubs with another independent restriction remain isolated."}`
+    );
+  } catch(error) { console.error(`❌ Match cancellation notification failed for ${plan.id}:`,error); }
+  return {ok:true,check,released,availableCount,now};
+}
 
 function createMatchCancelSessionId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -6410,6 +6629,328 @@ app.get(
   }
 );
 
+
+// ============================================================
+// FOW PROJECT GATEWAY V1 — READ-ONLY PRODUCTION SUMMARY
+// ============================================================
+// Unified live production state for HS V2 / ChatGPT.
+// IMPORTANT:
+// - READ ONLY
+// - No Supabase writes
+// - No timer mutation
+// - No matchmaking mutation
+// - No war-operation mutation
+// - Uses the same Bearer authentication as /bridge/read/elo
+// ============================================================
+
+app.get(
+  "/bridge/v2/project/summary",
+  requireChatgptReadAuth,
+  (req, res) => {
+    try {
+      const clubs = getSortedLeaderboard();
+
+      const excludedKeys = new Set(
+        (derbyExcludedClubs || []).map(name =>
+          normalizeClubName(name)
+        )
+      );
+
+      const derbyExcludedCount =
+        clubs.filter(club =>
+          excludedKeys.has(normalizeClubName(club.club))
+        ).length;
+
+      const timers =
+        Array.isArray(activeFowTimers)
+          ? activeFowTimers
+          : [];
+
+      const liveTimers =
+        timers.filter(timer =>
+          timer?.sent?.end !== true
+        );
+
+      const operations =
+        Object.values(warOperations || {});
+
+      const isolatedOperations =
+        operations.filter(op =>
+          op &&
+          String(op.status || "AVAILABLE").toUpperCase() !== "AVAILABLE"
+        );
+
+      const activeEvent =
+        getActiveEvent();
+
+      if (typeof cleanupHsControlRoomDrafts === "function") {
+        cleanupHsControlRoomDrafts();
+      }
+
+      res.setHeader("Cache-Control", "no-store");
+
+      res.json({
+        ok: true,
+        source: "fow-production",
+        gateway: "v1",
+        timestamp: new Date().toISOString(),
+
+        elo: {
+          clubs: clubs.length
+        },
+
+        derby: {
+          included: clubs.length - derbyExcludedCount,
+          excluded: derbyExcludedCount
+        },
+
+        matchPlans: {
+          total: matchPlans.size
+        },
+
+        warOperations: {
+          total: operations.length,
+          isolated: isolatedOperations.length,
+          available:
+            operations.filter(op =>
+              String(op?.status || "AVAILABLE").toUpperCase() === "AVAILABLE"
+            ).length
+        },
+
+        timers: {
+          stored: timers.length,
+          active: liveTimers.length
+        },
+
+        event: activeEvent
+          ? {
+              active: true,
+              id: activeEvent.id || null,
+              name: activeEvent.name || null,
+              type: activeEvent.type || null,
+              status: activeEvent.status || null,
+              startAt: activeEvent.startAt || null,
+              endAt: activeEvent.endAt || null
+            }
+          : {
+              active: false
+            },
+
+        matchmaking: {
+          activeDrafts: hsControlRoomDrafts.size
+        }
+      });
+
+    } catch (error) {
+      console.error(
+        "❌ FoW Project Gateway summary error:",
+        error
+      );
+
+      res.status(500).json({
+        ok: false,
+        source: "fow-production",
+        gateway: "v1",
+        error: "project_summary_failed"
+      });
+    }
+  }
+);
+
+
+// ============================================================
+// FOW PROJECT GATEWAY V1 — CLUB PROFILE
+// ============================================================
+app.get(
+  "/bridge/v2/clubs/:query",
+  requireChatgptReadAuth,
+  (req, res) => {
+    try {
+      const query = decodeURIComponent(String(req.params.query || "")).trim();
+
+      const matches = resolveHsClubsByClubOrPresident(query);
+
+      if (matches.length !== 1) {
+        return res.status(matches.length ? 409 : 404).json({
+          ok: false,
+          error: matches.length ? "ambiguous_club" : "club_not_found",
+          query,
+          matches: matches.map(x => ({
+            club: x.club,
+            president: x.president || null,
+            elo: Number(x.elo) || 0
+          }))
+        });
+      }
+
+      const club = matches[0];
+      const key = normalizeClubName(club.club);
+
+      const op = getWarOperation(club.club);
+
+      const timers = (activeFowTimers || [])
+        .filter(timer =>
+          timer?.sent?.end !== true &&
+          Array.isArray(timer?.clubs) &&
+          timer.clubs.some(c =>
+            normalizeClubName(c?.club || c) === key
+          )
+        )
+        .map(timer => ({
+          id: timer.id || null,
+          type: timer.type || null,
+          matchId: timer.matchId || null,
+          operationalMode: timer.operationalMode || null,
+          pushMode: timer.pushMode || null,
+          warDoneMode: timer.warDoneMode || null,
+          endAt: timer.endAt || null,
+          hours: timer.hours ?? null
+        }));
+
+      const plans = [...matchPlans.values()]
+        .filter(plan =>
+          Array.isArray(plan?.clubs) &&
+          plan.clubs.some(c =>
+            normalizeClubName(c.club) === key
+          )
+        )
+        .sort((a,b) =>
+          Number(b.updatedAt || b.createdAt || 0) -
+          Number(a.updatedAt || a.createdAt || 0)
+        )
+        .slice(0, 5)
+        .map(plan => {
+          const pair = getPairFromPlan(plan, club.club);
+          const own = pair?.item || null;
+          const opponent = pair?.pair?.find(c =>
+            normalizeClubName(c.club) !== key
+          ) || null;
+
+          return {
+            matchId: plan.id,
+            status: plan.status || null,
+            pairNo: pair?.pairNo || null,
+            role: own?.matchRole || null,
+            clubStatus: own?.status || null,
+            opponent: opponent ? {
+              club: opponent.club,
+              elo: Number(opponent.elo) || 0,
+              president: opponent.president || null,
+              role: opponent.matchRole || null,
+              status: opponent.status || null
+            } : null,
+            eventId: plan.eventId || null,
+            createdAt: plan.createdAt || null,
+            updatedAt: plan.updatedAt || null
+          };
+        });
+
+      const activeEvent = getActiveEvent();
+
+      res.setHeader("Cache-Control", "no-store");
+
+      res.json({
+        ok: true,
+        source: "fow-production",
+        gateway: "v1",
+        timestamp: new Date().toISOString(),
+
+        club: {
+          name: club.club,
+          elo: Number(club.elo) || 0,
+          presidentPusher: club.president || null,
+          clubCode: club.clubCode || null
+        },
+
+        derby: {
+          included: isDerbyClub(club)
+        },
+
+        matchmaking: {
+          available: isClubMatchmakingAvailable(club.club)
+        },
+
+        warOperation: op || {
+          status: "AVAILABLE"
+        },
+
+        timers,
+
+        recentMatches: plans,
+
+        activeEvent: activeEvent || null
+      });
+
+    } catch (error) {
+      console.error("❌ Gateway club profile error:", error);
+
+      res.status(500).json({
+        ok: false,
+        error: "club_profile_failed"
+      });
+    }
+  }
+);
+
+// Lightning research read-only APIs. Same Bearer token as /bridge/read/elo.
+// Optional ?event_id=... allows completed Lightning datasets to be queried.
+app.get(
+  "/bridge/read/lightning/history",
+  requireChatgptReadAuth,
+  (req, res) => {
+    const eventId = getLightningResearchEventId(req);
+    const observations = getLightningResearchObservations(eventId);
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      ok: true,
+      source: "fow-production",
+      timestamp: new Date().toISOString(),
+      event_id: eventId,
+      count: observations.length,
+      observations
+    });
+  }
+);
+
+app.get(
+  "/bridge/read/lightning/snapshot",
+  requireChatgptReadAuth,
+  (req, res) => {
+    const eventId = getLightningResearchEventId(req);
+    const baseline = eventId
+      ? lightningResearch.baselines?.[eventId] || null
+      : null;
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      ok: true,
+      source: "fow-production",
+      timestamp: new Date().toISOString(),
+      event_id: eventId,
+      baseline
+    });
+  }
+);
+
+app.get(
+  "/bridge/read/lightning/matches",
+  requireChatgptReadAuth,
+  (req, res) => {
+    const eventId = getLightningResearchEventId(req);
+    const plans = eventId
+      ? [...matchPlans.values()].filter(plan => plan?.eventId === eventId)
+      : [];
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      ok: true,
+      source: "fow-production",
+      timestamp: new Date().toISOString(),
+      event_id: eventId,
+      count: plans.length,
+      match_plans: plans
+    });
+  }
+);
+
 app.use(requireLeaderboardAuth);
 
 // MAIN LEADERBOARD
@@ -7391,6 +7932,24 @@ async function restoreWarOperationsFromSupabase(){
   const audit=await loadSupabaseState('war_audit_v1');
   if(ops && typeof ops==='object' && !Array.isArray(ops)) warOperations=ops;
   if(Array.isArray(audit)) warAuditHistory=audit;
+  let derbyBatchReminderMigrations=0;
+  for(const op of Object.values(warOperations)){
+    if(!op?.matchId||!op?.warBatchId)continue;
+    const plan=getMatchPlan(op.matchId);
+    if(!plan?.warStartedWithoutPreparationAt)continue;
+    if(op.monitorAfterPrep!==false||op.reminderPending||op.nextReminderAt||op.nextAckReminderAt){
+      op.monitorAfterPrep=false;
+      op.reminderPending=false;
+      op.nextReminderAt=null;
+      op.nextAckReminderAt=null;
+      op.updatedAt=Date.now();
+      derbyBatchReminderMigrations++;
+    }
+  }
+  if(derbyBatchReminderMigrations){
+    saveWarOperations();
+    console.log(`🧹 Derby START WAR NOW reminders disabled: ${derbyBatchReminderMigrations} club(s)`);
+  }
   console.log(`💾 War operations restored from Supabase: ${Object.keys(warOperations).length}`);
 }
 function setWarOperation(club, patch, userId=null, action='STATE_UPDATE'){
@@ -7400,8 +7959,37 @@ function setWarOperation(club, patch, userId=null, action='STATE_UPDATE'){
   if(!key) return null;
   const old=warOperations[key] || {id:createWarOpId(),club:canonical,president:db?.president||'',elo:Number(db?.elo)||0,createdAt:Date.now()};
   const op={...old,...patch,club:canonical,president:db?.president||old.president||'',elo:Number(db?.elo)||Number(old.elo)||0,updatedAt:Date.now()};
+  const becomingAvailable=String(op.status||'').toUpperCase()==='AVAILABLE';
+  if(becomingAvailable){
+    op.isolated=false;
+    op.monitorAfterPrep=false;
+    op.preparationEndAt=null;
+    op.reminderPending=false;
+    op.nextReminderAt=null;
+    op.nextAckReminderAt=null;
+    op.coolingEndAt=null;
+    op.warning15mSent=false;
+    op.completionSent=true;
+    const clubKey=normalizeClubName(canonical);
+    let timerIsolationRemoved=0;
+    for(const timer of activeFowTimers||[]){
+      if(timer?.sent?.end===true||!Array.isArray(timer.clubs))continue;
+      const before=timer.clubs.length;
+      timer.clubs=timer.clubs.filter(c=>normalizeClubName(c?.club)!==clubKey);
+      if(timer.clubs.length!==before){
+        timerIsolationRemoved+=before-timer.clubs.length;
+        timer.updatedAt=Date.now();
+        if(!timer.clubs.length){timer.status='completed';timer.completedAt=Date.now();timer.sent={...(timer.sent||{}),end:true};}
+      }
+    }
+    if(timerIsolationRemoved){
+      activeFowTimers=(activeFowTimers||[]).filter(timer=>timer?.sent?.end!==true&&(!Array.isArray(timer.clubs)||timer.clubs.length>0));
+      saveFowTimers();
+      console.log(`🟢 AVAILABLE invariant removed timer isolation • ${canonical} • ${timerIsolationRemoved} link(s)`);
+    }
+  }
   warOperations[key]=op;
-  recordWarAudit(op,action,userId,{fromStatus:old.status||null,toStatus:op.status||null});
+  recordWarAudit(op,action,userId,{fromStatus:old.status||null,toStatus:op.status||null,isolated:Boolean(op.isolated)});
   return op;
 }
 function findWarOperationById(id){ return Object.values(warOperations).find(x=>String(x.id)===String(id)) || null; }
@@ -7468,12 +8056,68 @@ async function notifyGreaseWarStarted(op){
 }
 function warReminderComponents(op){
   return [new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`war_ack:${op.id}`).setLabel('⚔️ WAR STILL ON').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`war_end:${op.id}`).setLabel('✅ WAR ENDED').setStyle(ButtonStyle.Danger)
+    new ButtonBuilder().setCustomId(`war_ack:${op.id}`).setLabel('✅ ACKNOWLEDGE').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`war_checksoon:${op.id}`).setLabel('⏰ CHECK SOON').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`war_end:${op.id}`).setLabel('🏁 WAR DONE').setStyle(ButtonStyle.Danger)
   )];
 }
+function buildBatchWarReminderComponents(ops,token='active'){
+  const usable=(ops||[]).filter(op=>op?.id&&op?.club).slice(0,100);
+  if(!usable.length)return [];
+  const matchId=String(usable[0]?.matchId||'').slice(0,60);
+  const rows=[new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`war_batch_ack:${matchId}`).setLabel('✅ ACK ALL').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`war_batch_checksoon:${matchId}`).setLabel('⏰ CHECK SOON ALL').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`war_batch_done:${matchId}`).setLabel('🏁 WAR DONE ALL').setStyle(ButtonStyle.Danger)
+  )];
+  for(let offset=0;offset<usable.length;offset+=25){
+    const page=usable.slice(offset,offset+25);
+    rows.push(new ActionRowBuilder().addComponents(
+      new StringSelectMenuBuilder()
+      .setCustomId(`war_batch_pick:${token}:${Math.floor(offset/25)}`)
+      .setPlaceholder(usable.length>25?`Select club ${offset+1}-${offset+page.length}`:'Select a club to manage')
+      .setMinValues(1).setMaxValues(1)
+      .addOptions(page.map(op=>({
+        label:String(op.club).slice(0,100),
+        description:`${Number(op.elo)||0} ELO • ${warEventLabel(op.eventType)}`.slice(0,100),
+        value:String(op.id)
+      })))
+    ));
+  }
+  return rows;
+}
+async function sendBatchWarReminder(ops,{followup=false}={}){
+  const batch=(ops||[]).filter(Boolean);
+  if(!batch.length)return false;
+  const lead=batch[0];
+  if(!client?.isReady?.()||!lead?.channelId)return false;
+  try{
+    const channel=await client.channels.fetch(String(lead.channelId));
+    if(!channel?.isTextBased?.())return false;
+    const mentions=getWarReminderMentions();
+    const matchId=lead.matchId||'N/A';
+    const clubLines=batch.map((op,index)=>`${index+1}. **${op.club}** — ${Number(op.elo)||0} ELO`).join('\n');
+    const msg=await channel.send({
+      content:`${mentions.length?mentions.join(' ')+'\n\n':''}${followup?'⚠️ **WAR STATUS NOT ACKNOWLEDGED — MATCH ID**':'⏰ **WAR REMINDER — MATCH ID**'}\n━━━━━━━━━━━━━━━━━━━━\n\n🆔 Match ID: **${matchId}**\n🏰 Active clubs: **${batch.length}**\n⚔️ Event: **${warEventLabel(lead.eventType)}**\n🚫 Matchmaking: **ISOLATED**\n\n${clubLines}\n\nUse the batch buttons when all Derby clubs share the same status. Use the dropdown only for an exception.`,
+      components:buildBatchWarReminderComponents(batch,followup?'followup':'active'),
+      allowedMentions:{parse:mentions.length?['users']:[]}
+    });
+    const now=Date.now();
+    for(const op of batch){
+      op.reminderPending=true;
+      op.lastReminderAt=followup?(op.lastReminderAt||now):now;
+      op.lastReminderMessageId=msg.id;
+      op.lastAckReminderAt=followup?now:op.lastAckReminderAt;
+      op.lastAckReminderMessageId=followup?msg.id:null;
+      op.nextAckReminderAt=now+WAR_ACK_FOLLOWUP_INTERVAL_MS;
+      op.updatedAt=now;
+      recordWarAudit(op,followup?'WAR_ACK_FOLLOWUP_SENT':'WAR_REMINDER_SENT',null,{messageId:msg.id,matchId:lead.matchId||null,batchSize:batch.length});
+    }
+    return true;
+  }catch(error){console.error(`❌ Batch War reminder failed for ${lead.matchId||lead.club}:`,error);return false;}
+}
 function buildWarReminderText(op){
-  return `⏰ **WAR REMINDER**\n\n🏙️ **${op.club}**\n⚔️ Event: **${warEventLabel(op.eventType)}**\n🔴 Status: **WAR ACTIVE**\n🚫 Matchmaking: **ISOLATED**`;
+  return `⏰ **WAR REMINDER**\n\n🏙️ Club: **${op.club}**\n🏆 ELO: **${Number(op.elo)||0}**\n⚔️ Event: **${warEventLabel(op.eventType)}**\n🔴 Status: **WAR ACTIVE**\n🚫 Matchmaking: **ISOLATED**\n\nChoose an action below.`;
 }
 
 async function sendWarReminder(op){
@@ -7518,7 +8162,7 @@ async function sendWarAckFollowup(op){
     op.lastAckReminderMessageId=null;
 
     const msg=await channel.send({
-      content:`${mentions.length?mentions.join(' ')+'\n\n':''}⚠️ **WAR STATUS NOT ACKNOWLEDGED**\n\n🏙️ **${op.club}**\n⚔️ Event: **${warEventLabel(op.eventType)}**\n🔴 Status: **WAR ACTIVE**\n🚫 Matchmaking: **ISOLATED**\n\nPlease confirm the current war status.`,
+      content:`${mentions.length?mentions.join(' ')+'\n\n':''}⚠️ **WAR STATUS NOT ACKNOWLEDGED**\n\n🏙️ Club: **${op.club}**\n🏆 ELO: **${Number(op.elo)||0}**\n⚔️ Event: **${warEventLabel(op.eventType)}**\n🔴 Status: **WAR ACTIVE**\n🚫 Matchmaking: **ISOLATED**\n\nPlease confirm the current war status.`,
       components:warReminderComponents(op),
       allowedMentions:{parse:mentions.length?['users']:[]}
     });
@@ -7559,6 +8203,7 @@ War status reminder cycle: **ACTIVE**.`;
 ━━━━━━━━━━━━━━━━━━━━
 
 🏰 Club: **${op.club}**
+🏆 ELO: **${Number(op.elo) || 0}**
 ⚡ Event: **${warEventLabel(type)}**
 ${type==='grease'?'🔴':'⚪'} Status: **${String(op.status||'WAR_ACTIVE').replaceAll('_',' ')}**
 🚫 Matchmaking: **ISOLATED**
@@ -7693,6 +8338,7 @@ async function processWarOperations(){
   warOpsProcessorRunning=true;
   try{
     const now=Date.now();
+    const batchedReminderIds=new Set(),batchedFollowupIds=new Set();
     for(const op of Object.values(warOperations)){
       let st=String(op.status||'AVAILABLE').toUpperCase();
       if(st==='PREPARATION' && Number(op.preparationEndAt)>now){
@@ -7749,8 +8395,20 @@ ${clubLines}
         await notifyPreparationCompleted(op);
         st='WAR_ACTIVE';
       }
-      if((st==='WAR_ACTIVE'||st==='KO_ACTIVE') && !op.reminderPending && Number(op.nextReminderAt||0)>0 && Number(op.nextReminderAt)<=now){ await sendWarReminder(op); }
-      if((st==='WAR_ACTIVE'||st==='KO_ACTIVE') && op.reminderPending && Number(op.nextAckReminderAt||0)>0 && Number(op.nextAckReminderAt)<=now){ await sendWarAckFollowup(op); }
+      if((st==='WAR_ACTIVE'||st==='KO_ACTIVE') && !op.reminderPending && Number(op.nextReminderAt||0)>0 && Number(op.nextReminderAt)<=now && !batchedReminderIds.has(op.id)){
+        const batch=op.matchId?Object.values(warOperations).filter(x=>String(x?.matchId||'')===String(op.matchId)&&String(x?.channelId||'')===String(op.channelId)&&['WAR_ACTIVE','KO_ACTIVE'].includes(String(x?.status||'').toUpperCase())&&!x?.reminderPending&&Number(x?.nextReminderAt||0)>0&&Number(x?.nextReminderAt)<=now):[op];
+        for(const x of batch)batchedReminderIds.add(x.id);
+        if(batch.length>1)await sendBatchWarReminder(batch);else await sendWarReminder(op);
+      }
+      if((st==='WAR_ACTIVE'||st==='KO_ACTIVE') && op.reminderPending && Number(op.nextAckReminderAt||0)>0 && Number(op.nextAckReminderAt)<=now && !batchedFollowupIds.has(op.id)){
+        const batch=op.matchId?Object.values(warOperations).filter(x=>String(x?.matchId||'')===String(op.matchId)&&String(x?.channelId||'')===String(op.channelId)&&['WAR_ACTIVE','KO_ACTIVE'].includes(String(x?.status||'').toUpperCase())&&x?.reminderPending&&Number(x?.nextAckReminderAt||0)>0&&Number(x?.nextAckReminderAt)<=now):[op];
+        for(const x of batch)batchedFollowupIds.add(x.id);
+        if(batch.length>1){
+          const oldIds=[...new Set(batch.flatMap(x=>[x.lastReminderMessageId,x.lastAckReminderMessageId]).filter(Boolean))];
+          for(const messageId of oldIds)try{const ch=await client.channels.fetch(String(op.channelId));const old=await ch?.messages?.fetch?.(String(messageId));if(old)await old.delete();}catch(error){if(error?.code!==10008)console.error('⚠️ Failed to remove batch War reminder:',error);}
+          await sendBatchWarReminder(batch,{followup:true});
+        }else await sendWarAckFollowup(op);
+      }
       if(st==='COOLING_DOWN' && Number(op.coolingEndAt)>0){
         const remaining=Number(op.coolingEndAt)-now;
         if(remaining<=15*60*1000 && remaining>0 && !op.warning15mSent){
@@ -7784,6 +8442,54 @@ function buildWarStatusDashboard(){
   const out=[];for(const [k,l] of specs)if(groups[k]?.length)out.push(`${l} **(${groups[k].length})**\n${groups[k].join('\n')}`);
   return `📋 **WAR STATUS**\n\n${out.join('\n\n')}\n\n🚫 **Matchmaking Isolated: ${active.length}**`;
 }
+function buildHsFilteredWarStatusDashboard(clubs) {
+  const requested = Array.isArray(clubs) ? clubs.filter(Boolean) : [];
+  if (!requested.length) return buildWarStatusDashboard();
+
+  const lines = [];
+  let isolatedCount = 0;
+
+  for (const item of requested) {
+    const club = typeof item === "string" ? item : item.club;
+    if (!club) continue;
+
+    const op = getWarOperation(club);
+    const status = String(op?.status || "AVAILABLE").toUpperCase();
+
+    if (!op || status === "AVAILABLE") {
+      lines.push(`🟢 **${club}** — AVAILABLE`);
+      continue;
+    }
+
+    isolatedCount += 1;
+
+    let label = status.replace(/_/g, " ");
+    let icon = "🚫";
+    if (status === "WAR_ACTIVE") icon = "🔴";
+    else if (status === "KO_ACTIVE") icon = "🔴";
+    else if (status === "PREPARATION") icon = "⚪";
+    else if (status === "COOLING_DOWN") icon = "🟡";
+    else if (status === "AWAITING_COOLING_TIME") icon = "🟠";
+
+    let remaining = "";
+    if (status === "PREPARATION" && op.preparationEndAt) {
+      remaining = ` • ${formatRemaining(Number(op.preparationEndAt)-Date.now())} left`;
+    } else if (status === "COOLING_DOWN" && op.coolingEndAt) {
+      remaining = ` • ${formatRemaining(Number(op.coolingEndAt)-Date.now())} left`;
+    }
+
+    lines.push(
+      `${icon} **${club}** — ${label} • ${warEventLabel(op.eventType)}${remaining}`
+    );
+  }
+
+  return (
+    `📋 **WAR STATUS — SELECTED CLUBS (${requested.length})**\n\n` +
+    lines.join("\n") +
+    `\n\n🚫 **Matchmaking Isolated: ${isolatedCount}/${requested.length}**`
+  );
+}
+
 function timerIsolationLabel(t){if(t?.type==='push')return'Preparation';if(t?.type==='war_done_manual')return t.warDoneMode==='ko'?'KO':'KO + Cooling';if(t?.type==='war_done')return Number(t.hours)===2?'KO':'KO + Cooling';return String(t?.type||'Timer').replaceAll('_',' ');}
 function buildIsolationTimerDashboard(){
   const now=Date.now(),active=[],soon=[],overdue=[],keys=new Set();
@@ -7878,7 +8584,12 @@ function manualCurrentPair(session) {
 
 function buildManualMatchmakingView(session) {
   const draft = manualCurrentPair(session);
-  const pairLines = (session.pairs || []).map((pair, i) => {
+  const pageSize=5,totalPairs=(session.pairs||[]).length,totalPages=Math.max(1,Math.ceil(totalPairs/pageSize));
+  session.viewPage=Math.max(0,Math.min(Number(session.viewPage)||0,totalPages-1));
+  const pageStart=session.viewPage*pageSize;
+  const pagePairs=(session.pairs||[]).slice(pageStart,pageStart+pageSize);
+  const pairLines = pagePairs.map((pair, pageIndex) => {
+    const i=pageStart+pageIndex;
     const winner = pair.winnerSide === 'b' ? pair.b : pair.a;
     const loser = pair.winnerSide === 'b' ? pair.a : pair.b;
     const gap = Math.abs(Number(pair.a.elo)-Number(pair.b.elo));
@@ -7888,26 +8599,31 @@ function buildManualMatchmakingView(session) {
   const top =
     `⚔️ **${session.mode === 'edit' ? 'EDIT' : 'MANUAL'} MATCHMAKING**\n` +
     (session.mode === 'edit' ? `🆔 Match ID: **${session.matchId}**\n` : '') +
-    `Pairs ready: **${(session.pairs || []).length}**\n\n` +
-    `Club A: **${draft.a ? `${draft.a.club} (${draft.a.elo}) - ${draft.a.president || 'Not Set'}` : 'Not selected'}**\n` +
-    `Club B: **${draft.b ? `${draft.b.club} (${draft.b.elo}) - ${draft.b.president || 'Not Set'}` : 'Not selected'}**\n` +
-    `Winner: **${draft.winnerSide === 'a' ? 'Club A' : draft.winnerSide === 'b' ? 'Club B' : 'Not selected'}**`;
+    `Pairs ready: **${totalPairs}**` +
+    (totalPairs?` • Page: **${session.viewPage+1}/${totalPages}**`:'') +
+    ((draft.a||draft.b||draft.winnerSide||session.editingPairIndex!=null)
+      ? `\n\nClub A: **${draft.a ? `${draft.a.club} (${draft.a.elo}) - ${draft.a.president || 'Not Set'}` : 'Not selected'}**\nClub B: **${draft.b ? `${draft.b.club} (${draft.b.elo}) - ${draft.b.president || 'Not Set'}` : 'Not selected'}**\nWinner: **${draft.winnerSide === 'a' ? 'Club A' : draft.winnerSide === 'b' ? 'Club B' : 'Not selected'}**`
+      : `\n📋 Paste Mode: **Ready**`);
 
-  const preview = pairLines.length ? `\n\n${pairLines.slice(-5).join('\n\n')}` : '';
+  const preview = pairLines.length ? `\n\n${pairLines.join('\n\n')}` : '';
   const rows=[];
   if ((session.pairs || []).length) {
     const pairSelect = new StringSelectMenuBuilder()
       .setCustomId(`man_pair:${session.id}`)
       .setPlaceholder(session.editingPairIndex != null ? `Editing Pair ${session.editingPairIndex + 1}` : 'Select a pair to edit')
       .setMinValues(1).setMaxValues(1)
-      .addOptions(session.pairs.slice(0,25).map((pair,i)=>({
+      .addOptions(pagePairs.map((pair,pageIndex)=>{const i=pageStart+pageIndex;return({
         label:`Pair ${i+1}: ${pair.a.club} vs ${pair.b.club}`.slice(0,100),
         description:`Gap ${Math.abs(Number(pair.a.elo)-Number(pair.b.elo))}`.slice(0,100),
         value:String(i),
         default:session.editingPairIndex===i
-      })));
+      });}));
     rows.push(new ActionRowBuilder().addComponents(pairSelect));
   }
+  if(totalPages>1)rows.push(new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`man_prev:${session.id}`).setLabel('◀ Previous').setStyle(ButtonStyle.Secondary).setDisabled(session.viewPage<=0),
+    new ButtonBuilder().setCustomId(`man_next:${session.id}`).setLabel('Next ▶').setStyle(ButtonStyle.Secondary).setDisabled(session.viewPage>=totalPages-1)
+  ));
   const row1 = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId(`man_paste:${session.id}`).setLabel('📋 Paste Match List').setStyle(ButtonStyle.Success).setDisabled(session.mode==='edit'),
     new ButtonBuilder().setCustomId(`man_search:${session.id}:a`).setLabel('🔎 Search Club A').setStyle(ButtonStyle.Primary),
@@ -7922,6 +8638,7 @@ function buildManualMatchmakingView(session) {
   const row3 = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId(`man_remove:${session.id}`).setLabel(session.editingPairIndex != null ? '🗑 Remove Selected Pair' : '↩ Remove Last Pair').setStyle(ButtonStyle.Secondary).setDisabled(!(session.pairs || []).length),
     new ButtonBuilder().setCustomId(`man_generate:${session.id}`).setLabel(session.mode==='edit'?'💾 Save Changes':'✅ Generate Matchmaking').setStyle(ButtonStyle.Success).setDisabled(!(session.pairs || []).length),
+    new ButtonBuilder().setCustomId(`man_saved:${session.id}`).setLabel('📚 Saved Match IDs').setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId(`man_cancel:${session.id}`).setLabel('Cancel').setStyle(ButtonStyle.Danger)
   );
   rows.push(row1,row2,row3);
@@ -7997,18 +8714,22 @@ function planFromManualSession(session, interaction) {
 function getEventTypeForPlan(plan){const x=getEventById(plan?.eventId);return String(x?.type||'normal').toLowerCase();}
 function buildMatchPlanKoButton(id){
   const plan=getMatchPlan(id),mode=getEventTypeForPlan(plan),prepHours=eventPreparationHours(mode);
-  if(prepHours>0 && !plan?.preparationCompletedAt){
+  if(prepHours>0 && !plan?.preparationCompletedAt && !plan?.warStartedWithoutPreparationAt){
     const started=Number(plan?.preparationStartedAt||0)>0;
     return new ActionRowBuilder().addComponents(
       new ButtonBuilder().setCustomId(`match_prep_start:${id}`).setLabel(started?`⏳ ${prepHours}H PREPARATION ACTIVE`:`▶️ START ${prepHours}H PREPARATION`).setStyle(ButtonStyle.Primary).setDisabled(started),
+      new ButtonBuilder().setCustomId(`match_war_now:${id}`).setLabel('⚔️ START WAR NOW').setStyle(ButtonStyle.Success).setDisabled(started),
       new ButtonBuilder().setCustomId(`match_cancel_request:${id}`).setLabel('🛑 CANCEL MATCH ID').setStyle(ButtonStyle.Danger),
       new ButtonBuilder().setCustomId(`match_controls_cancel:${id}`).setLabel('✖️ CLOSE').setStyle(ButtonStyle.Secondary));
   }
   const koOnly=['grease','lightning'].includes(mode);
-  return new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`match_ko_start:${id}`).setLabel(koOnly?'🥊 START KO TIMER':'🥊🧊 START KO + COOLING').setStyle(ButtonStyle.Primary),
+  const buttons=[new ButtonBuilder().setCustomId(`match_ko_start:${id}`).setLabel(koOnly?'🥊 START KO TIMER':'🥊🧊 START KO + COOLING').setStyle(ButtonStyle.Primary)];
+  const pending=(plan?.clubs||[]).filter(c=>c?.club&&String(c.status||'pending').toLowerCase()!=='excluded'&&isClubMatchmakingAvailable(c.club));
+  if(plan?.warStartedWithoutPreparationAt&&pending.length)buttons.push(new ButtonBuilder().setCustomId(`match_war_now:${id}`).setLabel(`⚔️ ADD WAR BATCH (${pending.length})`).setStyle(ButtonStyle.Success));
+  buttons.push(
     new ButtonBuilder().setCustomId(`match_cancel_request:${id}`).setLabel('🛑 CANCEL MATCH ID').setStyle(ButtonStyle.Danger),
     new ButtonBuilder().setCustomId(`match_controls_cancel:${id}`).setLabel('✖️ CLOSE').setStyle(ButtonStyle.Secondary));
+  return new ActionRowBuilder().addComponents(...buttons);
 }
 function hasActiveTimerForMatch(id){id=normalizeMatchId(id);return(activeFowTimers||[]).some(t=>normalizeMatchId(t.matchId||'')===id&&t?.sent?.end!==true);}
 function startKoTimerForMatchPlan(plan,interaction,clubOverride=null){const mode=getEventTypeForPlan(plan),hours=['grease','lightning'].includes(mode)?2:14,seen=new Set(),clubs=[];const source=Array.isArray(clubOverride)?clubOverride:getMatchPlanActiveClubs(plan);for(const c of source||[]){const k=normalizeClubName(c.club);if(!k||seen.has(k))continue;seen.add(k);clubs.push({club:c.club,president:c.president||'',elo:Number(c.elo)||0});}if(!clubs.length)return null;for(const c of clubs)setWarOperation(c.club,{eventType:mode,status:'KO_ACTIVE',isolated:true,matchId:plan.id,channelId:interaction.channelId,guildId:interaction.guildId,monitorAfterPrep:false,reminderPending:false,nextReminderAt:null},interaction.user.id,'KO_TIMER_STARTED');return createActiveFowTimer({id:createFowTimerId(),userId:interaction.user.id,guildId:interaction.guildId,channelId:interaction.channelId,type:'war_done',hours,warDoneMode:null,pushMode:null,operationalMode:mode,durationMinutes:null,minElo:plan.min||0,maxElo:plan.max||0,matchId:plan.id,clubs,selected:new Set(clubs.map(c=>normalizeClubName(c.club))),page:0,createdAt:Date.now(),updatedAt:Date.now()});}
@@ -8017,13 +8738,140 @@ function startKoTimerForMatchPlan(plan,interaction,clubOverride=null){const mode
 const koTimerSetupSessions=new Map();
 const preparationSetupSessions=new Map();
 const isolationOverrideSessions=new Map();
+const batchWarNowSessions=new Map();
+const BATCH_WAR_NOW_TTL_MS=15*60*1000;
+
+function cleanupBatchWarNowSessions(){const cutoff=Date.now()-BATCH_WAR_NOW_TTL_MS;for(const[id,s]of batchWarNowSessions)if(Number(s?.updatedAt||s?.createdAt||0)<cutoff)batchWarNowSessions.delete(id);}
+function batchWarNowItems(session){const plan=getMatchPlan(session.matchId);return(plan?.clubs||[]).filter(c=>c?.club&&String(c.status||'pending').toLowerCase()!=='excluded'&&(!session.candidateKeys||session.candidateKeys.has(normalizeClubName(c.club))));}
+function buildBatchWarNowView(session){
+  const items=batchWarNowItems(session),pages=Math.max(1,Math.ceil(items.length/25));session.page=Math.max(0,Math.min(session.page||0,pages-1));session.updatedAt=Date.now();const pageItems=items.slice(session.page*25,session.page*25+25);
+  const rows=[];
+  if(pageItems.length)rows.push(new ActionRowBuilder().addComponents(new StringSelectMenuBuilder().setCustomId(`war_now_select:${session.id}`).setPlaceholder('Clubs that have started war').setMinValues(0).setMaxValues(pageItems.length).addOptions(pageItems.map(c=>({label:String(c.club).slice(0,100),description:`${Number(c.elo)||0} ELO • ${c.president||'Not Set'}`.slice(0,100),value:normalizeClubName(c.club),default:session.selected.has(normalizeClubName(c.club))})))));
+  rows.push(new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`war_now_prev:${session.id}`).setLabel('◀ Previous').setStyle(ButtonStyle.Secondary).setDisabled(session.page<=0),
+    new ButtonBuilder().setCustomId(`war_now_next:${session.id}`).setLabel('Next ▶').setStyle(ButtonStyle.Secondary).setDisabled(session.page>=pages-1),
+    new ButtonBuilder().setCustomId(`war_now_all:${session.id}`).setLabel('✅ SELECT ALL').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`war_now_paste:${session.id}`).setLabel('📋 PASTE EXCLUSIONS').setStyle(ButtonStyle.Secondary)
+  ));
+  rows.push(new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`war_now_confirm:${session.id}`).setLabel(`⚔️ START ${session.selected.size} CLUBS`).setStyle(ButtonStyle.Success).setDisabled(!session.selected.size),
+    new ButtonBuilder().setCustomId(`war_now_dry:${session.id}`).setLabel('🧪 DRY RUN').setStyle(ButtonStyle.Secondary).setDisabled(!session.selected.size),
+    new ButtonBuilder().setCustomId(`war_now_cancel:${session.id}`).setLabel('CANCEL').setStyle(ButtonStyle.Danger)
+  ));
+  return{content:`⚔️ **BATCH START WAR NOW — ${session.matchId}**\n\nDefault: **ALL CLUBS SELECTED**\nSelected to start: **${session.selected.size}/${items.length}**\nPage: **${session.page+1}/${pages}**\n\nUnselect clubs that have not started war, or paste an exclusion list.\n🔒 No production data changed yet.`,components:rows};
+}
+
+const warOverrideBulkPasteSessions=new Map();
+
+function createWarOverrideBulkPasteModal(){
+  return new ModalBuilder()
+    .setCustomId('war_override_bulk_paste')
+    .setTitle('Bulk War Override')
+    .addComponents(
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder()
+          .setCustomId('clubs')
+          .setLabel('Paste club names — one per line')
+          .setStyle(TextInputStyle.Paragraph)
+          .setRequired(true)
+          .setMaxLength(4000)
+          .setPlaceholder('FoW Neverland\nFoW Mystic Mages\nFoW Blue Crown')
+      )
+    );
+}
+
+function parseWarOverrideBulkPaste(text){
+  const lines=String(text||'')
+    .split(/\r?\n/)
+    .map(x=>String(x||'')
+      .replace(/^\s*[-•]\s*/,'')
+      .replace(/^\s*\d+[.)]\s*/,'')
+      .trim())
+    .filter(Boolean);
+
+  const found=[];
+  const missing=[];
+  const duplicate=[];
+  const seen=new Set();
+
+  for(const input of lines){
+    const db=(leaderboardData||[]).find(x=>areEquivalentClubNames(x.club,input));
+
+    if(!db){
+      missing.push(input);
+      continue;
+    }
+
+    const key=normalizeClubName(db.club);
+
+    if(seen.has(key)){
+      duplicate.push(db.club);
+      continue;
+    }
+
+    seen.add(key);
+
+    found.push({
+      club:db.club,
+      elo:Number(db.elo)||0,
+      president:db.president||'',
+      key,
+      isolated:!isClubMatchmakingAvailable(db.club),
+      warStatus:String(getWarOperation(db.club)?.status||'AVAILABLE')
+    });
+  }
+
+  return {found,missing,duplicate};
+}
+
+function buildWarOverrideBulkPastePreview(session){
+  const releasable=session.records.filter(x=>x.isolated);
+  const alreadyAvailable=session.records.filter(x=>!x.isolated);
+
+  const lines=releasable.map((x,i)=>
+    `${i+1}. **${x.club} (${x.elo})** - ${x.president||'Not Set'}\n`+
+    `   Current: **${x.warStatus.replaceAll('_',' ')} / ISOLATED**`
+  );
+
+  let text=
+    `🛡️ **WAR OVERRIDE BULK — PREVIEW**\n\n`+
+    `🟢 To release: **${releasable.length}**\n`+
+    `⚪ Already available: **${alreadyAvailable.length}**\n`+
+    `❌ Not found: **${session.missing.length}**\n\n`+
+    (lines.length?lines.join('\n\n'):'No isolated clubs ready to release.');
+
+  if(alreadyAvailable.length){
+    text+=`\n\n⚪ **Already Available — no change**\n`+
+      alreadyAvailable.map(x=>`• ${x.club}`).join('\n');
+  }
+
+  if(session.missing.length){
+    text+=`\n\n❌ **Not Found**\n`+
+      session.missing.map(x=>`• ${x}`).join('\n');
+  }
+
+  const row=new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`war_override_bulk_confirm:${session.id}`)
+      .setLabel('🟢 CONFIRM RELEASE')
+      .setStyle(ButtonStyle.Danger)
+      .setDisabled(releasable.length===0),
+    new ButtonBuilder()
+      .setCustomId(`war_override_bulk_cancel:${session.id}`)
+      .setLabel('❌ CANCEL')
+      .setStyle(ButtonStyle.Secondary)
+  );
+
+  return {content:text,components:[row]};
+}
+
 const OPS_UI_SESSION_TTL_MS=30*60*1000;
 function opsSessionId(prefix='op'){return `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}`;}
 function cleanupOpsSessions(map){const cutoff=Date.now()-OPS_UI_SESSION_TTL_MS;for(const [id,x] of map.entries())if(Number(x?.updatedAt||x?.createdAt||0)<cutoff)map.delete(id);}
 function pairPartnerFor(plan,clubKey){const item=(plan?.clubs||[]).find(c=>normalizeClubName(c.club)===clubKey);if(!item)return null;const pairNo=Number(item.pairNo);if(pairNo>0)return(plan.clubs||[]).find(c=>Number(c.pairNo)===pairNo&&normalizeClubName(c.club)!==clubKey)||null;return null;}
 function deriveKoSetup(plan,session){const failed=new Set(session.failed||[]),skipped=new Set(session.skipped||[]),released=new Set();for(const key of failed){const partner=pairPartnerFor(plan,key);if(partner)released.add(normalizeClubName(partner.club));}const excluded=new Set([...failed,...skipped,...released]);const clubs=[];const seen=new Set();for(const c of plan?.clubs||[]){const k=normalizeClubName(c.club);if(!k||seen.has(k)||excluded.has(k))continue;const st=String(c.status||'pending').toLowerCase();if(st==='failed'||st==='excluded')continue;seen.add(k);clubs.push(c);}return{failed,skipped,released,excluded,clubs};}
 function koSetupPageItems(plan,page){const all=(plan?.clubs||[]).filter(Boolean);const pages=Math.max(1,Math.ceil(all.length/25));const p=Math.max(0,Math.min(Number(page)||0,pages-1));return{items:all.slice(p*25,p*25+25),page:p,pages};}
-function openPreparationSetup(plan,interaction){cleanupOpsSessions(preparationSetupSessions);const s={id:opsSessionId('prep'),matchId:plan.id,userId:interaction.user.id,guildId:interaction.guildId,channelId:interaction.channelId,failed:new Set(),skipped:new Set(),mode:null,page:0,createdAt:Date.now(),updatedAt:Date.now()};preparationSetupSessions.set(s.id,s);return s;}
+function openPreparationSetup(plan,interaction){cleanupOpsSessions(preparationSetupSessions);const s={id:opsSessionId('prep'),matchId:plan.id,userId:interaction.user.id,guildId:interaction.guildId,channelId:String(plan.matchControlsChannelId||plan.channelId||interaction.channelId),failed:new Set(),skipped:new Set(),mode:null,page:0,createdAt:Date.now(),updatedAt:Date.now()};preparationSetupSessions.set(s.id,s);return s;}
 function buildPreparationSetupView(session){const plan=getMatchPlan(session.matchId);if(!plan)return{content:'❌ Match ID no longer exists.',components:[]};const d=deriveKoSetup(plan,session),mode=getEventTypeForPlan(plan),hours=eventPreparationHours(mode);const base=`⏳ **${warEventLabel(mode).toUpperCase()} PREPARATION CONFIRMATION**\n\n🆔 Match ID: **${plan.id}**\n⏱️ Preparation: **${hours} Hours**\n✅ Preparation / Isolated: **${d.clubs.length+d.failed.size} clubs**\n⚠️ Failed → War Monitor after prep: **${d.failed.size}**\n🟢 Released Opponents: **${d.released.size}**\n⏭️ Skipped / Available: **${d.skipped.size}**`;if(session.mode==='failed'||session.mode==='skip'){const pg=koSetupPageItems(plan,session.page),set=session.mode==='failed'?session.failed:session.skipped,options=pg.items.map(c=>({label:String(c.club).slice(0,100),description:`${Number(c.elo)||0} — ${String(c.president||'Not Set').slice(0,70)}`,value:normalizeClubName(c.club),default:set.has(normalizeClubName(c.club))})),menu=new StringSelectMenuBuilder().setCustomId(`prep_setup_select:${session.id}`).setPlaceholder(session.mode==='failed'?'Select FAILED club(s)':'Select SKIP club(s)').setMinValues(0).setMaxValues(Math.max(1,options.length)).addOptions(options),nav=new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId(`prep_setup_prev:${session.id}`).setLabel('◀ Previous').setStyle(ButtonStyle.Secondary).setDisabled(pg.page<=0),new ButtonBuilder().setCustomId(`prep_setup_next:${session.id}`).setLabel('Next ▶').setStyle(ButtonStyle.Secondary).setDisabled(pg.page>=pg.pages-1),new ButtonBuilder().setCustomId(`prep_setup_done:${session.id}`).setLabel('✅ DONE').setStyle(ButtonStyle.Success),new ButtonBuilder().setCustomId(`prep_setup_clear:${session.id}`).setLabel('Clear').setStyle(ButtonStyle.Secondary));return{content:`${base}\n\n${session.mode==='failed'?'⚠️ Failed stays isolated during preparation. 2-hour War Monitor starts only after preparation ends; its opponent is released.':'⏭️ Skip = no monitor, no isolation, immediately available.'}`,components:[new ActionRowBuilder().addComponents(menu),nav]};}return{content:`${base}\n\nFailed clubs remain on the same preparation countdown.`,components:[new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId(`prep_setup_confirm:${session.id}`).setLabel(`✅ START ${hours}H PREPARATION`).setStyle(ButtonStyle.Success),new ButtonBuilder().setCustomId(`prep_setup_failed:${session.id}`).setLabel('⚠️ FAILED CLUB').setStyle(ButtonStyle.Danger),new ButtonBuilder().setCustomId(`prep_setup_skip:${session.id}`).setLabel('⏭️ SKIP CLUB').setStyle(ButtonStyle.Secondary),new ButtonBuilder().setCustomId(`prep_setup_cancel:${session.id}`).setLabel('❌ CANCEL').setStyle(ButtonStyle.Secondary))]};}
 function createPreparationTimerForPlan(plan,interaction,d){const mode=getEventTypeForPlan(plan),hours=eventPreparationHours(mode);if(!hours)return null;const keys=new Set([...d.failed]);for(const c of d.clubs||[])keys.add(normalizeClubName(c.club));const records=(plan.clubs||[]).filter(c=>keys.has(normalizeClubName(c.club))).map(c=>({club:c.club,president:c.president||'',elo:Number(c.elo)||0}));if(!records.length)return null;return createActiveFowTimer({type:'push',hours,pushMode:'event_preparation',operationalMode:mode,durationMinutes:null,matchId:plan.id,userId:interaction.user.id,guildId:interaction.guildId,channelId:interaction.channelId,clubs:records,selected:new Set(records.map(c=>normalizeClubName(c.club))),failedClubKeys:[...d.failed],preparationControl:true});}
 function buildKoSetupView(session){const plan=getMatchPlan(session.matchId);if(!plan)return{content:'❌ Match ID no longer exists.',components:[]};const d=deriveKoSetup(plan,session);const mode=getEventTypeForPlan(plan),koOnly=['grease','lightning'].includes(mode),hours=koOnly?2:14;const base=`${koOnly?'🥊':'🥊🧊'} **${koOnly?'KO TIMER CONFIRMATION':'KO + COOLING CONFIRMATION'}**\n\n🆔 Match ID: **${plan.id}**\n⏱️ ${koOnly?'KO Timer':'KO + Cooling'}: **${hours} Hours**\n✅ KO Isolation: **${d.clubs.length} clubs**\n⚠️ War Monitor: **${d.failed.size} failed**\n🟢 Released Opponents: **${d.released.size}**\n⏭️ Skipped: **${d.skipped.size}**`;
@@ -8144,6 +8992,26 @@ function parseManualMatchPaste(text){
 
   if(!pairs.length&&!errors.length) errors.push('No valid pairs detected. Paste either `Club A (ELO) - President` + `vs` + `Club B (ELO) - President`, or use `vs Club B ...` on the next line. Markdown/bold numbering is supported.');
   return {pairs,warnings,errors};
+}
+
+// HS PHASE 6.1E — pasted manual matchmaking conversational bridge.
+const hsManualPasteDrafts = new Map();
+const HS_MANUAL_PASTE_DRAFT_TTL_MS = 15 * 60 * 1000;
+function cleanupHsManualPasteDrafts(){const now=Date.now();for(const [id,d] of hsManualPasteDrafts.entries())if(!d||now-Number(d.updatedAt||d.createdAt||0)>HS_MANUAL_PASTE_DRAFT_TTL_MS)hsManualPasteDrafts.delete(id);}
+function looksLikeHsManualPairList(text){const v=String(text||"");const vs=(v.match(/^\s*(?:\*\*)?vs(?:\*\*)?\s*$/gim)||[]).length+(v.match(/^\s*(?:\*\*)?vs\s+.+$/gim)||[]).length;const clubs=(v.match(/\(\s*\d{3,5}\s*\)\s*(?:-|–|—)\s*[^\n]+/g)||[]).length;return /\b(?:matchmaking|match\s+making|matches|pairs?|proceed|use\s+these)\b/i.test(v)&&vs>=1&&clubs>=2;}
+function prepareHsManualPaste(message,text){
+  cleanupHsManualPasteDrafts();reloadLatestDatabase();const p=parseManualMatchPaste(text);
+  if(!p.pairs.length)return{ok:false,response:"❌ **Manual matchmaking could not be validated**\n\n"+(p.errors.slice(0,10).map(x=>"• "+x).join("\n")||"No valid pairs detected.")+"\n\n🔒 No Match ID created. No production data changed.",components:[]};
+  const id="HSMP-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7),d={id,userId:String(message.author.id),guildId:String(message.guildId||""),channelId:String(message.channelId||""),pairs:p.pairs,warnings:p.warnings,errors:p.errors,createdAt:Date.now(),updatedAt:Date.now()};hsManualPasteDrafts.set(id,d);
+  const lines=p.pairs.map((x,i)=>{const w=x.winnerSide==="b"?x.b:x.a,l=x.winnerSide==="b"?x.a:x.b,n=x.notes?.length?"\n   "+x.notes.join(" • "):"";return (i+1)+". **"+w.club+" ("+w.elo+") - "+(w.president||"Not Set")+"**\n   vs "+l.club+" ("+l.elo+") - "+(l.president||"Not Set")+"\n   **Gap: "+Math.abs(Number(x.a.elo)-Number(x.b.elo))+"**"+n;});
+  const issues=[];if(p.warnings.length)issues.push("⚠️ **Database corrections**\n"+p.warnings.slice(0,10).map(x=>"• "+x).join("\n"));if(p.errors.length)issues.push("❌ **Rejected pairs / issues**\n"+p.errors.slice(0,10).map(x=>"• "+x).join("\n"));
+  const components=[new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("hsmp_confirm:"+id).setLabel("CONFIRM MANUAL MATCH").setStyle(ButtonStyle.Success),new ButtonBuilder().setCustomId("hsmp_cancel:"+id).setLabel("CANCEL").setStyle(ButtonStyle.Danger))];
+  return{ok:true,draft:d,components,response:"⚔️ **HS Manual Matchmaking — Validated Preview**\n\nPairs ready: **"+p.pairs.length+"**\nValidation: live ELO • Derby membership • availability • max gap "+MATCHMAKING_MAX_GAP+" • duplicate clubs\n\n"+lines.join("\n\n")+(issues.length?"\n\n"+issues.join("\n\n"):"")+"\n\n⚠️ Confirming will create a production Match ID in this channel.\n🔒 No Match ID created yet. No timer or isolation started."};
+}
+async function createHsManualPastePlan(draft,interaction){
+  reloadLatestDatabase();const valid=[],used=new Set();
+  for(const source of draft.pairs||[]){const a=leaderboardData.find(x=>areEquivalentClubNames(x.club,source.a.club)),b=leaderboardData.find(x=>areEquivalentClubNames(x.club,source.b.club));if(!a||!b)return{ok:false,message:"❌ A club is no longer present in the live ELO database. Send the list again."};if(!isDerbyClub(a)||!isDerbyClub(b))return{ok:false,message:"❌ Derby membership changed. Send the list again."};if(!isClubMatchmakingAvailable(a.club)||!isClubMatchmakingAvailable(b.club))return{ok:false,message:"❌ Availability changed. A requested club is currently isolated/unavailable. Nothing was created."};const ak=normalizeClubName(a.club),bk=normalizeClubName(b.club);if(used.has(ak)||used.has(bk))return{ok:false,message:"❌ Duplicate club detected during final validation. Nothing was created."};const gap=Math.abs(Number(a.elo)-Number(b.elo));if(gap>MATCHMAKING_MAX_GAP)return{ok:false,message:"❌ Live ELO changed: "+a.club+" vs "+b.club+" now has gap "+gap+", over "+MATCHMAKING_MAX_GAP+". Nothing was created."};used.add(ak);used.add(bk);const sw=source.winnerSide==="b"?source.b.club:source.a.club,ws=areEquivalentClubNames(sw,b.club)?"b":"a";valid.push({a:{club:a.club,president:a.president||"",elo:Number(a.elo)||0},b:{club:b.club,president:b.president||"",elo:Number(b.elo)||0},winnerSide:ws});}
+  const matchId=nextMatchId(),clubs=[];valid.forEach((p,i)=>{for(const side of ["a","b"]){const x=p[side];clubs.push({club:x.club,president:x.president||"",elo:Number(x.elo)||0,status:"pending",failedAt:null,failedBy:null,matchRole:side===p.winnerSide?"win":"lose",pairNo:i+1});}});const elos=clubs.map(x=>Number(x.elo)||0);const plan={id:matchId,guildId:interaction.guildId||null,channelId:interaction.channelId,min:Math.min(...elos),max:Math.max(...elos),clubs,pairCount:valid.length,createdAt:Date.now(),createdBy:String(interaction.user.id),updatedAt:Date.now(),updatedBy:String(interaction.user.id),eventId:getActiveEvent()?.id||null,manual:true,source:"hs_conversation"};matchPlans.set(matchId,plan);await saveMatchPlansNow();return{ok:true,plan};
 }
 
 function createBulkAddModal() {
@@ -8339,6 +9207,139 @@ async function applyMatchSuccessPairs(matchId,pairNumbers,userId){
   matchPlans.set(plan.id,plan);
   await saveMatchPlansNow();
   return {ok:true,plan,changedPairs};
+}
+
+function buildDerbyRematchSuggestions(plan){
+  const failed=(plan?.clubs||[])
+    .filter(c=>String(c?.status||'').toLowerCase()==='failed'&&c?.club)
+    .map(c=>({club:c.club,president:c.president||'',elo:Number(c.elo)||0,pairNo:Number(c.pairNo)||null}));
+  const skipped=getMatchPlanPairs(plan).filter(pair=>derbyChecklistPairState(pair)==='SKIP').flatMap(pair=>pair.clubs.map(c=>({club:c.club,president:c.president||'',elo:Number(c.elo)||0,pairNo:Number(pair.pairNo)||null})));
+  const candidates=[];const candidateKeys=new Set();
+  for(const c of [...failed,...skipped]){const key=normalizeClubName(c.club);if(!key||candidateKeys.has(key))continue;candidateKeys.add(key);candidates.push(c);}
+  const alreadyUsed=new Set();
+  for(const other of matchPlans.values()){
+    if(!other||other.id===plan?.id||String(other.status||'').toUpperCase()==='CANCELLED')continue;
+    if(String(other.rematchOf||other.sourceMatchId||'')!==String(plan?.id||''))continue;
+    for(const c of other.clubs||[])if(!['excluded','failed'].includes(String(c.status||'pending').toLowerCase()))alreadyUsed.add(normalizeClubName(c.club));
+  }
+  const pool=candidates.filter(c=>!alreadyUsed.has(normalizeClubName(c.club))).sort((a,b)=>Number(b.elo)-Number(a.elo));
+  const remaining=[...pool],pairs=[];
+  while(remaining.length>1){
+    const a=remaining.shift();
+    let bestIndex=-1,bestGap=Infinity;
+    for(let i=0;i<remaining.length;i++){
+      const gap=Math.abs(Number(a.elo)-Number(remaining[i].elo));
+      if(gap<=MATCHMAKING_MAX_GAP&&gap<bestGap){bestGap=gap;bestIndex=i;}
+    }
+    if(bestIndex<0){a.unmatched=true;remaining.push(a);break;}
+    const b=remaining.splice(bestIndex,1)[0];pairs.push({a,b,gap:bestGap});
+  }
+  const matchedKeys=new Set(pairs.flatMap(p=>[normalizeClubName(p.a.club),normalizeClubName(p.b.club)]));
+  const unmatched=pool.filter(c=>!matchedKeys.has(normalizeClubName(c.club)));
+  return {failed,skipped,candidates,pool,pairs,unmatched,alreadyRematched:candidates.length-pool.length};
+}
+
+async function handleDerbyRematchSuggestionMessage(message){
+  const raw=String(message?.content||'').trim();
+  if(!/\b(?:rematch|re-match|match\s+again|padan(?:kan)?\s+semula)\b/i.test(raw)||!/\b(?:failed|fail|gagal|skip|skipped|langkau)\b/i.test(raw))return false;
+  const explicit=raw.match(/\bHS\s*\d+\b/i);
+  let plan=explicit?getMatchPlan(normalizeMatchId(explicit[0])):null;
+  if(plan&&plan.guildId&&String(plan.guildId)!==String(message.guildId||'')){await message.reply(`❌ Match ID **${plan.id}** belongs to another server.`);return true;}
+  if(!plan){
+    const candidates=[...matchPlans.values()].filter(p=>(!p.guildId||String(p.guildId)===String(message.guildId||''))&&((p.clubs||[]).some(c=>String(c.status||'').toLowerCase()==='failed')||getMatchPlanPairs(p).some(pair=>derbyChecklistPairState(pair)==='SKIP'))).sort((a,b)=>{
+      const ac=String(a.channelId||'')===String(message.channelId||'')?1:0,bc=String(b.channelId||'')===String(message.channelId||'')?1:0;
+      return bc-ac||Number(b.updatedAt||b.createdAt||0)-Number(a.updatedAt||a.createdAt||0);
+    });
+    plan=candidates[0]||null;
+  }
+  if(!plan){await message.reply('ℹ️ No Match ID with FAILED or SKIPPED clubs was found for this server.');return true;}
+  const result=buildDerbyRematchSuggestions(plan);
+  if(!result.candidates.length){await message.reply(`ℹ️ Match ID **${plan.id}** has no FAILED or SKIPPED clubs.`);return true;}
+  const pairLines=result.pairs.length?result.pairs.map((p,i)=>`${i+1}. **${p.a.club} (${p.a.elo})**\n   vs ${p.b.club} (${p.b.elo})\n   **Gap: ${p.gap}**`).join('\n\n'):'• No valid pair within the 100 ELO maximum gap.';
+  const unmatchedLines=result.unmatched.length?`\n\n**Unmatched / Waiting**\n${result.unmatched.map(c=>`• ${c.club} (${c.elo})`).join('\n')}`:'';
+  const excludedLine=result.alreadyRematched?`\n♻️ Already assigned to an existing rematch: **${result.alreadyRematched}**`:'';
+  const content=`🔄 **DERBY REMATCH SUGGESTIONS**\n━━━━━━━━━━━━━━━━━━━━\n\n🆔 Source Match ID: **${plan.id}**\n❌ Failed clubs: **${result.failed.length}**\n⏭️ Skipped clubs: **${result.skipped.length}**\n🤝 Suggested pairs: **${result.pairs.length}**\n⏳ Unmatched: **${result.unmatched.length}**\n📏 Maximum Gap: **${MATCHMAKING_MAX_GAP} ELO**${excludedLine}\n\n${pairLines}${unmatchedLines}\n\n🔒 **SUGGESTIONS ONLY — no Match ID, status, timer or isolation changed.**`;
+  let components=[];
+  if(result.pairs.length){
+    cleanupHsControlRoomDrafts();
+    const all=result.pairs.flatMap(p=>[p.a,p.b]),elos=all.map(c=>Number(c.elo)||0),draftId=`rem${Date.now().toString(36)}${message.author.id.slice(-4)}`;
+    hsControlRoomDrafts.set(draftId,{id:draftId,userId:String(message.author.id),guildId:String(message.guildId||''),sourceChannelId:String(message.channelId||''),destinationKey:null,destinationLabel:null,destinationChannelId:null,minElo:Math.min(...elos),maxElo:Math.max(...elos),requestText:raw,previewResult:{pairs:result.pairs.map(p=>({a:{...p.a},b:{...p.b}})),unmatched:result.unmatched.map(c=>({...c}))},previewSkipped:[],skipKeys:[],mustWinKeys:[],mustLoseKeys:[],rematchOf:plan.id,sourceMatchId:plan.id,createdAt:Date.now(),updatedAt:Date.now(),phase:'rematch_suggestion'});
+    components=[new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId(`derby_rematch_create:${draftId}`).setLabel('🔄 CREATE REMATCH DRAFT').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId(`derby_rematch_cancel:${draftId}`).setLabel('CANCEL').setStyle(ButtonStyle.Secondary)
+    )];
+  }
+  const chunks=splitDiscordText(content);for(let i=0;i<chunks.length;i++){const payload={content:chunks[i],components:i===chunks.length-1?components:[]};if(i===0)await message.reply(payload);else await message.channel.send(payload);}return true;
+}
+
+const derbyChecklistDrafts=new Map();
+const DERBY_CHECKLIST_DRAFT_TTL_MS=15*60*1000;
+function cleanupDerbyChecklistDrafts(){const now=Date.now();for(const[id,d]of derbyChecklistDrafts)if(!d||now-Number(d.updatedAt||d.createdAt||0)>DERBY_CHECKLIST_DRAFT_TTL_MS)derbyChecklistDrafts.delete(id);}
+function derbyChecklistPairState(pair){
+  const states=pair.clubs.map(c=>String(c.status||'pending').toLowerCase());
+  if(states.every(x=>x==='success'))return 'SUCCESS';
+  if(states.every(x=>x==='excluded'))return 'SKIP';
+  if(states.some(x=>x==='failed'))return 'FAILED';
+  return 'PENDING';
+}
+function formatDerbyChecklist(plan){
+  const pairs=getMatchPlanPairs(plan),counts={SUCCESS:0,FAILED:0,SKIP:0,PENDING:0};
+  const lines=pairs.map(pair=>{const state=derbyChecklistPairState(pair);counts[state]++;const icon={SUCCESS:'✅',FAILED:'❌',SKIP:'⏭️',PENDING:'⏳'}[state];const failed=pair.clubs.filter(c=>String(c.status||'').toLowerCase()==='failed').map(c=>c.club);return `${icon} **#${pair.pairNo}** — ${pair.clubs[0].club} vs ${pair.clubs[1].club}${failed.length?` • Failed: **${failed.join(' & ')}**`:''}`;});
+  return `📋 **DERBY RESULT CHECKLIST**\n━━━━━━━━━━━━━━━━━━━━\n\n🆔 Match ID: **${plan.id}**\n🤝 Pairs: **${pairs.length}**\n✅ Successful: **${counts.SUCCESS}** • ❌ Failed: **${counts.FAILED}**\n⏭️ Skipped: **${counts.SKIP}** • ⏳ Pending: **${counts.PENDING}**\n\n${lines.join('\n')}\n\n_Last updated: <t:${Math.floor(Date.now()/1000)}:R>_`;
+}
+function buildDerbyChecklistComponents(plan){
+  const pairs=getMatchPlanPairs(plan),pending=pairs.filter(pair=>derbyChecklistPairState(pair)==='PENDING').length,success=pairs.filter(pair=>derbyChecklistPairState(pair)==='SUCCESS').length;
+  const cancelled=String(plan?.status||'').toUpperCase()==='CANCELLED',preparationStarted=Number(plan?.preparationStartedAt||0)>0;
+  if(cancelled||preparationStarted||pending>0||success<1)return [];
+  const hours=eventPreparationHours(getEventTypeForPlan(plan));if(!hours)return [];
+  return [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId(`match_prep_start:${plan.id}`).setLabel(`▶️ START ${hours}H PREPARATION`).setStyle(ButtonStyle.Primary))];
+}
+async function publishDerbyChecklist(plan,channel){
+  const content=formatDerbyChecklist(plan).slice(0,1990),components=buildDerbyChecklistComponents(plan);let msg=null;
+  const channelId=String(plan.derbyChecklistChannelId||channel?.id||plan.channelId||'');
+  try{const target=channelId&&String(channel?.id)===channelId?channel:await client.channels.fetch(channelId);if(!target?.isTextBased?.())return null;if(plan.derbyChecklistMessageId&&target.messages?.fetch){msg=await target.messages.fetch(String(plan.derbyChecklistMessageId)).catch(()=>null);if(msg)await msg.edit({content,components});}if(!msg){msg=await target.send({content,components});plan.derbyChecklistMessageId=msg.id;plan.derbyChecklistChannelId=target.id;}}
+  catch(error){console.error('❌ Derby checklist publish failed:',error);return null;}
+  plan.updatedAt=Date.now();matchPlans.set(plan.id,plan);await saveMatchPlansNow();return msg;
+}
+function parseDerbyChecklistInstruction(text){
+  const raw=String(text||'').trim();const m=raw.match(/\b(successful|success|failed|fail|skip(?:ped)?|undo|pending)\b/i);if(!m)return null;
+  const action=/^success/i.test(m[1])?'success':/^fail/i.test(m[1])?'failed':/^skip/i.test(m[1])?'skip':'pending';
+  const before=raw.slice(0,m.index);const nums=[];for(const token of before.match(/\d+\s*-\s*\d+|\d+/g)||[]){if(token.includes('-')){let[a,b]=token.split('-').map(Number);const step=a<=b?1:-1;for(let n=a;step>0?n<=b:n>=b;n+=step)nums.push(n);}else nums.push(Number(token));}
+  const matchId=(raw.match(/\bHS\s*\d+\b/i)||[])[0];return nums.length?{action,pairNos:[...new Set(nums.filter(n=>n>0&&n<=999))],matchId:matchId?normalizeMatchId(matchId):null}:null;
+}
+function resolveDerbyChecklistPlan(message,intent){
+  if(intent.matchId)return getMatchPlan(intent.matchId);
+  return [...matchPlans.values()].filter(p=>(!p.guildId||String(p.guildId)===String(message.guildId||''))&&getMatchPlanPairs(p).some(pair=>intent.pairNos.includes(pair.pairNo))).sort((a,b)=>{const ac=String(a.channelId||a.matchControlsChannelId||'')===String(message.channelId||'')?1:0,bc=String(b.channelId||b.matchControlsChannelId||'')===String(message.channelId||'')?1:0;return bc-ac||Number(b.updatedAt||b.createdAt||0)-Number(a.updatedAt||a.createdAt||0);})[0]||null;
+}
+async function handleDerbyChecklistMessage(message){
+  const intent=parseDerbyChecklistInstruction(message?.content);if(!intent)return false;
+  cleanupDerbyChecklistDrafts();const plan=resolveDerbyChecklistPlan(message,intent);if(!plan)return false;
+  if(plan.guildId&&String(plan.guildId)!==String(message.guildId||'')){await message.reply(`❌ Match ID **${plan.id}** belongs to another server.`);return true;}
+  const pairs=new Map(getMatchPlanPairs(plan).map(p=>[p.pairNo,p]));const selected=intent.pairNos.map(n=>pairs.get(n)).filter(Boolean);
+  if(!selected.length){await message.reply(`❌ Pair number not found in **${plan.id}**.`);return true;}
+  if(intent.action==='success'){
+    const eligible=selected.filter(pair=>pair.clubs.every(c=>String(c.status||'pending').toLowerCase()==='pending'));
+    if(!eligible.length){await message.reply(`ℹ️ Selected pair(s) in **${plan.id}** are already resolved. No duplicate SUCCESS was recorded.`);return true;}
+    const now=Date.now();
+    for(const pair of eligible)for(const c of pair.clubs){c.status='success';c.successAt=now;c.successBy=String(message.author.id);c.failedAt=null;c.failedBy=null;}
+    plan.resultHistory=[...(plan.resultHistory||[]),{at:now,by:String(message.author.id),action:'success',pairNos:eligible.map(p=>p.pairNo),result:eligible.map(p=>`#${p.pairNo} SUCCESS`)}].slice(-500);plan.updatedAt=now;plan.updatedBy=String(message.author.id);matchPlans.set(plan.id,plan);await saveMatchPlansNow();await publishDerbyChecklist(plan,message.channel);
+    const successNotice=await message.reply(`✅ **DERBY CHECKLIST UPDATED**\n\n🆔 Match ID: **${plan.id}**\n${eligible.map(p=>`• #${p.pairNo} SUCCESS — ${p.clubs[0].club} vs ${p.clubs[1].club}`).join('\n')}\n👤 Updated by: <@${message.author.id}>\n\n_This notification will auto-delete in 10 seconds._`);
+    setTimeout(()=>successNotice?.delete?.().catch(error=>{if(error?.code!==10008)console.error('⚠️ Failed to auto-delete Derby success notification:',error);}),10000);
+    return true;
+  }
+  if(intent.action==='failed'&&selected.length>1){await message.reply('⚠️ Mark FAILED one pair at a time so the failed club can be identified safely.');return true;}
+  const id=opsSessionId('dcheck'),draft={id,userId:String(message.author.id),guildId:String(message.guildId||''),channelId:String(message.channelId||''),matchId:plan.id,action:intent.action,pairNos:selected.map(p=>p.pairNo),baseUpdatedAt:Number(plan.updatedAt||plan.createdAt||0),createdAt:Date.now(),updatedAt:Date.now()};derbyChecklistDrafts.set(id,draft);
+  const pairLines=selected.map(p=>`• Pair **#${p.pairNo}** — ${p.clubs[0].club} vs ${p.clubs[1].club}`).join('\n');
+  if(intent.action==='failed'){
+    const[a,b]=selected[0].clubs;await message.reply({content:`❌ **FAILED PAIR — SELECT FAILED CLUB**\n\n🆔 Match ID: **${plan.id}**\n${pairLines}\n\nNo production data changed yet.`,components:[new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId(`derby_check_fail_a:${id}`).setLabel(String(a.club).slice(0,80)).setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId(`derby_check_fail_b:${id}`).setLabel(String(b.club).slice(0,80)).setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId(`derby_check_fail_both:${id}`).setLabel('BOTH FAILED').setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId(`derby_check_cancel:${id}`).setLabel('CANCEL').setStyle(ButtonStyle.Secondary)
+    )]});return true;
+  }
+  const label=intent.action==='success'?'MARK SUCCESS':intent.action==='skip'?'CONFIRM SKIP':'RESTORE TO PENDING';
+  await message.reply({content:`${intent.action==='success'?'✅':intent.action==='skip'?'⏭️':'↩️'} **DERBY CHECKLIST — CONFIRMATION**\n\n🆔 Match ID: **${plan.id}**\n${pairLines}\n\nAction: **${label}**\n🔒 No production data changed yet.`,components:[new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId(`derby_check_confirm:${id}`).setLabel(`✅ ${label}`).setStyle(intent.action==='skip'?ButtonStyle.Danger:ButtonStyle.Success),new ButtonBuilder().setCustomId(`derby_check_cancel:${id}`).setLabel('CANCEL').setStyle(ButtonStyle.Secondary))]});return true;
 }
 
 function getOperationalModeLabel(mode){ return ({grease:'Grease Lightning',lightning:'Lightning',normal:'Normal / Outside Event',external:'External'})[mode] || 'Standard'; }
@@ -8802,7 +9803,7 @@ function buildHsConversationContext(session) {
     activeDraftId: session.activeDraftId || null,
     pendingAction: session.pendingAction || null,
     lastResults: Array.isArray(session.lastResults)
-      ? session.lastResults.slice(0, 20)
+      ? session.lastResults.slice(0, 100)
       : []
   };
 }
@@ -8843,6 +9844,7 @@ async function interpretHsConversationIntent(content, session) {
     `change_timer\n` +
     `start_event\n` +
     `end_event\n` +
+    `transition_event\n` +
     `show_event_stats\n` +
     `add_derby_club\n` +
     `remove_derby_club\n` +
@@ -8869,12 +9871,17 @@ async function interpretHsConversationIntent(content, session) {
     `  "timer_type": null,\n` +
     `  "requested_hours": null,\n` +
     `  "event_type": null,\n` +
+    `  "from_event": null,\n` +
+    `  "to_event": null,\n` +
     `  "reference_number": null,\n` +
     `  "requires_clarification": false,\n` +
     `  "clarification_question": null\n` +
     `}\n\n` +
 
     `Destination must be one of high, mid, low, additional, test, or null.\n` +
+    `Event values must be one of normal, lightning, grease, or null.\n` +
+    `If one message asks to close/end one event and start another event, use transition_event with from_event and to_event.\n` +
+    `Examples: close normal event and start lightning event => transition_event normal to lightning; close lightning and start grease event => transition_event lightning to grease; close grease and return to normal => transition_event grease to normal.\n` +
     `Do not treat ordinary conversation as an operational command.\n` +
     `A confirmation such as yes, ya, proceed, confirm, teruskan refers only to pendingAction from context.\n` +
     `A cancellation such as no, cancel, batal refers only to pendingAction from context.\n\n` +
@@ -8916,6 +9923,7 @@ async function interpretHsConversationIntent(content, session) {
       "change_timer",
       "start_event",
       "end_event",
+      "transition_event",
       "show_event_stats",
       "add_derby_club",
       "remove_derby_club",
@@ -8962,6 +9970,1389 @@ async function interpretHsConversationIntent(content, session) {
   }
 }
 
+
+// ============================================================
+// HS V2 — AI PROJECT CONTROLLER
+// ============================================================
+// New architecture:
+// - No fixed intent list
+// - No Observation Mode
+// - No regex command routing
+// - Reads live FoW production state directly
+// - READ-ONLY at this stage
+// ============================================================
+
+function deriveHsV2TaskFocus(content, session = null) {
+  const text = String(content || "").trim();
+  const priorFocus = session?.currentTaskFocus || null;
+  const contextReference =
+    isHsContextReference(text) ||
+    /\b(?:yes|yes please|ok|okay|proceed|continue|go ahead|draft it|do it|confirm|same|use them|pair them)\b/i.test(text);
+  const resolvedClubs = extractHsClubsFromText(text).map(item => item.club);
+
+  const rangeMatch = text.match(
+    /\b(\d{3,5})\s*(?:-|–|—|to|hingga|sampai)\s*(\d{3,5})\b/i
+  );
+  const explicitRange = rangeMatch
+    ? {
+        min: Math.min(Number(rangeMatch[1]), Number(rangeMatch[2])),
+        max: Math.max(Number(rangeMatch[1]), Number(rangeMatch[2]))
+      }
+    : null;
+
+  const explicitMatchIds = [];
+  const seenMatchIds = new Set();
+  for (const match of text.matchAll(/\bHS\s*[-#]?\s*(\d{1,6})\b/gi)) {
+    const id = normalizeMatchId(`HS${match[1]}`);
+    if (!id || seenMatchIds.has(id)) continue;
+    seenMatchIds.add(id);
+    explicitMatchIds.push(id);
+  }
+
+  let type = "general_query";
+  if (/\b(?:matchmaking|match\s*making|pair(?:ing|ings)?|must\s+win|must\s+lose|skip|destination)\b/i.test(text)) {
+    type = "matchmaking";
+  } else if (/\b(?:war\s*status|isolat(?:e|ed|ion)|release|cooling|timer|war\s*monitor)\b/i.test(text)) {
+    type = "war_operations";
+  } else if (/\b(?:event|lightning|grease)\b/i.test(text)) {
+    type = "event";
+  } else if (/\b(?:elo|leaderboard|derby|club\s*code|pusher|president)\b/i.test(text)) {
+    type = "club_query";
+  } else if (explicitMatchIds.length || /\b(?:match\s*ids?|saved\s+matches|recent\s+matches)\b/i.test(text)) {
+    type = "match_plan_query";
+  }
+  if (type === "general_query" && contextReference && priorFocus?.type) {
+    type = priorFocus.type;
+  }
+
+  const hasFreshScope = Boolean(explicitRange || resolvedClubs.length || explicitMatchIds.length);
+  const startsNewTask =
+    !contextReference &&
+    (
+      hasFreshScope ||
+      /\b(?:new|create|buat|cari|find|generate|start)\b/i.test(text)
+    ) &&
+    ["matchmaking", "war_operations", "event"].includes(type);
+
+  const inheritedMatchId =
+    contextReference && session?.lastMatchId
+      ? normalizeMatchId(session.lastMatchId)
+      : null;
+  const matchIds = explicitMatchIds.length
+    ? explicitMatchIds
+    : inheritedMatchId
+      ? [inheritedMatchId]
+      : [];
+
+  const range = explicitRange ||
+    (contextReference && priorFocus?.range
+      ? priorFocus.range
+      : contextReference && session?.lastRange
+        ? session.lastRange
+        : null);
+  const clubs = resolvedClubs.length
+    ? resolvedClubs
+    : contextReference && Array.isArray(priorFocus?.clubs) && priorFocus.clubs.length
+      ? priorFocus.clubs.slice(0, 100)
+      : contextReference && Array.isArray(session?.lastResults)
+        ? session.lastResults.slice(0, 100)
+        : [];
+  const availabilityOnly =
+    /\b(?:available|availability|tersedia)\b/i.test(text) ||
+    Boolean(contextReference && priorFocus?.availabilityOnly);
+
+  const includeRecentPlans =
+    type === "match_plan_query" &&
+    !matchIds.length &&
+    /\b(?:recent|latest|list|saved|show|which|what)\b/i.test(text);
+
+  const focus = {
+    type,
+    startsNewTask,
+    contextReference,
+    range,
+    clubs,
+    availabilityOnly,
+    matchIds,
+    activeDraftId:
+      !startsNewTask && contextReference
+        ? session?.activeDraftId || null
+        : null,
+    includeRecentPlans,
+    historyPolicy:
+      startsNewTask || hasFreshScope
+        ? "CURRENT_TASK_ONLY"
+        : contextReference
+          ? "FOLLOW_UP_ONLY"
+          : "NO_IMPLICIT_HISTORY"
+  };
+
+  if (session) {
+    session.lastIntent = type;
+    if (explicitRange) session.lastRange = explicitRange;
+    if (resolvedClubs.length) {
+      session.lastResults = resolvedClubs;
+      session.lastClub = resolvedClubs.length === 1 ? resolvedClubs[0] : null;
+    }
+    if (explicitMatchIds.length) session.lastMatchId = explicitMatchIds[0];
+    if (startsNewTask && !explicitMatchIds.length) session.lastMatchId = null;
+    if (startsNewTask) {
+      session.activeDraftId = null;
+      session.pendingAction = null;
+    }
+    session.currentTaskFocus = {
+      type: focus.type,
+      range: focus.range,
+      clubs: focus.clubs,
+      availabilityOnly: focus.availabilityOnly,
+      matchIds: focus.matchIds,
+      activeDraftId: focus.activeDraftId,
+      updatedAt: Date.now()
+    };
+    session.updatedAt = Date.now();
+  }
+
+  return focus;
+}
+
+function buildHsV2ProjectState(session = null, taskFocus = null) {
+  const clubs = getSortedLeaderboard();
+
+  const focusedClubKeys = new Set(
+    (taskFocus?.clubs || []).map(name => normalizeClubName(name))
+  );
+  const hasFocusedClubList = focusedClubKeys.size > 0;
+  const hasFocusedRange =
+    Number.isFinite(Number(taskFocus?.range?.min)) &&
+    Number.isFinite(Number(taskFocus?.range?.max));
+  const scopedClubs = clubs.filter(c => {
+    if (
+      hasFocusedClubList &&
+      !focusedClubKeys.has(normalizeClubName(c.club))
+    ) return false;
+    if (
+      hasFocusedRange &&
+      (
+        Number(c.elo) < Number(taskFocus.range.min) ||
+        Number(c.elo) > Number(taskFocus.range.max)
+      )
+    ) return false;
+    if (
+      taskFocus?.availabilityOnly &&
+      !isClubMatchmakingAvailable(c.club)
+    ) return false;
+    return true;
+  });
+  const allowMatchIdContext = (taskFocus?.matchIds || []).length > 0;
+
+  const clubRows = scopedClubs.map(c => {
+    const operation = getWarOperation(c.club);
+    const liveTimer = (activeFowTimers || []).find(timer =>
+      timer?.sent?.end !== true &&
+      Array.isArray(timer.clubs) &&
+      timer.clubs.some(item =>
+        areEquivalentClubNames(item?.club || item, c.club)
+      )
+    );
+    const status = String(operation?.status || "AVAILABLE").toUpperCase();
+    const endAt = Number(
+      status === "PREPARATION"
+        ? operation?.preparationEndAt || liveTimer?.endAt || 0
+        : status === "COOLING_DOWN"
+          ? operation?.coolingEndAt || liveTimer?.endAt || 0
+          : liveTimer?.endAt || 0
+    ) || null;
+    const remainingMs = endAt
+      ? Math.max(0, endAt - Date.now())
+      : null;
+
+    return {
+      club: c.club,
+      elo: Number(c.elo) || 0,
+      pusher: c.president || null,
+      clubCode: c.clubCode || null,
+      derby: isDerbyClub(c),
+      available: isClubMatchmakingAvailable(c.club),
+      war: operation
+        ? {
+            status: operation.status || null,
+            eventType: operation.eventType || null,
+            matchId: allowMatchIdContext
+              ? operation.matchId || null
+              : null,
+            isolated: Boolean(operation.isolated),
+            timer: endAt
+              ? {
+                  endAt,
+                  remainingMs,
+                  remaining: formatRemaining(remainingMs)
+                }
+              : null
+          }
+        : null
+    };
+  });
+
+  const timers = (activeFowTimers || [])
+    .filter(t => t?.sent?.end !== true)
+    .map(t => ({
+      id: t.id || null,
+      type: t.type || null,
+      matchId: t.matchId || null,
+      operationalMode: t.operationalMode || null,
+      pushMode: t.pushMode || null,
+      endAt: t.endAt || null,
+      clubs: Array.isArray(t.clubs)
+        ? t.clubs.map(c => c?.club || c).filter(Boolean)
+        : []
+    }));
+
+  const allPlans = [...matchPlans.values()]
+    .sort((a,b) =>
+      Number(b.updatedAt || b.createdAt || 0) -
+      Number(a.updatedAt || a.createdAt || 0)
+    );
+
+  const focusMatchIds = new Set(taskFocus?.matchIds || []);
+  const plans = allPlans
+    .filter(plan =>
+      focusMatchIds.has(normalizeMatchId(plan.id)) ||
+      Boolean(taskFocus?.includeRecentPlans)
+    )
+    .slice(0, taskFocus?.includeRecentPlans ? 15 : 5)
+    .map(plan => ({
+      id: plan.id,
+      status: plan.status || null,
+      min: plan.min ?? null,
+      max: plan.max ?? null,
+      eventId: plan.eventId || null,
+      createdAt: plan.createdAt || null,
+      updatedAt: plan.updatedAt || null,
+      clubs: (plan.clubs || []).map(c => ({
+        club: c.club,
+        elo: Number(c.elo) || 0,
+        pusher: c.president || null,
+        pairNo: c.pairNo || null,
+        role: c.matchRole || null,
+        status: c.status || null
+      }))
+    }));
+
+  cleanupHsControlRoomDrafts();
+
+  const drafts = [...hsControlRoomDrafts.values()]
+    .filter(d =>
+      taskFocus?.activeDraftId &&
+      String(d.id) === String(taskFocus.activeDraftId)
+    )
+    .map(d => ({
+    id: d.id || null,
+    min: d.min ?? null,
+    max: d.max ?? null,
+    destination: d.destination || null,
+    skip: d.skipKeys ? [...d.skipKeys] : [],
+    mustWin: d.mustWinKeys ? [...d.mustWinKeys] : [],
+    mustLose: d.mustLoseKeys ? [...d.mustLoseKeys] : [],
+    updatedAt: d.updatedAt || null
+  }));
+
+  const conversation = buildHsConversationContext(session);
+  if (taskFocus?.historyPolicy !== "FOLLOW_UP_ONLY") {
+    conversation.lastMatchId = taskFocus?.matchIds?.[0] || null;
+    conversation.activeDraftId = taskFocus?.activeDraftId || null;
+    conversation.pendingAction = null;
+    conversation.lastResults = taskFocus?.clubs || [];
+    conversation.lastRange = taskFocus?.range || null;
+  }
+
+  return {
+    timestamp: new Date().toISOString(),
+    taskFocus,
+    activeEvent: getActiveEvent(),
+    clubs: clubRows,
+    timers,
+    relevantMatchPlans: plans,
+    activeDrafts: drafts,
+    conversation
+  };
+}
+
+const HS_V2_OPERATIONS_GUIDE_FILE = path.join(__dirname, "HS_V2_OPERATIONS_GUIDE.md");
+
+function isHsV2HelpQuery(content) {
+  return /\b(?:how\s+(?:do|to|can)|what\s+(?:should|do|can)\s+i\s+do|help|tutorial|guide|cara|macam\s+mana|bagaimana|apa\s+(?:fungsi|yang\s+perlu\s+saya\s+buat)|boleh\s+tak|bolehkah)\b/i.test(String(content || ""));
+}
+
+function loadHsV2OperationsGuide() {
+  try { return fs.readFileSync(HS_V2_OPERATIONS_GUIDE_FILE,"utf8").slice(0,18000); }
+  catch { return "Operations guide unavailable."; }
+}
+
+function detectHsV2ResponseLanguage(content) {
+  const text = String(content || "").toLowerCase();
+  const malaySignals = text.match(/\b(?:bagaimana|macam\s+mana|boleh|bolehkah|untuk|semasa|sekarang|aktif|kelab|saya|nak|mahu|kenapa|berapa|apa|apakah|kenaikan|naik|mengikut|purata|batal(?:kan)?|papar(?:kan)?|tunjuk(?:kan)?|senarai|hingga|dalam|yang|dan|atau)\b/g) || [];
+  const englishSignals = text.match(/\b(?:how|what|when|where|why|which|can|could|would|should|please|show|send|give|create|cancel|during|match|leaderboard|status|help|use)\b/g) || [];
+  return malaySignals.length > 0 && malaySignals.length >= englishSignals.length
+    ? "BAHASA MELAYU"
+    : "ENGLISH";
+}
+
+async function runHsV2Controller(content, session = null) {
+  if (!GoogleGenAI || !GEMINI_API_KEY) {
+    return {
+      ok: false,
+      error: "gemini_not_configured"
+    };
+  }
+
+  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+  const taskFocus = deriveHsV2TaskFocus(content, session);
+  const state = buildHsV2ProjectState(session, taskFocus);
+  const helpGuide = isHsV2HelpQuery(content) ? loadHsV2OperationsGuide() : null;
+  const responseLanguage = detectHsV2ResponseLanguage(content);
+
+  const prompt =
+    `You are HS V2, the AI operations assistant for the Force of War project.\n` +
+    `You understand the FoW ELO, Derby, matchmaking, Match IDs, pushers, club codes, war isolation, timers, events and operational workflow.\n\n` +
+
+    `RESPONSE LANGUAGE: ${responseLanguage}.\n` +
+    `You MUST answer entirely in ${responseLanguage}, based only on the CURRENT USER MESSAGE. Ignore the language used in conversation history or earlier bot responses.\n\n` +
+
+    `IMPORTANT RULES:\n` +
+    `- CURRENT TASK FOCUS has higher priority than every conversation or historical field.\n` +
+    `- Never attach a historical Match ID or old club to a new task unless CURRENT TASK FOCUS explicitly contains it.\n` +
+    `- relevantMatchPlans contains only plans permitted for this request. An empty array means no Match ID context is applicable.\n` +
+    `- For a new matchmaking request, use only its current range, clubs and active draft; do not infer a Match ID from history.\n` +
+    `- If the user asks to draft or preview matchmaking, produce a suggested read-only pairing from the scoped clubs even when no production draft exists.\n` +
+    `- When listing PREPARATION or timer status, include each club's war.timer.remaining value when present. Never calculate or invent a different remaining time.\n` +
+    `- Answer the user's actual question directly.\n` +
+    `- Use the LIVE PROJECT STATE supplied below as the source of truth.\n` +
+    `- Never invent ELO, clubs, pushers, Match IDs, timers, status or event data.\n` +
+    `- Present operational data in a user-friendly form. Never expose internal timer/session/database IDs, remainingMs, raw JSON field names, or implementation metadata.\n` +
+    `- Match IDs such as HS140 are user-facing and may be shown when directly relevant. Format statuses as readable labels instead of raw key/value syntax.\n` +
+    `- Distinguish current Match Plans from historical/closed plans.\n` +
+    `- Use conversation context for follow-up references.\n` +
+    `- Be concise unless the user asks for detail.\n` +
+    `- Do not output intent names, parser names, Observation Mode, or execution-not-connected messages.\n` +
+    `- This version is READ ONLY. If the user requests a production change, explain the requested action clearly but do not claim it was executed.\n` +
+    `- Never claim database changes unless an execution tool confirms them.\n\n` +
+
+    (helpGuide
+      ? `OFFICIAL OPERATIONS GUIDE:\n${helpGuide}\n\nHELP RULES:\n- Answer from this guide.\n- Reply only in the RESPONSE LANGUAGE specified above.\n- Clearly label ACTIVE versus PENDING functions.\n- Never execute an operation from a help question.\n- If the guide does not contain the answer, say so instead of inventing it.\n\n`
+      : "") +
+
+    `LIVE PROJECT STATE:\n` +
+    JSON.stringify(state) +
+    `\n\nUSER MESSAGE:\n` +
+    String(content || "").slice(0, 6000);
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash-lite",
+      contents: prompt,
+      config: {
+        temperature: 0.15,
+        maxOutputTokens: 4000
+      }
+    });
+
+    const text = String(response?.text || "").trim();
+
+    if (!text) {
+      return {
+        ok: false,
+        error: "empty_ai_response"
+      };
+    }
+
+    return {
+      ok: true,
+      text
+    };
+
+  } catch (error) {
+    const message = String(error?.message || error || "");
+
+    console.warn(
+      `⚠️ HS V2 Controller failed: ${message.slice(0, 500)}`
+    );
+
+    return {
+      ok: false,
+      error: message
+    };
+  }
+}
+
+// ============================================================
+// HS V2 — DETERMINISTIC PAGINATED LIVE LISTS
+// One edited Discord message; no AI tokens are used for list rendering.
+// ============================================================
+const hsV2PagedListSessions = new Map();
+const HS_V2_PAGED_LIST_TTL_MS = 30 * 60 * 1000;
+const HS_V2_PAGED_LIST_SIZE = 10;
+
+function cleanupHsV2PagedListSessions() {
+  const cutoff = Date.now() - HS_V2_PAGED_LIST_TTL_MS;
+  for (const [id, session] of hsV2PagedListSessions.entries()) {
+    if (Number(session?.updatedAt || session?.createdAt || 0) < cutoff) {
+      hsV2PagedListSessions.delete(id);
+    }
+  }
+}
+
+function detectHsV2PagedListFilter(text) {
+  const raw = String(text || "");
+  const derbyOnly = /\bderby\b/i.test(raw);
+
+  const leaderboardRangeMatch = raw.match(
+    /\b(\d{3,5})\s*(?:-|–|—|to|until|hingga|sampai|and|dan)\s*(\d{3,5})\b/i
+  );
+  const leaderboardRange = leaderboardRangeMatch
+    ? {
+        minElo: Math.min(Number(leaderboardRangeMatch[1]), Number(leaderboardRangeMatch[2])),
+        maxElo: Math.max(Number(leaderboardRangeMatch[1]), Number(leaderboardRangeMatch[2]))
+      }
+    : {};
+
+  // A Derby leaderboard request must use the bot's live deterministic
+  // leaderboard formatter. Never let conversational AI rewrite the ranking.
+  const asksForDerbyLeaderboard =
+    /\bderby\b/i.test(raw) &&
+    ( /\b(?:leader\s*board|leaderboard|rankings?|ranking|rank|standings?|table|top|kedudukan|senarai|list|elo)\b/i.test(raw) ||
+      (/\b(?:clubs?|kelab)\b/i.test(raw) && /\b(?:send|show|give|display|view|see|papar(?:kan)?|tunjuk(?:kan)?|bagi|lihat)\b/i.test(raw)) ) &&
+    !/\b(?:available|availability|tersedia|preparation|preparing|persiapan|war\s*active|active\s*war|sedang\s*war|cooling|cooldown|isolated|isolation|diasingkan|war\s*status|status\s*war)\b/i.test(raw);
+
+  if (asksForDerbyLeaderboard) {
+    return { filter: "derby_leaderboard", derbyOnly: true, ...leaderboardRange };
+  }
+
+  const asksForGeneralLeaderboard =
+    !derbyOnly &&
+    /\b(?:leader\s*board|leaderboard|rankings?|ranking|standings?|kedudukan)\b/i.test(raw) &&
+    !/\b(?:matchmaking|match\s*making|create\s+match|buat\s+match|pairs?|pasangan)\b/i.test(raw);
+
+  if (asksForGeneralLeaderboard) {
+    return { filter: "leaderboard", derbyOnly: false, ...leaderboardRange };
+  }
+
+  // War status is always a live operational dashboard request. Do not send it
+  // through the conversational AI merely because the user omitted words such
+  // as "show", "list" or "display" (for example: "war status again").
+  if (/\b(?:war\s*status|status\s*war)\b/i.test(raw)) {
+    return { filter: "war_overview", derbyOnly };
+  }
+
+  const asksForList = /\b(?:list|show|display|which|what|senarai|semua|papar|clubs?|kelab)\b/i.test(raw);
+  if (!asksForList) return null;
+  if (/\b(?:preparation|preparing|persiapan)\b/i.test(raw)) return { filter: "preparation", derbyOnly };
+  if (/\b(?:war\s*active|active\s*war|sedang\s*war)\b/i.test(raw)) return { filter: "war_active", derbyOnly };
+  if (/\b(?:cooling|cooldown|cooling\s*down)\b/i.test(raw)) return { filter: "cooling", derbyOnly };
+  if (/\b(?:isolated|isolation|diasingkan)\b/i.test(raw)) return { filter: "isolated", derbyOnly };
+  if (/\b(?:available|availability|tersedia)\b/i.test(raw)) return { filter: "available", derbyOnly };
+  return null;
+}
+
+function getHsV2ClubTimerSnapshot(clubName, operation = null) {
+  const liveTimer = (activeFowTimers || []).find(timer =>
+    timer?.sent?.end !== true &&
+    Array.isArray(timer.clubs) &&
+    timer.clubs.some(item =>
+      areEquivalentClubNames(item?.club || item, clubName)
+    )
+  );
+  const status = String(operation?.status || "AVAILABLE").toUpperCase();
+  const endAt = Number(
+    status === "PREPARATION"
+      ? operation?.preparationEndAt || liveTimer?.endAt || 0
+      : status === "COOLING_DOWN"
+        ? operation?.coolingEndAt || liveTimer?.endAt || 0
+        : liveTimer?.endAt || 0
+  ) || null;
+  if (!endAt) return null;
+  const remainingMs = Math.max(0, endAt - Date.now());
+  return {
+    endAt,
+    remainingMs,
+    remaining: formatRemaining(remainingMs)
+  };
+}
+
+function getHsV2PagedListRecords(filter, derbyOnly = false, minElo = null, maxElo = null) {
+  return getSortedLeaderboard()
+    .map(club => {
+      const operation = getWarOperation(club.club);
+      const status = String(operation?.status || "AVAILABLE").toUpperCase();
+      return {
+        club: club.club,
+        elo: Number(club.elo) || 0,
+        pusher: club.president || "Not Set",
+        clubCode: club.clubCode || null,
+        status,
+        derby: isDerbyClub(club),
+        available: isClubMatchmakingAvailable(club.club),
+        timer: getHsV2ClubTimerSnapshot(club.club, operation)
+      };
+    })
+    .filter(row => {
+      if (derbyOnly && !row.derby) return false;
+      if (["derby_leaderboard", "leaderboard"].includes(filter)) {
+        if (minElo !== null && minElo !== undefined && Number.isFinite(Number(minElo)) && row.elo < Number(minElo)) return false;
+        if (maxElo !== null && maxElo !== undefined && Number.isFinite(Number(maxElo)) && row.elo > Number(maxElo)) return false;
+      }
+      if (filter === "preparation") return row.status === "PREPARATION";
+      if (filter === "war_active") return ["WAR_ACTIVE", "KO_ACTIVE"].includes(row.status);
+      if (filter === "cooling") return ["COOLING_DOWN", "AWAITING_COOLING_TIME"].includes(row.status);
+      if (filter === "available") return row.available;
+      if (filter === "isolated") return !row.available;
+      if (filter === "war_overview") return true;
+      if (filter === "derby_leaderboard") return true;
+      if (filter === "leaderboard") return true;
+      return false;
+    })
+    .sort((a, b) => {
+      if (filter !== "war_overview") return b.elo - a.elo;
+      const priority = {
+        KO_ACTIVE: 0,
+        WAR_ACTIVE: 1,
+        PREPARATION: 2,
+        COOLING_DOWN: 3,
+        AWAITING_COOLING_TIME: 4,
+        AVAILABLE: 5
+      };
+      return (priority[a.status] ?? 6) - (priority[b.status] ?? 6) || b.elo - a.elo;
+    });
+}
+
+function buildHsV2PagedListView(session) {
+  const records = getHsV2PagedListRecords(
+    session.filter,
+    session.derbyOnly,
+    session.minElo,
+    session.maxElo
+  );
+  const pages = Math.max(1, Math.ceil(records.length / HS_V2_PAGED_LIST_SIZE));
+  const page = Math.max(0, Math.min(Number(session.page) || 0, pages - 1));
+  session.page = page;
+  session.updatedAt = Date.now();
+  const items = records.slice(
+    page * HS_V2_PAGED_LIST_SIZE,
+    page * HS_V2_PAGED_LIST_SIZE + HS_V2_PAGED_LIST_SIZE
+  );
+  const labels = {
+    preparation: "⏳ PREPARATION CLUBS",
+    war_active: "⚔️ WAR ACTIVE CLUBS",
+    cooling: "🧊 COOLING CLUBS",
+    available: "🟢 AVAILABLE CLUBS",
+    isolated: "🔒 ISOLATED CLUBS",
+    derby_leaderboard: "🏇 FoW Derby ELO Leaderboard",
+    leaderboard: "🏆 FoW Empire ELO Leaderboard",
+    war_overview: session.derbyOnly
+      ? "📊 WAR STATUS — DERBY CLUBS"
+      : "📊 WAR STATUS — ALL CLUBS"
+  };
+  const endTimes = [...new Set(records.map(row => row.timer?.endAt).filter(Boolean))];
+  const isLeaderboardView = ["derby_leaderboard", "leaderboard"].includes(session.filter);
+  const sharedTimer = !isLeaderboardView && endTimes.length === 1
+    ? records.find(row => row.timer?.endAt === endTimes[0])?.timer || null
+    : null;
+  let content =
+    `**${labels[session.filter] || "HS CLUBS"}**\n` +
+    `Total: **${records.length}** • Page: **${page + 1}/${pages}**`;
+  if (
+    ["derby_leaderboard", "leaderboard"].includes(session.filter) &&
+    session.minElo !== null &&
+    session.maxElo !== null &&
+    Number.isFinite(Number(session.minElo)) &&
+    Number.isFinite(Number(session.maxElo))
+  ) {
+    content += `\n🎯 ELO Range: **${session.minElo} - ${session.maxElo}**`;
+  }
+  if (session.filter === "war_overview") {
+    const count = status => records.filter(row => row.status === status).length;
+    content +=
+      `\n⚔️ Active: **${count("WAR_ACTIVE") + count("KO_ACTIVE")}**` +
+      ` • ⏳ Preparation: **${count("PREPARATION")}**` +
+      ` • 🧊 Cooling: **${count("COOLING_DOWN") + count("AWAITING_COOLING_TIME")}**` +
+      ` • 🟢 Available: **${records.filter(row => row.available).length}**`;
+  }
+  if (sharedTimer) {
+    content +=
+      `\n⏱️ Remaining: **${sharedTimer.remaining}**` +
+      ` • Ends <t:${Math.floor(sharedTimer.endAt / 1000)}:R>`;
+  }
+  content += "\n\n";
+  if (!items.length) {
+    content += "No clubs found for this live status.";
+  } else {
+    content += items.map((row, index) => {
+      const number = page * HS_V2_PAGED_LIST_SIZE + index + 1;
+      if (["derby_leaderboard", "leaderboard"].includes(session.filter)) {
+        return `${number}. **${row.club}** (${row.elo}) - ${row.pusher}`;
+      }
+      const code = row.clubCode ? ` • ${row.clubCode}` : "";
+      const timer = !isLeaderboardView && !sharedTimer && row.timer
+        ? ` • ⏱️ ${row.timer.remaining}`
+        : "";
+      const status = session.filter === "war_overview"
+        ? ` • **${row.status.replaceAll("_", " ")}**`
+        : "";
+      return `${number}. **${row.club}** — ${row.elo}${code}${status}${timer}`;
+    }).join("\n");
+  }
+  if (["derby_leaderboard", "leaderboard"].includes(session.filter)) {
+    content += session.filter === "derby_leaderboard"
+      ? `\n\nShowing **${records.length} Derby clubs**.`
+      : `\n\nShowing **${records.length} clubs**.`;
+  }
+  content += `\n\n_Last refreshed: <t:${Math.floor(Date.now() / 1000)}:R>_`;
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`hsv2_list_prev:${session.id}`)
+      .setLabel("◀ Previous")
+      .setStyle(ButtonStyle.Secondary)
+      .setDisabled(page <= 0),
+    new ButtonBuilder()
+      .setCustomId(`hsv2_list_next:${session.id}`)
+      .setLabel("Next ▶")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(page >= pages - 1),
+    new ButtonBuilder()
+      .setCustomId(`hsv2_list_refresh:${session.id}`)
+      .setLabel("🔄 Refresh")
+      .setStyle(ButtonStyle.Secondary)
+  );
+  return { content, components: [row] };
+}
+
+function openHsV2PagedList(message, request) {
+  cleanupHsV2PagedListSessions();
+  const session = {
+    id: opsSessionId("hsv2list"),
+    filter: request.filter,
+    derbyOnly: Boolean(request.derbyOnly),
+    minElo: request.minElo !== null && request.minElo !== undefined && Number.isFinite(Number(request.minElo)) ? Number(request.minElo) : null,
+    maxElo: request.maxElo !== null && request.maxElo !== undefined && Number.isFinite(Number(request.maxElo)) ? Number(request.maxElo) : null,
+    page: 0,
+    userId: String(message.author.id),
+    guildId: String(message.guildId || ""),
+    channelId: String(message.channelId || ""),
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+  hsV2PagedListSessions.set(session.id, session);
+  return session;
+}
+
+function prepareHsV2ClubCodeLookup(text) {
+  const raw = String(text || "").trim();
+  if (!/(?:club\s*codes?|codes?\s+(?:for|of)|what(?:'s|\s+is)\s+(?:the\s+)?(?:club\s+)?code|give\s+me\s+(?:the\s+)?(?:club\s+)?code|kod\s+kelab|kod\s+untuk|apa\s+kod)/i.test(raw)) {
+    return null;
+  }
+
+  reloadLatestDatabase();
+  const requested = raw
+    .replace(/\b(?:what(?:'s|\s+is)|give|show|tell|find|check|send|the|me|please|pls|club|codes?|for|of|apa|berikan|bagi|tunjuk(?:kan)?|cari|semak|kod|kelab|untuk)\b/gi, " ")
+    .replace(/[?!.:,]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!requested) {
+    return { content: "⚠️ Please specify a club name for the code lookup." };
+  }
+
+  const malay = detectHsV2ResponseLanguage(raw) === "BAHASA MELAYU";
+
+  const requestedKey = normalizeClubName(requested);
+  const exact = (leaderboardData || []).find(club =>
+    normalizeClubName(club.club) === requestedKey
+  );
+  if (exact) {
+    return { content: malay
+      ? `Kod kelab untuk **${exact.club}** ialah **${exact.clubCode || "tidak tersedia"}**.`
+      : `The club code for **${exact.club}** is **${exact.clubCode || "not available"}**.` };
+  }
+
+  const compactRequestedKey = requestedKey.replace(/^fow\s+/, "");
+  const singularRequestedKey = compactRequestedKey.replace(/s$/, "");
+  const candidates = (leaderboardData || []).filter(club => {
+    const clubKey = normalizeClubName(club.club);
+    const compactClubKey = clubKey.replace(/^fow\s+/, "");
+    const singularClubKey = compactClubKey.replace(/s$/, "");
+    return requestedKey.length >= 4 && (
+      clubKey.includes(requestedKey) ||
+      requestedKey.includes(clubKey) ||
+      compactClubKey.includes(compactRequestedKey) ||
+      compactRequestedKey.includes(compactClubKey) ||
+      singularClubKey.includes(singularRequestedKey) ||
+      singularRequestedKey.includes(singularClubKey)
+    );
+  });
+
+  if (candidates.length === 1) {
+    const club = candidates[0];
+    return { content: malay
+      ? `Kod kelab untuk **${club.club}** ialah **${club.clubCode || "tidak tersedia"}**.`
+      : `The club code for **${club.club}** is **${club.clubCode || "not available"}**.` };
+  }
+
+  if (candidates.length > 1) {
+    return {
+      content:
+        (malay
+          ? `⚠️ **${requested}** tidak unik. Sila pilih kelab yang khusus:\n`
+          : `⚠️ **${requested}** is not unique. Please choose a specific club:\n`) +
+        candidates.slice(0, 10).map(club => `• ${club.club} (${Number(club.elo) || 0})`).join("\n")
+    };
+  }
+
+  return { content: malay
+    ? `⚠️ Tiada kelab FoW unik ditemui untuk **${requested}**.`
+    : `⚠️ No unique FoW club was found for **${requested}**.` };
+}
+
+function prepareHsV2EloLookup(text) {
+  const raw = String(text || "").trim();
+  if (!/(?:what(?:'s|\s+is)\s+(?:the\s+)?elo|elo\s+(?:for|of)|berapa\s+elo|elo\s+berapa)/i.test(raw)) {
+    return null;
+  }
+
+  reloadLatestDatabase();
+  const requested = raw
+    .replace(/\b(?:what(?:'s|\s+is)|show|tell|find|check|send|give|the|me|please|pls|elo|for|of|berapa|tunjuk(?:kan)?|cari|semak|untuk|kelab)\b/gi, " ")
+    .replace(/[?!.:,]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const malay = detectHsV2ResponseLanguage(raw) === "BAHASA MELAYU";
+  if (!requested) {
+    return { content: malay ? "⚠️ Sila berikan nama kelab." : "⚠️ Please provide a club name." };
+  }
+
+  const requestedKey = normalizeClubName(requested);
+  const exact = (leaderboardData || []).find(club => normalizeClubName(club.club) === requestedKey);
+  if (exact) {
+    return { content: malay
+      ? `ELO untuk **${exact.club}** ialah **${Number(exact.elo) || 0}**.`
+      : `The ELO for **${exact.club}** is **${Number(exact.elo) || 0}**.` };
+  }
+
+  const compactRequested = requestedKey.replace(/^fow\s+/, "");
+  const singularRequested = compactRequested.replace(/s$/, "");
+  const candidates = (leaderboardData || []).filter(club => {
+    const compactClub = normalizeClubName(club.club).replace(/^fow\s+/, "");
+    const singularClub = compactClub.replace(/s$/, "");
+    return requestedKey.length >= 4 && (
+      compactClub.includes(compactRequested) || compactRequested.includes(compactClub) ||
+      singularClub.includes(singularRequested) || singularRequested.includes(singularClub)
+    );
+  });
+
+  if (candidates.length === 1) {
+    const club = candidates[0];
+    return { content: malay
+      ? `ELO untuk **${club.club}** ialah **${Number(club.elo) || 0}**.`
+      : `The ELO for **${club.club}** is **${Number(club.elo) || 0}**.` };
+  }
+  if (candidates.length > 1) {
+    return { content:
+      (malay
+        ? `⚠️ **${requested}** tidak unik. Sila pilih kelab yang khusus:\n`
+        : `⚠️ **${requested}** is not unique. Please choose a specific club:\n`) +
+      candidates.slice(0, 10).map(club => `• ${club.club} (${Number(club.elo) || 0})`).join("\n") };
+  }
+  return { content: malay
+    ? `⚠️ Tiada kelab FoW unik ditemui untuk **${requested}**.`
+    : `⚠️ No unique FoW club was found for **${requested}**.` };
+}
+
+function prepareHsV2IsolationReason(text) {
+  const raw = String(text || "").trim();
+  if (!/(?:why|reason|kenapa|mengapa)/i.test(raw) || !/(?:isolat(?:e|ed|ion)|diasingkan|pengasingan)/i.test(raw)) {
+    return null;
+  }
+
+  reloadLatestDatabase();
+  const mentioned = (leaderboardData || []).filter(club => {
+    const clubKey = normalizeClubName(club.club);
+    return clubKey && normalizeClubName(raw).includes(clubKey);
+  });
+  const club = mentioned.length === 1 ? mentioned[0] : null;
+  const malay = detectHsV2ResponseLanguage(raw) === "BAHASA MELAYU";
+
+  if (!club) {
+    return { content: malay
+      ? "⚠️ Sila berikan satu nama kelab yang khusus untuk semakan isolation."
+      : "⚠️ Please provide one specific club name for the isolation check." };
+  }
+
+  const operation = getWarOperation(club.club);
+  const available = isClubMatchmakingAvailable(club.club);
+  if (available || !operation) {
+    return { content: malay
+      ? `🟢 **${club.club}** tidak diasingkan dan kini **AVAILABLE** untuk matchmaking.`
+      : `🟢 **${club.club}** is not isolated and is currently **AVAILABLE** for matchmaking.` };
+  }
+
+  const status = String(operation.status || operation.state || "ISOLATED").replaceAll("_", " ");
+  const matchId = operation.matchId ? String(operation.matchId) : null;
+  const eventType = operation.eventType || operation.operationalMode || null;
+  const timer = getHsV2ClubTimerSnapshot(club.club, operation);
+  const details = [
+    matchId ? (malay ? `Match ID **${matchId}**` : `Match ID **${matchId}**`) : null,
+    eventType ? `**${warEventLabel(eventType)}**` : null
+  ].filter(Boolean).join(" • ");
+
+  return {
+    content: malay
+      ? `🔒 **${club.club}** diasingkan kerana statusnya **${status}**${details ? ` untuk ${details}` : ""}.${timer ? `\n⏱️ Baki masa: **${timer.remaining}**.` : ""}`
+      : `🔒 **${club.club}** is isolated because its status is **${status}**${details ? ` for ${details}` : ""}.${timer ? `\n⏱️ Remaining: **${timer.remaining}**.` : ""}`
+  };
+}
+
+function prepareHsV2CurrentEventStatus(text) {
+  const raw = String(text || "").trim();
+  const asksEvent = /\b(?:event|acara)\b/i.test(raw);
+  const asksCurrent = /\b(?:current|active|status|semasa|sekarang|aktif|apa|what|which|show|check)\b/i.test(raw);
+  const requestsChange = /\b(?:start|begin|change|switch|close|end|mula(?:kan)?|tukar|ubah|tamat(?:kan)?)\b/i.test(raw);
+  if (!asksEvent || !asksCurrent || requestsChange) return null;
+
+  const event = getActiveEvent();
+  const malay = detectHsV2ResponseLanguage(raw) === "BAHASA MELAYU";
+  if (!event) {
+    return { content: malay
+      ? "ℹ️ Tiada event aktif pada masa ini."
+      : "ℹ️ There is no active event at this time." };
+  }
+
+  const name = event.name || warEventLabel(event.type || "normal");
+  const startAt = Number(event.startAt) || null;
+  const endAt = Number(event.endAt) || null;
+  const schedule = [
+    startAt ? `${malay ? "Bermula" : "Started"}: <t:${Math.floor(startAt / 1000)}:F>` : null,
+    endAt ? `${malay ? "Tamat" : "Ends"}: <t:${Math.floor(endAt / 1000)}:F> (<t:${Math.floor(endAt / 1000)}:R>)` : null
+  ].filter(Boolean).join("\n");
+
+  return { content: malay
+    ? `⚡ Event aktif semasa ialah **${name}**.${schedule ? `\n${schedule}` : ""}`
+    : `⚡ The current active event is **${name}**.${schedule ? `\n${schedule}` : ""}` };
+}
+
+function prepareHsV2LiveLightningAnalysis(text) {
+  const raw = String(text || "").trim();
+  const asksAnalysis = /\b(?:analysis|analyse|analyze|analisis|summary|ringkasan|trend|report|laporan)\b/i.test(raw);
+  if (!asksAnalysis || !/\blightning\b/i.test(raw)) return null;
+
+  const malay = detectHsV2ResponseLanguage(raw) === "BAHASA MELAYU";
+  const event = lightningActiveEvent();
+  if (!event) {
+    return { content: malay
+      ? "ℹ️ Tiada event Lightning aktif untuk dianalisis sekarang."
+      : "ℹ️ There is no active Lightning event to analyse right now." };
+  }
+
+  const baseline = ensureLightningBaseline();
+  const observations = getLightningResearchObservations(event.id);
+  const baselineRows = Array.isArray(baseline?.derby_database) ? baseline.derby_database : [];
+  const baselineMap = new Map(baselineRows.map(row => [normalizeClubName(row.club), Number(row.elo) || 0]));
+  const currentRows = getDerbyLeaderboard();
+  const changes = currentRows
+    .map(row => ({
+      club: row.club,
+      before: baselineMap.get(normalizeClubName(row.club)),
+      current: Number(row.elo) || 0
+    }))
+    .filter(row => Number.isFinite(row.before))
+    .map(row => ({ ...row, delta: row.current - row.before }));
+
+  const gains = changes.filter(row => row.delta > 0).sort((a, b) => b.delta - a.delta || b.current - a.current);
+  const drops = changes.filter(row => row.delta < 0).sort((a, b) => a.delta - b.delta || b.current - a.current);
+  const activity = new Map();
+  for (const row of observations) {
+    const key = normalizeClubName(row?.club);
+    if (!key) continue;
+    const current = activity.get(key) || { club: row.club, count: 0, absoluteMovement: 0 };
+    current.count += 1;
+    current.absoluteMovement += Math.abs(Number(row.delta) || 0);
+    activity.set(key, current);
+  }
+  const mostActive = [...activity.values()].sort((a, b) => b.count - a.count || b.absoluteMovement - a.absoluteMovement);
+  const linked = observations.filter(row => row?.link_status === "AUTO_LINKED").length;
+  const lastObservationMs = observations.reduce((max, row) => Math.max(max, Date.parse(row?.timestamp || "") || 0), 0);
+  const eventEndAt = Number(event.endAt) || 0;
+  const remaining = eventEndAt ? formatRemaining(Math.max(0, eventEndAt - Date.now())) : null;
+  const fmtDelta = value => `${value > 0 ? "+" : ""}${value}`;
+  const topLines = rows => rows.length
+    ? rows.slice(0, 5).map((row, index) => `${index + 1}. **${row.club}** — ${fmtDelta(row.delta)} (${row.before} → ${row.current})`).join("\n")
+    : (malay ? "• Tiada perubahan direkodkan" : "• No recorded change");
+  const activeLines = mostActive.length
+    ? mostActive.slice(0, 5).map((row, index) => `${index + 1}. **${row.club}** — ${row.count} ${malay ? "perubahan" : "changes"}`).join("\n")
+    : (malay ? "• Tiada pemerhatian" : "• No observations");
+
+  const header = malay ? "⚡ **ANALISIS LIGHTNING — LIVE**" : "⚡ **LIGHTNING ANALYSIS — LIVE**";
+  const status = malay ? "🟡 **DALAM PROSES — BUKAN KEPUTUSAN AKHIR**" : "🟡 **IN PROGRESS — NOT FINAL RESULTS**";
+  const summary = malay
+    ? `🏰 Kelab Derby dijejak: **${changes.length}**\n📍 Rekod perubahan ELO: **${observations.length}**\n🔗 Berpaut Match ID/opponent: **${linked}/${observations.length}**\n⏳ Baki event: **${remaining || "Manual end"}**`
+    : `🏰 Derby clubs tracked: **${changes.length}**\n📍 Recorded ELO changes: **${observations.length}**\n🔗 Linked to Match ID/opponent: **${linked}/${observations.length}**\n⏳ Event remaining: **${remaining || "Manual end"}**`;
+  const updated = lastObservationMs
+    ? `<t:${Math.floor(lastObservationMs / 1000)}:R>`
+    : (malay ? "Belum ada pemerhatian" : "No observations yet");
+
+  return { content:
+    `${header}\n${status}\n\n${summary}\n\n` +
+    `${malay ? "📈 **Kenaikan Bersih Tertinggi**" : "📈 **Highest Net Gains**"}\n${topLines(gains)}\n\n` +
+    `${malay ? "📉 **Penurunan Bersih Terbesar**" : "📉 **Largest Net Drops**"}\n${topLines(drops)}\n\n` +
+    `${malay ? "🔥 **Paling Aktif Berdasarkan Rekod**" : "🔥 **Most Active by Recorded Changes**"}\n${activeLines}\n\n` +
+    `${malay ? "🕒 Kemas kini pemerhatian terakhir" : "🕒 Last recorded observation"}: ${updated}\n` +
+    `_${malay ? "Angka ialah snapshot live dan boleh berubah sehingga event tamat." : "Figures are a live snapshot and may change until the event ends."}_`
+  };
+}
+
+function prepareHsV2LightningGapAnalysis(text) {
+  const raw = String(text || "").trim();
+  const asksGap = /\bgap\b/i.test(raw);
+  const asksGain = /\b(?:gain|gains|increase|kenaikan|naik|delta|elo)\b/i.test(raw);
+  if (!asksGap || !asksGain || !/\blightning\b/i.test(raw)) return null;
+
+  const malay = detectHsV2ResponseLanguage(raw) === "BAHASA MELAYU";
+  const event = lightningActiveEvent();
+  if (!event) {
+    return { content: malay ? "ℹ️ Tiada event Lightning aktif." : "ℹ️ There is no active Lightning event." };
+  }
+
+  const observations = getLightningResearchObservations(event.id).filter(row =>
+    row?.direction === "GAIN" &&
+    row?.link_status === "AUTO_LINKED" &&
+    Number.isFinite(Number(row?.gap_before)) &&
+    Number(row?.delta) > 0
+  );
+  const rangeMatch = raw.match(/\bgap\s*(?:of|dari|antara)?\s*(\d{1,4})\s*(?:-|–|—|to|hingga|sampai|and|dan)\s*(\d{1,4})\b/i);
+  const exactMatch = !rangeMatch ? raw.match(/\bgap\s*(?:of|sebanyak)?\s*(\d{1,4})\b/i) : null;
+  const stats = rows => {
+    const values = rows.map(row => Number(row.delta)).sort((a, b) => a - b);
+    if (!values.length) return null;
+    const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+    const middle = Math.floor(values.length / 2);
+    const median = values.length % 2 ? values[middle] : (values[middle - 1] + values[middle]) / 2;
+    return { count: values.length, average, median, min: values[0], max: values[values.length - 1] };
+  };
+  const fmt = value => Number.isInteger(value) ? String(value) : value.toFixed(1);
+
+  if (rangeMatch || exactMatch) {
+    const low = rangeMatch ? Math.min(Number(rangeMatch[1]), Number(rangeMatch[2])) : Number(exactMatch[1]);
+    const high = rangeMatch ? Math.max(Number(rangeMatch[1]), Number(rangeMatch[2])) : low;
+    const rows = observations.filter(row => Number(row.gap_before) >= low && Number(row.gap_before) <= high);
+    const result = stats(rows);
+    if (!result) {
+      return { content: malay
+        ? `⚡ Tiada rekod kenaikan ELO Lightning yang dipautkan untuk gap **${low}${high !== low ? `-${high}` : ""}** setakat ini.`
+        : `⚡ No linked Lightning ELO gain was recorded for gap **${low}${high !== low ? `-${high}` : ""}** so far.` };
+    }
+    const examples = [...rows]
+      .sort((a, b) => Number(b.delta) - Number(a.delta))
+      .slice(0, 5)
+      .map((row, index) => `${index + 1}. **${row.club}** vs ${row.opponent || "Unknown"} • Gap ${row.gap_before} • **+${row.delta} ELO**`)
+      .join("\n");
+    return { content: malay
+      ? `⚡ **LIGHTNING GAP ${low}${high !== low ? `-${high}` : ""} — LIVE**\n🟡 Dalam proses, bukan keputusan akhir.\n\n📍 Rekod gain: **${result.count}**\n📈 Purata: **+${fmt(result.average)} ELO**\n📊 Median: **+${fmt(result.median)} ELO**\n↕️ Julat gain: **+${result.min} hingga +${result.max}**\n\n**Gain tertinggi direkodkan**\n${examples}`
+      : `⚡ **LIGHTNING GAP ${low}${high !== low ? `-${high}` : ""} — LIVE**\n🟡 In progress, not final results.\n\n📍 Gain records: **${result.count}**\n📈 Average: **+${fmt(result.average)} ELO**\n📊 Median: **+${fmt(result.median)} ELO**\n↕️ Gain range: **+${result.min} to +${result.max}**\n\n**Highest recorded gains**\n${examples}` };
+  }
+
+  const buckets = [
+    [0, 10], [11, 25], [26, 50], [51, 75], [76, 100], [101, Infinity]
+  ];
+  const lines = buckets.map(([low, high]) => {
+    const rows = observations.filter(row => Number(row.gap_before) >= low && Number(row.gap_before) <= high);
+    const result = stats(rows);
+    const label = high === Infinity ? `${low}+` : `${low}-${high}`;
+    return result
+      ? `• Gap **${label}** — n=${result.count} • avg **+${fmt(result.average)}** • median **+${fmt(result.median)}** • range **+${result.min}…+${result.max}**`
+      : `• Gap **${label}** — ${malay ? "tiada data" : "no data"}`;
+  });
+  return { content:
+    `⚡ **${malay ? "KENAIKAN ELO MENGIKUT GAP — LIGHTNING LIVE" : "ELO GAINS BY GAP — LIGHTNING LIVE"}**\n` +
+    `🟡 **${malay ? "DALAM PROSES — BUKAN KEPUTUSAN AKHIR" : "IN PROGRESS — NOT FINAL RESULTS"}**\n\n` +
+    lines.join("\n") +
+    `\n\n_${malay ? "n ialah jumlah rekod gain yang berjaya dipautkan, bukan jumlah war yang disahkan." : "n is the number of linked gain observations, not a confirmed war count."}_`
+  };
+}
+
+function buildHsV2DestinationButtons(draftId) {
+  return [new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`hsv2_dest:${draftId}:high`).setLabel("HIGH").setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`hsv2_dest:${draftId}:mid`).setLabel("MID").setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`hsv2_dest:${draftId}:low`).setLabel("LOW").setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`hsv2_dest:${draftId}:additional`).setLabel("ADDITIONAL").setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(`hscr_cancel:${draftId}`).setLabel("CANCEL").setStyle(ButtonStyle.Danger)
+  )];
+}
+
+function buildHsV2ConfirmButtons(draftId) {
+  return [new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`hscr_confirm:${draftId}`).setLabel("CONFIRM & SEND").setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`hscr_cancel:${draftId}`).setLabel("CANCEL").setStyle(ButtonStyle.Danger)
+  )];
+}
+
+function buildHsV2MatchDraftView(draft) {
+  const pairs=Array.isArray(draft?.previewResult?.pairs)?draft.previewResult.pairs:[];
+  const pageSize=5,pages=Math.max(1,Math.ceil(pairs.length/pageSize));
+  draft.previewPage=Math.max(0,Math.min(Number(draft.previewPage)||0,pages-1));
+  draft.updatedAt=Date.now();
+  const pagePairs=pairs.slice(draft.previewPage*pageSize,draft.previewPage*pageSize+pageSize);
+  const nameForKey=key=>(leaderboardData||[]).find(item=>normalizeClubName(item.club)===key)?.club||key;
+  const controls=[
+    draft.rematchOf?`🔄 Rematch of: **${draft.rematchOf}**`:null,
+    draft.skipKeys?.length?`⏭️ Skip: **${draft.skipKeys.map(nameForKey).join(', ')}**`:null,
+    draft.mustWinKeys?.length?`🏆 Must Win: **${draft.mustWinKeys.map(nameForKey).join(', ')}**`:null,
+    draft.mustLoseKeys?.length?`🔻 Must Lose: **${draft.mustLoseKeys.map(nameForKey).join(', ')}**`:null,
+    draft.fixedPairs?.length?`🔗 Fixed: **${draft.fixedPairs.map(p=>`${nameForKey(p.aKey)} ↔ ${nameForKey(p.bKey)}`).join(', ')}**`:null
+  ].filter(Boolean);
+  const lines=pagePairs.map((pair,index)=>{const top=pair.winner||((Number(pair.a?.elo)||0)>=(Number(pair.b?.elo)||0)?pair.a:pair.b),bottom=pair.loser||(top===pair.a?pair.b:pair.a),gap=Math.abs(Number(top?.elo)-Number(bottom?.elo));return `**${draft.previewPage*pageSize+index+1}. ${top?.club} (${Number(top?.elo)||0})**\nvs ${bottom?.club} (${Number(bottom?.elo)||0}) • Gap **${gap}**`;});
+  const unmatched=Array.isArray(draft?.previewResult?.unmatched)?draft.previewResult.unmatched.length:0;
+  let content=`🎛️ **HS V2 — MATCHMAKING PREVIEW**\n🎯 Range: **${draft.minElo} - ${draft.maxElo}**\n🤝 Pairs: **${pairs.length}** • Page: **${draft.previewPage+1}/${pages}**\n➖ Unmatched: **${unmatched}**\n📤 Destination: **${draft.destinationLabel||'SELECT BELOW'}**\n🔒 No production data changed.\n${controls.length?'\n'+controls.join('\n')+'\n':''}\n${lines.join('\n\n')||'No valid pairs.'}`;
+  const rows=[];
+  if(pages>1)rows.push(new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`hsv2_preview_prev:${draft.id}`).setLabel('◀ Previous').setStyle(ButtonStyle.Secondary).setDisabled(draft.previewPage<=0),
+    new ButtonBuilder().setCustomId(`hsv2_preview_next:${draft.id}`).setLabel('Next ▶').setStyle(ButtonStyle.Primary).setDisabled(draft.previewPage>=pages-1)
+  ));
+  rows.push(...(draft.destinationKey?buildHsV2ConfirmButtons(draft.id):buildHsV2DestinationButtons(draft.id)));
+  return{content:content.slice(0,1900),components:rows};
+}
+
+function prepareHsV2MatchmakingDraft(message, text) {
+  const intent = parseLocalMatchmakingInstruction(text);
+  if (!intent) return null;
+
+  reloadLatestDatabase();
+  cleanupHsControlRoomDrafts();
+
+  const dry = dryRunMatchmakingFromIntent(intent);
+  const pairs = Array.isArray(dry?.result?.pairs) ? dry.result.pairs : [];
+  const derbyInRange = getDerbyLeaderboard()
+    .filter(item => Number(item.elo) >= dry.min && Number(item.elo) <= dry.max)
+    .sort((a, b) => Number(b.elo) - Number(a.elo));
+
+  if (!pairs.length) {
+    const statusLines = derbyInRange.map(item => {
+      const operation = getWarOperation(item.club);
+      const available = isClubMatchmakingAvailable(item.club);
+      const status = available
+        ? "AVAILABLE — unmatched"
+        : String(operation?.status || "ACTIVE TIMER").replaceAll("_", " ");
+      const timer = getHsV2ClubTimerSnapshot(item.club, operation);
+      return `• **${item.club}** (${Number(item.elo) || 0}) — ${status}${timer ? ` • ⏱️ ${timer.remaining}` : ""}`;
+    });
+    return {
+      draft: null,
+      components: [],
+      response:
+        `🎛️ **HS V2 — MATCHMAKING PREVIEW**\n` +
+        `🎯 Range: **${dry.min} - ${dry.max}**\n` +
+        `🏰 Derby clubs in range: **${derbyInRange.length}**\n` +
+        `🟢 Available: **${dry.available?.length || 0}**\n` +
+        `🤝 Pairs: **0**\n\n` +
+        `${statusLines.length ? statusLines.join("\n") : "No Derby clubs found in this ELO range."}\n\n` +
+        `⚠️ At least two available clubs within **${MATCHMAKING_MAX_GAP} ELO** are required.\n` +
+        `🔒 Destination selection disabled. No Match ID created.`
+    };
+  }
+
+  const draftId = `${Date.now().toString(36)}${message.author.id.slice(-4)}`;
+  const destination = parseHsControlRoomDestination(text);
+  const draft = {
+    id: draftId,
+    userId: String(message.author.id),
+    guildId: String(message.guildId || ""),
+    sourceChannelId: String(message.channelId || ""),
+    destinationKey: destination?.key || null,
+    destinationLabel: destination?.label || null,
+    destinationChannelId: destination?.channelId || null,
+    minElo: dry.min,
+    maxElo: dry.max,
+    requestText: String(text || ""),
+    previewResult: dry.result,
+    previewSkipped: dry.skipped || [],
+    skipKeys: (dry.skipped || []).map(item => normalizeClubName(item.club)),
+    mustWinKeys: (intent.must_win || []).map(token => resolveNaturalClubToken(token, dry.available)).filter(Boolean).map(item => normalizeClubName(item.club)),
+    mustLoseKeys: (intent.must_lose || []).map(token => resolveNaturalClubToken(token, dry.available)).filter(Boolean).map(item => normalizeClubName(item.club)),
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    phase: "v2_action"
+  };
+  hsControlRoomDrafts.set(draftId, draft);
+
+  const warnings = [];
+  if (dry.unresolvedSkip?.length) warnings.push(`⚠️ Skip not resolved: **${dry.unresolvedSkip.join(", ")}**`);
+  if (dry.unresolvedForced?.length) warnings.push(`⚠️ Forced rule unresolved: **${dry.unresolvedForced.join(", ")}**`);
+
+  let response =
+    `🎛️ **HS V2 — MATCHMAKING PREVIEW**\n` +
+    `🎯 Range: **${dry.min} - ${dry.max}**\n` +
+    `🤝 Pairs: **${pairs.length}**\n` +
+    `📤 Destination: **${destination?.label || "SELECT BELOW"}**\n` +
+    `🔒 No Match ID created yet.\n` +
+    (warnings.length ? `\n${warnings.join("\n")}\n` : "") +
+    `\n${formatMatchmakingOutput(dry.result, dry.min, dry.max, dry.skipped || [], null)}`;
+
+  return {
+    draft,
+    response,
+    components: destination
+      ? buildHsV2ConfirmButtons(draftId)
+      : buildHsV2DestinationButtons(draftId)
+  };
+}
+
+function latestHsV2MatchmakingDraft(message) {
+  cleanupHsControlRoomDrafts();
+  return [...hsControlRoomDrafts.values()]
+    .filter(draft =>
+      draft?.phase === "v2_action" &&
+      String(draft.userId) === String(message.author.id) &&
+      String(draft.guildId || "") === String(message.guildId || "")
+    )
+    .sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0))[0] || null;
+}
+
+const hsV2SavedEditDrafts = new Map();
+const HS_V2_SAVED_EDIT_TTL_MS = 15 * 60 * 1000;
+
+function cleanupHsV2SavedEditDrafts() {
+  const cutoff = Date.now() - HS_V2_SAVED_EDIT_TTL_MS;
+  for (const [id, draft] of hsV2SavedEditDrafts.entries()) {
+    if (Number(draft?.updatedAt || draft?.createdAt || 0) < cutoff) hsV2SavedEditDrafts.delete(id);
+  }
+}
+
+function prepareHsV2SavedMatchEdit(message, text) {
+  const raw = String(text || "").trim();
+  const match = raw.match(/^edit\s+(HS\s*\d{1,6})\s*[,;:-]?\s*(?:pair\s+)?(.+?)\s+with\s+(.+?)[.!?]*$/i);
+  if (!match) return null;
+  cleanupHsV2SavedEditDrafts();
+  const matchId = normalizeMatchId(match[1]);
+  const plan = getMatchPlan(matchId);
+  if (!plan) return {response:`❌ Match ID **${matchId}** was not found.`,components:[]};
+  if (plan.guildId && String(plan.guildId) !== String(message.guildId || "")) return {response:`❌ Match ID **${matchId}** belongs to another server.`,components:[]};
+  const active = (plan.clubs || []).filter(item => !isClubMatchmakingAvailable(item.club));
+  if (active.length) {
+    return {response:`⛔ **${matchId}** cannot be edited because preparation/war isolation is already active for **${active.length}** club(s). Cancel or complete the operational flow first.`,components:[]};
+  }
+  const a = resolveNaturalClubToken(cleanNaturalEntity(match[2]), plan.clubs || []);
+  const b = resolveNaturalClubToken(cleanNaturalEntity(match[3]), plan.clubs || []);
+  if (!a || !b) return {response:`❌ Both club references must uniquely resolve inside **${matchId}**.`,components:[]};
+  const aInfo = getPairFromPlan(plan, a.club);
+  const bInfo = getPairFromPlan(plan, b.club);
+  if (!aInfo || !bInfo || aInfo.pairNo === bInfo.pairNo) return {response:"❌ Choose two clubs from different pairs in the saved Match ID.",components:[]};
+  const aOpponent = aInfo.pair.find(item => normalizeClubName(item.club) !== normalizeClubName(a.club));
+  const bOpponent = bInfo.pair.find(item => normalizeClubName(item.club) !== normalizeClubName(b.club));
+  if (!aOpponent || !bOpponent) return {response:"❌ One of the original pairs is incomplete; use `/edit_matchmaking` for manual repair.",components:[]};
+  const requestedGap = Math.abs(Number(a.elo) - Number(b.elo));
+  const repairGap = Math.abs(Number(aOpponent.elo) - Number(bOpponent.elo));
+  if (requestedGap > MATCHMAKING_MAX_GAP || repairGap > MATCHMAKING_MAX_GAP) {
+    return {response:`❌ Safe repair is not possible within **${MATCHMAKING_MAX_GAP} ELO**.\nRequested pair gap: **${requestedGap}**\nRemaining opponent repair gap: **${repairGap}**\n🔒 Saved plan unchanged.`,components:[]};
+  }
+  const proposedClubs = (plan.clubs || []).map(item => ({...item}));
+  const setPair = (left, right, pairNo) => {
+    const leftItem = proposedClubs.find(item => normalizeClubName(item.club) === normalizeClubName(left.club));
+    const rightItem = proposedClubs.find(item => normalizeClubName(item.club) === normalizeClubName(right.club));
+    const winner = Number(left.elo) >= Number(right.elo) ? leftItem : rightItem;
+    const loser = winner === leftItem ? rightItem : leftItem;
+    winner.pairNo = pairNo; winner.matchRole = "win";
+    loser.pairNo = pairNo; loser.matchRole = "lose";
+  };
+  setPair(a, b, aInfo.pairNo);
+  setPair(aOpponent, bOpponent, bInfo.pairNo);
+  const id = opsSessionId("hsv2edit");
+  const draft = {id,userId:String(message.author.id),guildId:String(message.guildId||""),matchId,baseUpdatedAt:Number(plan.updatedAt||plan.createdAt||0),proposedClubs,createdAt:Date.now(),updatedAt:Date.now()};
+  hsV2SavedEditDrafts.set(id,draft);
+  return {
+    draft,
+    response:
+      `✏️ **HS V2 — SAVED MATCH EDIT PREVIEW**\n`+
+      `🆔 Match ID: **${matchId}**\n\n`+
+      `**New Pair 1**\n${a.club} (${a.elo})\nvs ${b.club} (${b.elo})\nGap: **${requestedGap}**\n\n`+
+      `**Repaired Pair 2**\n${aOpponent.club} (${aOpponent.elo})\nvs ${bOpponent.club} (${bOpponent.elo})\nGap: **${repairGap}**\n\n`+
+      `🔒 Saved Match ID has not changed yet.`,
+    components:[new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId(`hsv2_edit_confirm:${id}`).setLabel("CONFIRM EDIT").setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId(`hsv2_edit_cancel:${id}`).setLabel("CANCEL").setStyle(ButtonStyle.Danger)
+    )]
+  };
+}
+
+function prepareHsV2MatchOperationsStatus(message,text){
+  const raw=String(text||'').trim();
+  if(!/\b(?:show|check|status|timer|timers|war|semak|tunjuk)\b/i.test(raw))return null;
+  const match=raw.match(/\bHS\s*[-#]?\s*(\d{1,6})\b/i);if(!match)return null;
+  const id=normalizeMatchId(`HS${match[1]}`),plan=getMatchPlan(id);
+  if(!plan)return{content:`❌ Match ID **${id}** was not found.`};
+  if(plan.guildId&&String(plan.guildId)!==String(message.guildId||''))return{content:`❌ Match ID **${id}** belongs to another server.`};
+  const timers=getActiveTimersForMatchId(id),ops=getActiveWarOpsForMatchId(id),now=Date.now();
+  const statusCounts={};for(const op of ops){const s=String(op.status||'AVAILABLE').toUpperCase();statusCounts[s]=(statusCounts[s]||0)+1;}
+  const timerLines=timers.length?timers.map((timer,i)=>{const endAt=Number(timer.endAt)||0;return `${i+1}. **${timer.id||'Timer'}** • ${String(timer.type||'timer').replaceAll('_',' ')}${endAt?` • ${formatRemaining(endAt-now)} • ends <t:${Math.floor(endAt/1000)}:R>`:''}`;}).join('\n'):'• None';
+  const opLines=ops.length?ops.slice(0,20).map(op=>`• **${op.club}** (${Number(op.elo)||0}) — ${String(op.status||'AVAILABLE').replaceAll('_',' ')}${op.nextReminderAt?` • next <t:${Math.floor(Number(op.nextReminderAt)/1000)}:R>`:''}`).join('\n'):'• None';
+  return{content:(
+    `📊 **HS V2 — MATCH OPERATIONS STATUS**\n`+
+    `🆔 Match ID: **${id}**\n`+
+    `📌 Plan: **${String(plan.status||'SAVED').toUpperCase()}**\n`+
+    `🤝 Pairs: **${Number(plan.pairCount)||0}**\n`+
+    `⏱️ Active Timers: **${timers.length}**\n`+
+    `⚔️ Active War Operations: **${ops.length}**\n`+
+    `${Object.keys(statusCounts).length?`Status: ${Object.entries(statusCounts).map(([k,v])=>`**${k.replaceAll('_',' ')} ${v}**`).join(' • ')}\n`:''}`+
+    `\n**Timers**\n${timerLines}\n\n**Clubs**\n${opLines}\n\n🔄 Live read-only status.`
+  ).slice(0,1900)};
+}
+
+const hsV2WarDoneDrafts=new Map();
+const HS_V2_WAR_DONE_TTL_MS=15*60*1000;
+function cleanupHsV2WarDoneDrafts(){const cutoff=Date.now()-HS_V2_WAR_DONE_TTL_MS;for(const[id,d]of hsV2WarDoneDrafts)if(Number(d?.createdAt||0)<cutoff)hsV2WarDoneDrafts.delete(id);}
+function prepareHsV2WarDone(message,text){
+  const raw=String(text||'').trim();let match=raw.match(/^(?:mark\s+)?(.+?)\s+(?:as\s+)?war\s+done[.!?]*$/i);if(!match)match=raw.match(/^war\s+done\s+(?:for\s+)?(.+?)[.!?]*$/i);if(!match)return null;
+  cleanupHsV2WarDoneDrafts();const token=cleanNaturalEntity(match[1]);const club=resolveNaturalClubToken(token,leaderboardData);
+  if(!club)return{content:`❌ Could not uniquely resolve **${token}**.`,components:[]};
+  const op=getWarOperation(club.club),status=String(op?.status||'AVAILABLE').toUpperCase();
+  if(!op||!['WAR_ACTIVE','KO_ACTIVE'].includes(status))return{content:`ℹ️ **${club.club}** is not currently WAR ACTIVE / KO ACTIVE. Current status: **${status.replaceAll('_',' ')}**.`,components:[]};
+  const id=opsSessionId('hsv2wdone'),type=String(op.eventType||'normal').toLowerCase();const draft={id,userId:String(message.author.id),guildId:String(message.guildId||''),opId:op.id,baseUpdatedAt:Number(op.updatedAt||0),createdAt:Date.now()};hsV2WarDoneDrafts.set(id,draft);
+  return{content:`🏁 **HS V2 — WAR DONE PREVIEW**\n\n🏙️ Club: **${op.club}**\n🏆 ELO: **${Number(op.elo)||0}**\n⚔️ Event: **${warEventLabel(type)}**\n🔴 Current: **${status.replaceAll('_',' ')}**\n➡️ After confirm: **${type==='normal'?'AWAITING COOLING TIME': 'AVAILABLE'}**\n${type==='normal'?'🧊 Cooling duration will be requested after confirmation.':'🔓 Isolation will be released immediately.'}\n\n🔒 No production data changed yet.`,components:[new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`hsv2_wdone_confirm:${id}`).setLabel('CONFIRM WAR DONE').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`hsv2_wdone_cancel:${id}`).setLabel('CANCEL').setStyle(ButtonStyle.Danger)
+  )]};
+}
+
+function prepareHsV2EventAction(message,text){
+  const raw=String(text||'').trim();
+  if(!/\b(?:event|normal|lightning|grease)\b/i.test(raw)||!(/\b(?:start|change|switch|transition|close|end|return|tukar|mula|tamat)\b/i.test(raw)))return null;
+  const modeFrom=value=>{const v=String(value||'').toLowerCase();if(/grease(?:\s+lightning)?/.test(v))return'grease';if(/lightning/.test(v))return'lightning';if(/normal/.test(v))return'normal';return null;};
+  let from=null,to=null,match=raw.match(/(?:close|end|tamat)\s+(normal|lightning|grease(?:\s+lightning)?).*?(?:start|return\s+to|switch\s+to|change\s+to|mula)\s+(normal|lightning|grease(?:\s+lightning)?)/i);
+  if(match){from=modeFrom(match[1]);to=modeFrom(match[2]);}
+  if(!to){match=raw.match(/(?:start|change(?:\s+event)?\s+to|switch(?:\s+event)?\s+to|transition(?:\s+event)?\s+to|return\s+to|tukar(?:\s+event)?\s+ke|mula)\s+(normal|lightning|grease(?:\s+lightning)?)/i);if(match)to=modeFrom(match[1]);}
+  if(!to)return null;
+  return prepareHsEventTransition(message,{from_event:from,to_event:to,event_type:to});
+}
+
+function modifyHsV2MatchmakingDraft(message, text) {
+  const raw = String(text || "").trim();
+  const changes = [];
+  const parts = raw.split(/[,;\n]+/).map(value => value.trim()).filter(Boolean);
+  for (const part of parts) {
+    let match = part.match(/^(?:please\s+)?(?:change|replace)\s+(.+?)'?s?\s+opponent\s+(?:to|with)\s+(.+?)[.!?]*$/i);
+    if (match) { changes.push({action:"pair_with",token:cleanNaturalEntity(match[1]),replacementToken:cleanNaturalEntity(match[2])}); continue; }
+    match = part.match(/^(?:please\s+)?pair\s+(.+?)\s+with\s+(.+?)[.!?]*$/i);
+    if (match) { changes.push({action:"pair_with",token:cleanNaturalEntity(match[1]),replacementToken:cleanNaturalEntity(match[2])}); continue; }
+    match = part.match(/^(?:please\s+)?skip\s+(.+?)[.!?]*$/i);
+    if (match) { changes.push({action:"skip",token:cleanNaturalEntity(match[1])}); continue; }
+    match = part.match(/^(?:please\s+)?(?:set\s+|make\s+)?(.+?)\s+must\s+win[.!?]*$/i);
+    if (match) { changes.push({action:"must_win",token:cleanNaturalEntity(match[1])}); continue; }
+    match = part.match(/^(?:please\s+)?(?:set\s+|make\s+)?(.+?)\s+must\s+lose[.!?]*$/i);
+    if (match) { changes.push({action:"must_lose",token:cleanNaturalEntity(match[1])}); continue; }
+    if (/^(?:regenerate|generate\s+again|pair\s+again|buat\s+semula)[.!?]*$/i.test(part)) {
+      changes.push({action:"regenerate",token:null});
+      continue;
+    }
+    return null;
+  }
+  if (!changes.length) return null;
+
+  const draft = latestHsV2MatchmakingDraft(message);
+  if (!draft) {
+    return {draft:null,components:[],response:"⚠️ No active HS V2 matchmaking preview found. Create a preview first."};
+  }
+
+  const rangePool = getDerbyLeaderboard().filter(item =>
+    Number(item.elo) >= Number(draft.minElo) && Number(item.elo) <= Number(draft.maxElo)
+  );
+  const resolvedChanges = [];
+  for (const change of changes) {
+    if (!change.token) continue;
+    const club = resolveNaturalClubToken(change.token, rangePool);
+    if (!club) {
+      return {draft,components:draft.destinationKey?buildHsV2ConfirmButtons(draft.id):buildHsV2DestinationButtons(draft.id),response:`❌ Could not uniquely resolve **${change.token}** inside range **${draft.minElo}-${draft.maxElo}**. All requested changes were cancelled; draft unchanged.`};
+    }
+    let replacement = null;
+    if (change.action === "pair_with") {
+      replacement = resolveNaturalClubToken(change.replacementToken, rangePool);
+      if (!replacement) {
+        return {draft,components:draft.destinationKey?buildHsV2ConfirmButtons(draft.id):buildHsV2DestinationButtons(draft.id),response:`❌ Could not uniquely resolve opponent **${change.replacementToken}** inside range **${draft.minElo}-${draft.maxElo}**. All requested changes were cancelled; draft unchanged.`};
+      }
+      const gap = Math.abs(Number(club.elo) - Number(replacement.elo));
+      if (normalizeClubName(club.club) === normalizeClubName(replacement.club)) {
+        return {draft,components:[],response:"❌ A club cannot be paired with itself. Draft unchanged."};
+      }
+      if (!isClubMatchmakingAvailable(club.club) || !isClubMatchmakingAvailable(replacement.club)) {
+        return {draft,components:[],response:`❌ Both clubs must still be available. Draft unchanged.`};
+      }
+      if (gap > MATCHMAKING_MAX_GAP) {
+        return {draft,components:[],response:`❌ **${club.club}** and **${replacement.club}** have a gap of **${gap}**, above the maximum **${MATCHMAKING_MAX_GAP}**. Draft unchanged.`};
+      }
+    }
+    resolvedChanges.push({...change,club,replacement});
+  }
+  const skip = new Set(draft.skipKeys || []);
+  const wins = new Set(draft.mustWinKeys || []);
+  const loses = new Set(draft.mustLoseKeys || []);
+  let fixedPairs = Array.isArray(draft.fixedPairs) ? [...draft.fixedPairs] : [];
+  for (const change of resolvedChanges) {
+    const key = normalizeClubName(change.club.club);
+    if (change.action === "skip") { skip.add(key); wins.delete(key); loses.delete(key); fixedPairs = fixedPairs.filter(pair => ![pair.aKey,pair.bKey].includes(key)); }
+    if (change.action === "must_win") { skip.delete(key); wins.add(key); loses.delete(key); }
+    if (change.action === "must_lose") { skip.delete(key); loses.add(key); wins.delete(key); }
+    if (change.action === "pair_with") {
+      const replacementKey = normalizeClubName(change.replacement.club);
+      skip.delete(key); skip.delete(replacementKey);
+      fixedPairs = fixedPairs.filter(pair => ![pair.aKey,pair.bKey].includes(key) && ![pair.aKey,pair.bKey].includes(replacementKey));
+      fixedPairs.push({aKey:key,bKey:replacementKey});
+    }
+  }
+  draft.skipKeys = [...skip];
+  draft.mustWinKeys = [...wins];
+  draft.mustLoseKeys = [...loses];
+  draft.fixedPairs = fixedPairs;
+
+  const nameForKey = key => rangePool.find(item => normalizeClubName(item.club) === key)?.club || key;
+  const fixedKeys = new Set(fixedPairs.flatMap(pair => [pair.aKey,pair.bKey]));
+  const intent = {
+    min_elo:draft.minElo,
+    max_elo:draft.maxElo,
+    skip:[...(draft.skipKeys || []),...fixedKeys].map(nameForKey),
+    must_win:(draft.mustWinKeys || []).map(nameForKey),
+    must_lose:(draft.mustLoseKeys || []).map(nameForKey)
+  };
+  const dry = dryRunMatchmakingFromIntent(intent);
+  const forcedPairs = fixedPairs.map(pair => {
+    const a = rangePool.find(item => normalizeClubName(item.club) === pair.aKey);
+    const b = rangePool.find(item => normalizeClubName(item.club) === pair.bKey);
+    if (!a || !b) return null;
+    const aWins = wins.has(pair.aKey) || loses.has(pair.bKey);
+    const bWins = wins.has(pair.bKey) || loses.has(pair.aKey);
+    const winner = aWins && !bWins ? a : bWins && !aWins ? b : Number(a.elo)>=Number(b.elo) ? a : b;
+    const loser = winner === a ? b : a;
+    return {a,b,winner,loser,gap:Math.abs(Number(a.elo)-Number(b.elo)),fixed:true};
+  }).filter(Boolean);
+  dry.result = {...dry.result,pairs:[...forcedPairs,...(dry.result?.pairs || [])],matchedClubs:forcedPairs.length*2+Number(dry.result?.matchedClubs || 0)};
+  draft.previewResult = dry.result;
+  draft.previewSkipped = (dry.skipped || []).filter(item => !fixedKeys.has(normalizeClubName(item.club)));
+  draft.updatedAt = Date.now();
+  const pairs = dry.result?.pairs?.length || 0;
+  const controls = [
+    draft.skipKeys?.length ? `⏭️ Skip: **${draft.skipKeys.map(nameForKey).join(", ")}**` : null,
+    draft.mustWinKeys?.length ? `🏆 Must Win: **${draft.mustWinKeys.map(nameForKey).join(", ")}**` : null,
+    draft.mustLoseKeys?.length ? `🔻 Must Lose: **${draft.mustLoseKeys.map(nameForKey).join(", ")}**` : null,
+    fixedPairs.length ? `🔗 Fixed Pair: **${fixedPairs.map(pair=>`${nameForKey(pair.aKey)} ↔ ${nameForKey(pair.bKey)}`).join(", ")}**` : null
+  ].filter(Boolean);
+  return {
+    draft,
+    components:pairs ? (draft.destinationKey?buildHsV2ConfirmButtons(draft.id):buildHsV2DestinationButtons(draft.id)) : [],
+    response:
+      `🔄 **HS V2 — DRAFT REGENERATED**\n`+
+      `🎯 Range: **${draft.minElo} - ${draft.maxElo}**\n`+
+      `🤝 Pairs: **${pairs}**\n`+
+      `${controls.length?controls.join("\n")+"\n":""}`+
+      `📤 Destination: **${draft.destinationLabel || "SELECT BELOW"}**\n`+
+      `🔒 No production data changed.\n\n`+
+      formatMatchmakingOutput(dry.result,dry.min,dry.max,draft.previewSkipped || [],null)
+  };
+}
+
 function resolveNaturalClubToken(token, candidates = leaderboardData) {
   const value=String(token||"").trim(); if(!value)return null;
   // Resolution priority: exact club -> alias -> exact president/pusher -> unique partial/fuzzy.
@@ -8977,6 +11368,14 @@ function resolveNaturalClubToken(token, candidates = leaderboardData) {
   if(fuzzy.length===1)return fuzzy[0];
   const partial=pool.filter(item=>normalizeClubName(item.club).includes(normalized)||normalizeClubName(item.president).includes(normalized));
   if(partial.length===1)return partial[0];
+  // Safe typo tolerance: compare the token with club names both with and
+  // without the common FoW prefix, and accept only one uniquely closest hit.
+  if(normalized.length>=5){
+    const distance=(a,b)=>{const row=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let prev=row[0];row[0]=i;for(let j=1;j<=b.length;j++){const old=row[j];row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=old;}}return row[b.length];};
+    const ranked=pool.map(item=>{const club=normalizeClubName(item.club);const short=club.replace(/^fow/,"");const d=Math.min(distance(normalized,club),distance(normalized,short));return{item,d};}).sort((a,b)=>a.d-b.d);
+    const limit=Math.max(1,Math.floor(normalized.length*0.18));
+    if(ranked[0]&&ranked[0].d<=limit&&(!ranked[1]||ranked[1].d>ranked[0].d))return ranked[0].item;
+  }
   return null;
 }
 
@@ -9023,6 +11422,381 @@ function formatAiInterpretation(intent,dry){
 }
 
 function findPlansContainingClub(club,guildId){const key=normalizeClubName(club.club);return [...matchPlans.values()].filter(plan=>(!guildId||!plan.guildId||String(plan.guildId)===String(guildId))&&Array.isArray(plan.clubs)&&plan.clubs.some(c=>normalizeClubName(c.club)===key));}
+
+// ============================================================
+// HS PROJECT BRAIN V1 — READ-ONLY PRODUCTION KNOWLEDGE
+// ============================================================
+
+function getHsProjectBrainActiveTimers(clubName) {
+  const key = normalizeClubName(clubName);
+
+  return (activeFowTimers || []).filter(timer =>
+    Array.isArray(timer?.clubs) &&
+    timer.clubs.some(club =>
+      normalizeClubName(club?.club || club) === key
+    )
+  );
+}
+
+function buildHsProjectBrainClubProfile(club, guildId) {
+  if (!club?.club) return null;
+
+  const plans = findPlansContainingClub(club, guildId);
+  const operation = getWarOperation(club.club);
+  const timers = getHsProjectBrainActiveTimers(club.club);
+
+  const matches = plans
+    .map(plan => {
+      const pairInfo = getPairFromPlan(plan, club.club);
+      if (!pairInfo) return null;
+
+      const own = pairInfo.item;
+
+      const opponent =
+        pairInfo.pair.find(item =>
+          normalizeClubName(item.club) !==
+          normalizeClubName(club.club)
+        ) || null;
+
+      return {
+        matchId: plan.id || plan.matchId || "Unknown",
+        pairNo: pairInfo.pairNo,
+        role:
+          own?.matchRole ||
+          own?.role ||
+          "Not Set",
+        opponent,
+        planStatus:
+          plan.status ||
+          "Unknown"
+      };
+    })
+    .filter(Boolean);
+
+  return {
+    club: club.club,
+    elo: Number(club.elo) || 0,
+    clubCode: club.clubCode || "Not available",
+    president: club.president || "Not Set",
+    derby: isDerbyClub(club),
+    available: isClubMatchmakingAvailable(club.club),
+    operation,
+    timers,
+    matches
+  };
+}
+
+function formatHsProjectBrainClubProfile(profile) {
+  if (!profile) return "";
+
+  const lines = [
+    `🏰 **${profile.club}**`,
+    `📊 ELO: **${profile.elo}**`,
+    `🚀 President / Pusher: **${profile.president}**`,
+    `🔑 Club Code: **${profile.clubCode}**`,
+    `🎟️ Derby: **${profile.derby ? "Included" : "Excluded"}**`,
+    `🔓 Matchmaking: **${profile.available ? "AVAILABLE" : "ISOLATED / UNAVAILABLE"}**`
+  ];
+
+  if (profile.operation) {
+    lines.push(
+      `⚔️ War State: **${profile.operation.state || profile.operation.status || "Unknown"}**`
+    );
+
+    if (profile.operation.reason) {
+      lines.push(
+        `📌 Reason: **${profile.operation.reason}**`
+      );
+    }
+  }
+
+  if (profile.matches.length) {
+    lines.push("");
+    lines.push("🆔 **MATCH PLAN**");
+
+    for (const match of profile.matches.slice(0, 3)) {
+      lines.push(
+        `• Match ID: **${match.matchId}**`
+      );
+
+      if (match.pairNo) {
+        lines.push(
+          `  Pair: **#${match.pairNo}**`
+        );
+      }
+
+      lines.push(
+        `  Role: **${String(match.role).toUpperCase()}**`
+      );
+
+      if (match.opponent) {
+        lines.push(
+          `  Opponent: **${match.opponent.club} (${match.opponent.elo})** — ${match.opponent.president || "Not Set"}`
+        );
+      }
+
+      lines.push(
+        `  Status: **${match.planStatus}**`
+      );
+    }
+  }
+
+  if (profile.timers.length) {
+    lines.push("");
+    lines.push(
+      `⏱️ Active Timer(s): **${profile.timers.length}**`
+    );
+
+    for (const timer of profile.timers.slice(0, 3)) {
+      lines.push(
+        `• ${String(timer.type || "timer").toUpperCase()}`
+      );
+    }
+  }
+
+  return lines.join("\n");
+}
+
+function resolveHsProjectBrainQuery(text, guildId) {
+  const raw = String(text || "").trim();
+
+  if (!raw) {
+    return null;
+  }
+
+  const projectKeywords =
+    /\b(?:pusher|president|elo|club\s*code|code|derby|match|opponent|pair|winner|loser|isolat(?:e|ed|ion)|available|availability|war\s*status|timer|everything|know\s+about|details?|info|information)\b/i;
+
+  if (!projectKeywords.test(raw)) {
+    return null;
+  }
+
+  const clubs = [];
+
+  const addClub = club => {
+    if (!club?.club) return;
+
+    if (
+      clubs.some(existing =>
+        normalizeClubName(existing.club) ===
+        normalizeClubName(club.club)
+      )
+    ) {
+      return;
+    }
+
+    clubs.push(club);
+  };
+
+  // Exact known names / aliases / president-pusher references.
+  for (const item of leaderboardData || []) {
+    const names = [
+      item.club,
+      item.president
+    ].filter(Boolean);
+
+    for (const name of names) {
+      const key = normalizeClubName(name);
+
+      if (
+        key &&
+        normalizeClubName(raw).includes(key)
+      ) {
+        addClub(item);
+      }
+    }
+  }
+
+  // Reuse existing safe conversational extractor.
+  for (const item of extractHsClubsFromText(raw)) {
+    addClub(item);
+  }
+
+  if (!clubs.length) {
+    return null;
+  }
+
+  const profiles =
+    clubs
+      .slice(0, 8)
+      .map(club =>
+        buildHsProjectBrainClubProfile(
+          club,
+          guildId
+        )
+      )
+      .filter(Boolean);
+
+  if (!profiles.length) {
+    return null;
+  }
+
+  // ========================================================
+  // HS PROJECT BRAIN — REVERSE PUSHER / PRESIDENT LOOKUP
+  //
+  // Examples:
+  // "what club for pusher Skorvazon?"
+  // "which club does Lady Of Lightning push?"
+  // "what is Skorvazon's club?"
+  //
+  // leaderboardData.president is the production
+  // President / Pusher relationship.
+  // ========================================================
+  const wantsClubFromPusher =
+    /(?:what|which|show|tell|give|find)?\s*(?:club|clubs|kelab)\b.*\b(?:pusher|president)\b|\b(?:pusher|president)\b.*\b(?:club|clubs|kelab)\b|\b(?:club|clubs|kelab)\s+(?:for|of)\s+(?:pusher|president)\b|\b(?:push|pushes)\b/i.test(raw);
+
+  if (wantsClubFromPusher) {
+    const reverseMatches = profiles.filter(profile => {
+      const presidentKey =
+        normalizeClubName(profile.president);
+
+      return (
+        presidentKey &&
+        normalizeClubName(raw).includes(presidentKey)
+      );
+    });
+
+    if (reverseMatches.length) {
+      return (
+        `🧠 **HS PROJECT BRAIN**\n\n` +
+        reverseMatches
+          .map(profile =>
+            `🚀 **${profile.president}**\n` +
+            `🏰 Club: **${profile.club}**`
+          )
+          .join("\n\n") +
+        `\n\n🔒 Live production data • Read-only`
+      );
+    }
+  }
+
+  // ========================================================
+  // HS PROJECT BRAIN V1C — INTENT-AWARE RESPONSE
+  // Answer only what the user actually asked for.
+  // Full profile is reserved for explicit full-detail requests.
+  // ========================================================
+
+  const wantsEverything =
+    /\b(?:everything|all\s+(?:info|information|details?)|full\s+(?:info|information|details?|profile)|know\s+about|tell\s+me\s+everything)\b/i.test(raw);
+
+  const wantsPusher =
+    /\b(?:pusher|pushers|president|presidents|who\s+(?:is|'s)\s+(?:the\s+)?pusher)\b/i.test(raw);
+
+  const wantsElo =
+    /\belo\b/i.test(raw);
+
+  const wantsClubCode =
+    /\b(?:club\s*code|code)\b/i.test(raw);
+
+  const wantsDerby =
+    /\bderby\b/i.test(raw);
+
+  const wantsAvailability =
+    /\b(?:available|availability|isolated|isolation)\b/i.test(raw);
+
+  const wantsMatch =
+    /\b(?:match|match\s*id|opponent|pair|winner|loser)\b/i.test(raw);
+
+  // Full profile only when explicitly requested.
+  if (wantsEverything) {
+    return (
+      `🧠 **HS PROJECT BRAIN**\n\n` +
+      profiles
+        .map(formatHsProjectBrainClubProfile)
+        .join("\n\n──────────────\n\n") +
+      `\n\n🔒 Live production data • Read-only`
+    );
+  }
+
+  const sections = [];
+
+  for (const profile of profiles) {
+    const lines = [
+      `🏰 **${profile.club}**`
+    ];
+
+    if (wantsPusher) {
+      lines.push(
+        `🚀 Pusher: **${profile.president}**`
+      );
+    }
+
+    if (wantsElo) {
+      lines.push(
+        `📊 ELO: **${profile.elo}**`
+      );
+    }
+
+    if (wantsClubCode) {
+      lines.push(
+        `🔑 Club Code: **${profile.clubCode}**`
+      );
+    }
+
+    if (wantsDerby) {
+      lines.push(
+        `🎟️ Derby: **${profile.derby ? "Included" : "Excluded"}**`
+      );
+    }
+
+    if (wantsAvailability) {
+      lines.push(
+        `🔓 Matchmaking: **${profile.available ? "AVAILABLE" : "ISOLATED / UNAVAILABLE"}**`
+      );
+
+      if (profile.operation) {
+        lines.push(
+          `⚔️ War State: **${profile.operation.state || profile.operation.status || "Unknown"}**`
+        );
+
+        if (profile.operation.reason) {
+          lines.push(
+            `📌 Reason: **${profile.operation.reason}**`
+          );
+        }
+      }
+    }
+
+    // Match data is intentionally not dumped here.
+    // Historical/current Match Plan selection will be handled separately.
+    if (
+      wantsMatch &&
+      !wantsPusher &&
+      !wantsElo &&
+      !wantsClubCode &&
+      !wantsDerby &&
+      !wantsAvailability
+    ) {
+      lines.push(
+        `🆔 Match lookup detected — current Match Plan filtering is being handled separately.`
+      );
+    }
+
+    sections.push(lines.join("\n"));
+  }
+
+  // Safety fallback: if a project query reached here but no specific
+  // display field was detected, use concise identity instead of dumping
+  // the entire project profile.
+  if (
+    !wantsPusher &&
+    !wantsElo &&
+    !wantsClubCode &&
+    !wantsDerby &&
+    !wantsAvailability &&
+    !wantsMatch
+  ) {
+    return null;
+  }
+
+  return (
+    `🧠 **HS PROJECT BRAIN**\n\n` +
+    sections.join("\n\n") +
+    `\n\n🔒 Live production data • Read-only`
+  );
+}
+
+
 function getPairFromPlan(plan,clubName){if(!plan||!Array.isArray(plan.clubs))return null;const item=plan.clubs.find(c=>normalizeClubName(c.club)===normalizeClubName(clubName));if(!item||!item.pairNo)return null;const pair=plan.clubs.filter(c=>Number(c.pairNo)===Number(item.pairNo));return pair.length?{item,pair,pairNo:Number(item.pairNo)}:null;}
 function previewChangeMatch(intent,guildId){const target=resolveNaturalClubToken(intent.target,leaderboardData),replacement=resolveNaturalClubToken(intent.replacement,leaderboardData);if(!target||!replacement)return{error:`Could not resolve ${!target?`target **${intent.target}**`:`replacement **${intent.replacement}**`} to a unique club/pusher.`};if(normalizeClubName(target.club)===normalizeClubName(replacement.club))return{error:"Target and replacement resolve to the same club."};const plans=findPlansContainingClub(target,guildId).sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));if(!plans.length)return{error:`${target.club} is not found in a saved Match ID.`};const plan=plans[0],current=getPairFromPlan(plan,target.club);if(!current||current.pair.length<2)return{error:`Could not resolve the current pair for ${target.club} in ${plan.id}.`};const opponent=current.pair.find(c=>normalizeClubName(c.club)!==normalizeClubName(target.club));const replacementExisting=plan.clubs.find(c=>normalizeClubName(c.club)===normalizeClubName(replacement.club));return{target,replacement,plan,current,opponent,replacementExisting};}
 function previewStatusIntent(intent){const plan=getMatchPlan(intent.match_id);if(!plan)return{error:`Match ID **${intent.match_id}** was not found.`};const club=resolveNaturalClubToken(intent.club,plan.clubs);if(!club)return{error:`Could not resolve **${intent.club}** inside ${plan.id}.`};const stored=plan.clubs.find(c=>normalizeClubName(c.club)===normalizeClubName(club.club));return{plan,club:stored||club};}
@@ -9303,6 +12077,126 @@ function prepareHsConversationalDestination(message, destinationKey) {
       `Review the destination, then use the button below.\n\n` +
       `🔒 No Match ID created yet. No database changes.`
   };
+}
+
+// ============================================================
+// HS PHASE 6.1D — CONVERSATIONAL EVENT TRANSITION CONFIRMATION
+// Normal is represented by no active special event.
+// Reuses existing eventStore persistence; timer/War Monitor logic is untouched.
+// ============================================================
+const hsEventTransitionDrafts = new Map();
+const HS_EVENT_TRANSITION_TTL_MS = 10 * 60 * 1000;
+
+function normalizeHsEventMode(value) {
+  const v = String(value || "").trim().toLowerCase();
+  if (!v) return null;
+  if (/^normal$/.test(v)) return "normal";
+  if (/^lightning$/.test(v)) return "lightning";
+  if (/^(?:grease|grease lightning)$/.test(v)) return "grease";
+  return null;
+}
+
+function hsEventModeLabel(mode) {
+  if (mode === "grease") return "GREASE LIGHTNING";
+  if (mode === "lightning") return "LIGHTNING";
+  return "NORMAL";
+}
+
+function cleanupHsEventTransitionDrafts() {
+  const now = Date.now();
+  for (const [id, draft] of hsEventTransitionDrafts.entries()) {
+    if (!draft || now - Number(draft.updatedAt || draft.createdAt || 0) > HS_EVENT_TRANSITION_TTL_MS) {
+      hsEventTransitionDrafts.delete(id);
+    }
+  }
+}
+
+function prepareHsEventTransition(message, intent) {
+  cleanupHsEventTransitionDrafts();
+  autoExpireActiveEvent();
+
+  const currentMode = getNaturalControlOperationalMode();
+  const requestedFrom = normalizeHsEventMode(intent?.from_event);
+  const requestedTo = normalizeHsEventMode(intent?.to_event || intent?.event_type);
+
+  if (!requestedTo) {
+    return { ok:false, response:"❓ **HS needs clarification**\n\nWhich event should start next: **Normal**, **Lightning**, or **Grease Lightning**?\n\n🔒 No production data changed.", components:[] };
+  }
+
+  if (requestedFrom && requestedFrom !== currentMode) {
+    return {
+      ok:false,
+      response:`⚠️ **Event state changed / mismatch**\n\nCurrent production mode: **${hsEventModeLabel(currentMode)}**\nRequested transition starts from: **${hsEventModeLabel(requestedFrom)}**\n\nPlease send the event transition again using the current mode.\n\n🔒 No production data changed.`,
+      components:[]
+    };
+  }
+
+  if (requestedTo === currentMode) {
+    return { ok:false, response:`ℹ️ **${hsEventModeLabel(currentMode)}** is already the current event mode.\n\n🔒 No production data changed.`, components:[] };
+  }
+
+  const id = `HSEV-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`;
+  const draft = {
+    id,
+    userId:String(message.author.id),
+    guildId:String(message.guildId || ""),
+    channelId:String(message.channelId || ""),
+    fromMode:currentMode,
+    toMode:requestedTo,
+    createdAt:Date.now(),
+    updatedAt:Date.now()
+  };
+  hsEventTransitionDrafts.set(id,draft);
+
+  const components=[new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`hsev_confirm:${id}`).setLabel("CONFIRM EVENT CHANGE").setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`hsev_cancel:${id}`).setLabel("CANCEL").setStyle(ButtonStyle.Danger)
+  )];
+
+  return {
+    ok:true,draft,components,
+    response:
+      `⚡ **HS Event Control — Confirmation Required**\n\n` +
+      `Current: **${hsEventModeLabel(currentMode)}**\n` +
+      `Requested:\n1. Close **${hsEventModeLabel(currentMode)}**\n2. Start **${hsEventModeLabel(requestedTo)}**\n\n` +
+      `⚠️ This will change the active production event.\n` +
+      `Timer and War Monitor logic will not be modified by this action.\n\n` +
+      `🔒 No production data changed yet.`
+  };
+}
+
+async function applyHsEventTransition(draft, userId) {
+  autoExpireActiveEvent();
+  const currentMode=getNaturalControlOperationalMode();
+  if (currentMode !== draft.fromMode) {
+    return {ok:false,message:`❌ Event mode changed before confirmation. Current mode is **${hsEventModeLabel(currentMode)}**. Nothing was changed.`};
+  }
+
+  const ended=getActiveEvent();
+  let endedSummary=null;
+  if (ended) {
+    endedSummary=buildEventSummary(ended);
+    endedSummary.completedAt=Date.now();
+    eventStore.summaries.push(endedSummary);
+    eventStore.active=null;
+  }
+
+  if (draft.toMode !== "normal") {
+    const now=Date.now();
+    const days=eventDurationDays(draft.toMode);
+    eventStore.active={
+      id:`EV${now.toString(36).toUpperCase()}`,
+      type:draft.toMode,
+      name:draft.toMode==="grease"?"Grease Lightning":"Lightning",
+      status:"active",
+      startAt:now,
+      endAt:now+days*86400000,
+      createdBy:String(userId)
+    };
+  }
+
+  await saveEventStoreNow();
+  return {ok:true,ended,endedSummary,active:getActiveEvent(),toMode:draft.toMode};
 }
 
 const NATURAL_CONTROL_TTL_MS = 30 * 60 * 1000;
@@ -10240,6 +13134,8 @@ commands.push(
   new SlashCommandBuilder().setName("timer_status").setDescription("Show active timers in this channel/thread").toJSON(),
   new SlashCommandBuilder().setName("isolation_status").setDescription("Show active, ending-soon and overdue club isolation timers").toJSON(),
   new SlashCommandBuilder().setName("isolation_override").setDescription("Master override: release selected clubs from all isolation").toJSON(),
+  new SlashCommandBuilder().setName("isolation_override_bulk").setDescription("Bulk release clubs from isolation using paste list").toJSON(),
+  new SlashCommandBuilder().setName("war_override_bulk").setDescription("Bulk release selected clubs from war/timer isolation").toJSON(),
   new SlashCommandBuilder().setName("ko_timer_start").setDescription("Start KO isolation timer from a saved Match ID")
     .addStringOption(o=>o.setName("match_id").setDescription("Saved Match ID, e.g. HS023").setRequired(true)).toJSON(),
   new SlashCommandBuilder().setName("event_start").setDescription("Start master event context for matchmaking and war operations")
@@ -10355,10 +13251,166 @@ async function restoreRuntimeStateFromSupabaseBeforeDiscordStart() {
 
   // Supabase snapshots are authoritative across Hostinger redeploys.
   await restoreEloDatabaseFromSupabase();
+
+  // ============================================================
+  // CLUB CODE METADATA MIGRATION
+  // Source: FoW master club-code reference.
+  // SAFETY: Club name, ELO and president MUST remain unchanged.
+  // ============================================================
+  {
+    const clubCodeMap = new Map(Object.entries({
+      "forceofwar":"GCHHLB",
+      "forceofwarx":"KQHFPQ",
+      "forceofwarmongers":"KQLLHJ",
+      "fowmysticmages":"NGTHMT",
+      "fowempressenclave":"LDTRJR",
+      "fowmagslingers":"JCTQHD",
+      "fowneverland":"SFBLPJ",
+      "forceofwariv":"RLBLPB",
+      "fowflowergarden":"NJPHDJ",
+      "fowroyalabattoir":"LDQSQM",
+      "fowsentinels4":"TNJJCH",
+      "fowicebearsdrei":"CCGQHQ",
+      "fowwarmongerbulls":"SQBDQT",
+      "fowringoracoons":"PLCJKH",
+      "foweternalcrown":"NFLDLC",
+      "fowregaliarealms":"RTMJML",
+      "fowpeacekeeper":"CFSNDK",
+      "forceofwarvi":"DNPGNR",
+      "fowjewelrybrigade":"QCLNMD",
+      "fowferoslegacy":"QTTBRF",
+      "forceofwariii":"BKGGJL",
+      "fowdiamonddust":"CSDCQC",
+      "fowimperiallegacy":"HCFCRD",
+      "fowrascalracoons":"GLTKGG",
+      "forceofwarvii":"GPDKRS",
+      "forceofwarviii":"MQKJMK",
+      "fowstrangerthings":"NHTMMJ",
+      "fowadeptusastartes":"HTMGCD",
+      "forceofwarix":"HGNMSM",
+      "foweternalwanderer2":"RBLGNS",
+      "fowsentinels":"LNDGDP",
+      "fowberserker":"NFPJCN",
+      "fowfirebirds":"MRRDRS",
+      "fowhellblade":"QPNJJH",
+      "fowbope":"HDDKRN",
+      "fowspacesheep":"DRKJDP",
+      "fowbluecrown":"MGRRNS",
+      "fowsynedrionxenon":"NFFJCN",
+      "forceofwarii":"CGBHTG",
+      "foweternalwanderer":"RMRRCH",
+      "fowneverlandii":"BTDMNB",
+      "fowencoreracoons":"DRCQRR",
+      "fowsoulguard":"BBGPGR",
+      "fows34h3hs77u2h":"LMKCMP",
+      "fowicebears":"DFTHCS",
+      "fowminotaurs":"DLBMTN",
+      "fowbartenders":"QDJMRH",
+      "fowsentinel3":"GMPLQL",
+      "twistoffate":"MNGBBC",
+      "fowsoulsociety":"LQNTCH",
+      "roadtofow":"BHJJDD",
+      "fowsentinels5":"JFPTQP",
+      "forceofwarv":"HRQQNR",
+      "fowshooters":"MMPTBB",
+      "fowrhaezalix":"SJJJTR",
+      "fowscorpionxx":"RNCPLJ",
+      "fowtutelaries":"PRNNGT",
+      "fowsunwings":"DQLBCD",
+      "fowtwin essence":"BTPPKS",
+      "foweternalwanderer3":"SDKHRT",
+      "fowblacksite":"DRTNBL",
+      "thefowbeachhouse":"QMGGFC",
+      "fowsweetgarden":"TMRTCR",
+      "fowrocketracoons":"GBCMTG",
+      "fowcodex":"QQTFQL",
+      "fowdestructioninc":"QHJCSB",
+      "fowtrailblazers":"GMQJNC",
+      "fowwhitecapbay":"TKPBKN",
+      "fowcheers":"KCJNLD",
+      "fowfyr":"DRRSHC",
+      "fowevolution":"SPFLJH",
+      "fowironhornbrigade":"GFKJFN",
+      "fowblacksiteii":"HTBSCD",
+      "fowblueheart":"HJFJQQ",
+      "fowicebearsdeux":"FDJKGL",
+      "fowblacksiiteiii":"NBDLCT",
+      "fowcrownsite":"KPNBBL",
+      "fowblacksiitevi":"LNSQLC",
+      "fowblacksiiteiv":"PSFGDH",
+      "foworchard":"RRMTKQ",
+      "fowblacksiitev":"RPNJHS"
+    }));
+
+    // Fix one literal key above through the same production normalizer.
+    clubCodeMap.delete("fowtwin essence");
+    clubCodeMap.set("fowtwinessence", "BTPPKS");
+
+    const before = leaderboardData.map(item => ({
+      club: item.club,
+      elo: item.elo,
+      president: item.president
+    }));
+
+    let matched = 0;
+    const unmatched = [];
+
+    for (const item of leaderboardData) {
+      const key = normalizeClubName(item.club);
+      const code = clubCodeMap.get(key);
+
+      if (code) {
+        item.clubCode = code;
+        matched++;
+      } else {
+        unmatched.push(item.club);
+      }
+    }
+
+    // HARD SAFETY CHECK:
+    // Nothing except clubCode is allowed to change.
+    if (before.length !== leaderboardData.length) {
+      throw new Error("CLUB CODE MIGRATION ABORTED: club count changed");
+    }
+
+    for (let i = 0; i < before.length; i++) {
+      const a = before[i];
+      const b = leaderboardData[i];
+
+      if (
+        a.club !== b.club ||
+        Number(a.elo) !== Number(b.elo) ||
+        a.president !== b.president
+      ) {
+        throw new Error(
+          `CLUB CODE MIGRATION ABORTED: protected data changed at ${a.club}`
+        );
+      }
+    }
+
+    console.log(
+      `🏷️ Club Code migration verified: ${matched}/${leaderboardData.length} matched`
+    );
+
+    if (unmatched.length) {
+      console.log(
+        `⚠️ Club Code unavailable (${unmatched.length}): ${unmatched.join(", ")}`
+      );
+    }
+
+    if (!saveDatabase()) {
+      throw new Error("CLUB CODE MIGRATION ABORTED: saveDatabase failed");
+    }
+
+    console.log("🔒 ELO / club / president verification PASSED");
+    console.log("💾 Club Code metadata queued for Supabase persistence");
+  }
+
   await restoreDerbyConfigFromSupabase();
   await restoreMatchPlansFromSupabase();
   await restoreEventStoreFromSupabase();
   await restoreWarOperationsFromSupabase();
+  await restoreLightningResearchState();
 
   await restoreSupabaseRuntimeStateToLocalFiles();
 
@@ -10376,6 +13428,18 @@ async function restoreRuntimeStateFromSupabaseBeforeDiscordStart() {
   }
 
   removeExpiredFowTimersOnStartup();
+
+  let availableIsolationRepairs=0;
+  for(const timer of activeFowTimers||[]){
+    if(timer?.sent?.end===true||!Array.isArray(timer.clubs))continue;
+    const before=timer.clubs.length;
+    timer.clubs=timer.clubs.filter(c=>String(getWarOperation(c?.club)?.status||'').toUpperCase()!=='AVAILABLE');
+    availableIsolationRepairs+=before-timer.clubs.length;
+  }
+  if(availableIsolationRepairs){
+    activeFowTimers=(activeFowTimers||[]).filter(timer=>timer?.sent?.end!==true&&(!Array.isArray(timer.clubs)||timer.clubs.length>0));
+    console.log(`🧹 AVAILABLE isolation invariant repaired: ${availableIsolationRepairs} timer link(s)`);
+  }
 
   console.log(`💾 Active FoW timers restored from Supabase: ${activeFowTimers.length}`);
   console.log(`💾 Timer setup sessions in memory: ${fowTimerSetupSessions.size}`);
@@ -10556,6 +13620,204 @@ function bridgeMatchmakingTargetRoute(payload, validPairs) {
   if (key === "mid") return { key, label: "MID SET (5600-5899)", channelId: CHATGPT_BRIDGE_MATCH_MID_CHANNEL_ID, explicit: true };
   if (key === "low") return { key, label: "LOW SET (5200-5599)", channelId: CHATGPT_BRIDGE_MATCH_LOW_CHANNEL_ID, explicit: true };
   return { key: "additional", label: "ADDITIONAL / CROSS-RANGE", channelId: CHATGPT_BRIDGE_MATCH_ADDITIONAL_CHANNEL_ID, explicit: true };
+}
+
+// ============================================================
+// LIGHTNING ELO RESEARCH COLLECTOR — Phase 1
+// ============================================================
+// Append-only observational layer for the active Lightning event.
+// It never changes matchmaking, timers, War Monitor, or ELO calculations.
+// Production ELO saves continue even if this collector cannot persist.
+const LIGHTNING_RESEARCH_STATE_KEY = "lightning_elo_research_v1";
+const LIGHTNING_RESEARCH_MAX_OBSERVATIONS = 20000;
+let lightningResearch = {
+  schema_version: 1,
+  baselines: {},
+  observations: []
+};
+
+function lightningActiveEvent() {
+  const ev = getActiveEvent();
+  return ev && String(ev.type || "").toLowerCase() === "lightning" ? ev : null;
+}
+
+function lightningEventSnapshot(event) {
+  return {
+    event_id: event.id,
+    event_type: "lightning",
+    event_name: event.name || "Lightning",
+    event_start_at: Number(event.startAt) || null,
+    event_end_at: Number(event.endAt) || null,
+    captured_at: new Date().toISOString(),
+    full_database: getSortedLeaderboard().map(item => ({
+      club: item.club,
+      president: item.president || "",
+      elo: Number(item.elo) || 0
+    })),
+    derby_database: getDerbyLeaderboard().map(item => ({
+      club: item.club,
+      president: item.president || "",
+      elo: Number(item.elo) || 0
+    })),
+    derby_excluded_clubs: [...derbyExcludedClubs]
+  };
+}
+
+function queueLightningResearchSave() {
+  try {
+    queueSupabaseStateSave(LIGHTNING_RESEARCH_STATE_KEY, lightningResearch);
+  } catch (error) {
+    console.error("⚠️ Lightning research persistence queue failed:", error?.message || error);
+  }
+}
+
+function ensureLightningBaseline() {
+  const event = lightningActiveEvent();
+  if (!event) return null;
+  if (!lightningResearch.baselines || typeof lightningResearch.baselines !== "object") {
+    lightningResearch.baselines = {};
+  }
+  if (!lightningResearch.baselines[event.id]) {
+    lightningResearch.baselines[event.id] = lightningEventSnapshot(event);
+    queueLightningResearchSave();
+    console.log(
+      `⚡ Lightning research baseline captured • event=${event.id} • full=${leaderboardData.length} • derby=${getDerbyLeaderboard().length}`
+    );
+  }
+  return lightningResearch.baselines[event.id];
+}
+
+function inferLightningMatchLink(eventId, clubName) {
+  try {
+    const candidates = [];
+    for (const plan of matchPlans.values()) {
+      if (!plan || plan.eventId !== eventId || !Array.isArray(plan.clubs)) continue;
+      const clubEntry = plan.clubs.find(item =>
+        areEquivalentClubNames(item?.club, clubName)
+      );
+      if (!clubEntry) continue;
+      const pairNo = Number(clubEntry.pairNo);
+      const opponentEntry = plan.clubs.find(item =>
+        Number(item?.pairNo) === pairNo &&
+        !areEquivalentClubNames(item?.club, clubName)
+      );
+      candidates.push({
+        match_id: plan.id || null,
+        pair_no: Number.isInteger(pairNo) ? pairNo : null,
+        opponent: opponentEntry?.club || null,
+        opponent_elo_before: Number.isFinite(Number(opponentEntry?.elo))
+          ? Number(opponentEntry.elo)
+          : null,
+        plan_created_at: Number(plan.createdAt) || 0
+      });
+    }
+    candidates.sort((a, b) => b.plan_created_at - a.plan_created_at);
+    return candidates[0] || null;
+  } catch {
+    return null;
+  }
+}
+
+function recordLightningEloChanges(beforeData, afterData, meta = {}) {
+  const event = lightningActiveEvent();
+  if (!event) return 0;
+
+  ensureLightningBaseline();
+
+  const beforeMap = new Map(
+    (Array.isArray(beforeData) ? beforeData : []).map(item => [
+      normalizeClubName(item?.club),
+      item
+    ])
+  );
+  const timestamp = new Date().toISOString();
+  let added = 0;
+
+  for (const current of (Array.isArray(afterData) ? afterData : [])) {
+    const previous = beforeMap.get(normalizeClubName(current?.club));
+    if (!previous) continue;
+    const eloBefore = Number(previous.elo);
+    const eloAfter = Number(current.elo);
+    if (!Number.isFinite(eloBefore) || !Number.isFinite(eloAfter) || eloBefore === eloAfter) continue;
+
+    const link = inferLightningMatchLink(event.id, current.club);
+    const opponentEloBefore = link?.opponent_elo_before ?? null;
+    const gapBefore = opponentEloBefore == null
+      ? null
+      : Math.abs(eloBefore - opponentEloBefore);
+
+    lightningResearch.observations.push({
+      observation_id:
+        `${event.id}:${Date.now()}:${normalizeClubName(current.club)}:${lightningResearch.observations.length}`,
+      event_id: event.id,
+      event_type: "lightning",
+      timestamp,
+      club: current.club,
+      president: current.president || previous.president || "",
+      elo_before: eloBefore,
+      elo_after: eloAfter,
+      delta: eloAfter - eloBefore,
+      direction: eloAfter > eloBefore ? "GAIN" : "LOSS",
+      match_id: link?.match_id || null,
+      pair_no: link?.pair_no || null,
+      opponent: link?.opponent || null,
+      opponent_elo_before: opponentEloBefore,
+      gap_before: gapBefore,
+      elo_position_before:
+        opponentEloBefore == null ? null :
+        eloBefore > opponentEloBefore ? "HIGHER" :
+        eloBefore < opponentEloBefore ? "LOWER" : "EQUAL",
+      link_status: link?.match_id ? "AUTO_LINKED" : "UNMATCHED",
+      source: String(meta.source || "database_save")
+    });
+    added += 1;
+  }
+
+  if (added) {
+    lightningResearch.observations =
+      lightningResearch.observations.slice(-LIGHTNING_RESEARCH_MAX_OBSERVATIONS);
+    queueLightningResearchSave();
+    console.log(
+      `⚡ Lightning ELO collector • event=${event.id} • observations_added=${added} • total=${lightningResearch.observations.length}`
+    );
+  }
+  return added;
+}
+
+async function restoreLightningResearchState() {
+  try {
+    const remote = await loadSupabaseState(LIGHTNING_RESEARCH_STATE_KEY);
+    if (remote && typeof remote === "object" && !Array.isArray(remote)) {
+      lightningResearch = {
+        schema_version: 1,
+        baselines:
+          remote.baselines && typeof remote.baselines === "object"
+            ? remote.baselines
+            : {},
+        observations: Array.isArray(remote.observations)
+          ? remote.observations.slice(-LIGHTNING_RESEARCH_MAX_OBSERVATIONS)
+          : []
+      };
+    }
+    ensureLightningBaseline();
+    console.log(
+      `⚡ Lightning research restored • observations=${lightningResearch.observations.length} • baselines=${Object.keys(lightningResearch.baselines || {}).length}`
+    );
+  } catch (error) {
+    console.error("⚠️ Lightning research restore failed:", error?.message || error);
+  }
+}
+
+function getLightningResearchEventId(req) {
+  const requested = String(req?.query?.event_id || "").trim();
+  if (requested) return requested;
+  return lightningActiveEvent()?.id || null;
+}
+
+function getLightningResearchObservations(eventId) {
+  return (lightningResearch.observations || []).filter(
+    row => !eventId || row?.event_id === eventId
+  );
 }
 
 let chatgptBridgeProcessed = {};
@@ -11238,9 +14500,120 @@ async function processBridgeCoolingStart(payload, sourceFile) {
   console.log(`${dryRun ? "🧪" : "✅"} ChatGPT bridge COOLING START ${requestId} • clubs=${clubs.length} • ${dryRun ? "VALIDATION ONLY" : "executed"} • channel=${channelId}`);
 }
 
+
+// ============================================================
+// CHATGPT BRIDGE — CONTROLLED SOURCE PATCH
+// GitHub request type: source_patch
+// Target locked to this production bot.js only.
+// Exact-match replacement only.
+// Backup + node --check + automatic rollback.
+// NEVER restarts PM2 automatically.
+// ============================================================
+async function processBridgeSourcePatch(payload, sourceFile) {
+  const fs = require("fs");
+  const path = require("path");
+  const { execFileSync } = require("child_process");
+
+  const requestId = bridgeSafeRequestId(payload?.request_id);
+  if (!requestId) throw new Error("invalid request_id");
+
+  const target = "/opt/fow-elo-bot/bot.js";
+
+  if (String(payload?.target || "") !== "bot.js") {
+    throw new Error("source_patch target must be bot.js");
+  }
+
+  const find = String(payload?.find || "");
+  const replace = String(payload?.replace || "");
+
+  if (!find || !replace) {
+    throw new Error("source_patch requires find and replace");
+  }
+
+  if (find.length > 50000 || replace.length > 100000) {
+    throw new Error("source_patch payload too large");
+  }
+
+  const current = fs.readFileSync(target, "utf8");
+
+  let count = 0;
+  let pos = 0;
+
+  while ((pos = current.indexOf(find, pos)) !== -1) {
+    count++;
+    pos += find.length;
+  }
+
+  if (count !== 1) {
+    throw new Error(
+      `source_patch requires exactly one exact match; found ${count}`
+    );
+  }
+
+  const timestamp = Date.now();
+
+  const backup =
+    path.join(
+      path.dirname(target),
+      `bot.js.backup-github-${requestId}-${timestamp}`
+    );
+
+  fs.copyFileSync(target, backup);
+
+  const updated = current.replace(find, replace);
+
+  try {
+    fs.writeFileSync(target, updated, "utf8");
+
+    execFileSync(
+      process.execPath,
+      ["--check", target],
+      {
+        stdio: "pipe",
+        timeout: 30000
+      }
+    );
+  } catch (error) {
+    fs.copyFileSync(backup, target);
+
+    throw new Error(
+      `source_patch validation failed; automatic rollback completed: ${
+        String(error?.stderr || error?.message || error).slice(0, 500)
+      }`
+    );
+  }
+
+  markBridgeProcessed(
+    requestId,
+    "source_patch_applied_restart_required",
+    {
+      sourceFile,
+      target: "bot.js",
+      backup,
+      syntaxCheck: "passed",
+      restartRequired: true
+    }
+  );
+
+  console.log(
+    `🧩 ChatGPT bridge SOURCE PATCH ${requestId} • syntax=PASSED • PM2 restart required`
+  );
+
+  return {
+    applied: true,
+    requestId,
+    backup,
+    restartRequired: true
+  };
+}
+
 async function processChatgptBridgePayload(payload, sourceFile) {
   const requestId = bridgeSafeRequestId(payload?.request_id);
   if (requestId && chatgptBridgeProcessed[requestId]) return { skipped: "already_processed", requestId };
+  if (payload?.type === "source_patch") {
+    await processBridgeSourcePatch(payload, sourceFile);
+    return { processed: true, requestId, restartRequired: true };
+  }
   if (payload?.type === "war_status") {
     await processBridgeWarStatus(payload, sourceFile);
     return { processed: true, requestId };
@@ -11530,18 +14903,30 @@ client.on(
       return;
     }
 
+    // Deterministic, read-only Derby rematch suggestions run before the HS
+    // assistant so the result always comes from live Match ID state, not AI.
+    try{
+      if(await handleDerbyChecklistMessage(message))return;
+      if(await handleDerbyRematchSuggestionMessage(message))return;
+    }catch(error){
+      console.error('❌ Derby rematch suggestion failed:',error);
+      await message.reply('❌ Failed to build Derby rematch suggestions. No production data changed.').catch(()=>{});
+      return;
+    }
+
     // ============================================================
     // HS ASSISTANT — PHASE 2 / v82.1
-    // Test channel only • Mention only • Read only
+    // Test and dedicated HS channels • No mention required
     // ============================================================
     const HS_TEST_CHANNEL_ID = "1256056255890587648";
-    const HS_EXCLUDED_CHANNEL_ID = "1551275848663826593";
 
     const HS_NO_MENTION_CHANNEL_IDS = new Set([
+      HS_TEST_CHANNEL_ID,
       "1551169287962628157",
       "1551169775714041887",
       "1551169605056209018",
-      "1551170391387406356"
+      "1551170391387406356",
+      "1551275848663826593"
     ]);
 
     const hsNoMentionChannel =
@@ -11553,17 +14938,10 @@ client.on(
     const hsDiscordMention =
       client.user &&
       message.mentions?.users?.has(client.user.id);
-    const hsExcludedChannel = String(message.channelId) === HS_EXCLUDED_CHANNEL_ID;
-
     if (
-      !hsExcludedChannel &&
-      (
-        (
-          String(message.channelId) === HS_TEST_CHANNEL_ID &&
-          (hsLiteralMention || hsDiscordMention)
-        ) ||
-        hsNoMentionChannel
-      )
+      hsLiteralMention ||
+      hsDiscordMention ||
+      hsNoMentionChannel
     ) {
       try {
         const cleaned = content
@@ -11577,7 +14955,177 @@ client.on(
           .replace(/\s+/g, " ")
           .trim();
 
+        // ============================================================
+        // HS V2 TEST HOOK — TEST CHANNEL ONLY
+        // Legacy HS remains untouched everywhere else.
+        // ============================================================
+        if (
+          hsNoMentionChannel ||
+          (
+            String(message.channelId) === HS_TEST_CHANNEL_ID &&
+            (hsLiteralMention || hsDiscordMention)
+          )
+        ) {
+          const hsHelpQuery = isHsV2HelpQuery(cleaned);
+          const lightningGapAnalysis = hsHelpQuery ? null : prepareHsV2LightningGapAnalysis(cleaned);
+          if(lightningGapAnalysis){await message.reply(lightningGapAnalysis);return;}
+          const lightningAnalysis = hsHelpQuery ? null : prepareHsV2LiveLightningAnalysis(cleaned);
+          if(lightningAnalysis){await message.reply(lightningAnalysis);return;}
+          const currentEventStatus = hsHelpQuery ? null : prepareHsV2CurrentEventStatus(cleaned);
+          if(currentEventStatus){await message.reply(currentEventStatus);return;}
+          const eventAction = hsHelpQuery ? null : prepareHsV2EventAction(message,cleaned);
+          if(eventAction){await message.reply({content:eventAction.response,components:eventAction.components||[]});return;}
+          const warDoneDraft = hsHelpQuery ? null : prepareHsV2WarDone(message,cleaned);
+          if(warDoneDraft){await message.reply(warDoneDraft);return;}
+          const matchOpsStatus = hsHelpQuery ? null : prepareHsV2MatchOperationsStatus(message,cleaned);
+          if(matchOpsStatus){await message.reply(matchOpsStatus);return;}
+          const pagedListFilter = hsHelpQuery ? null : detectHsV2PagedListFilter(cleaned);
+          if (pagedListFilter) {
+            const pagedSession = openHsV2PagedList(message, pagedListFilter);
+            await message.reply(buildHsV2PagedListView(pagedSession));
+            return;
+          }
+
+          const eloLookup = hsHelpQuery ? null : prepareHsV2EloLookup(cleaned);
+          if (eloLookup) {
+            await message.reply(eloLookup);
+            return;
+          }
+
+          const isolationReason = hsHelpQuery ? null : prepareHsV2IsolationReason(cleaned);
+          if (isolationReason) {
+            await message.reply(isolationReason);
+            return;
+          }
+
+          const clubCodeLookup = hsHelpQuery ? null : prepareHsV2ClubCodeLookup(cleaned);
+          if (clubCodeLookup) {
+            await message.reply(clubCodeLookup);
+            return;
+          }
+
+          const savedMatchEdit = hsHelpQuery ? null : prepareHsV2SavedMatchEdit(message, cleaned);
+          if (savedMatchEdit) {
+            await message.reply({content:savedMatchEdit.response,components:savedMatchEdit.components || []});
+            return;
+          }
+
+          const modifiedDraft = hsHelpQuery ? null : modifyHsV2MatchmakingDraft(message, cleaned);
+          if (modifiedDraft) {
+            if(modifiedDraft.draft&&modifiedDraft.draft.previewResult?.pairs?.length)await message.reply(buildHsV2MatchDraftView(modifiedDraft.draft));
+            else await message.reply({content:String(modifiedDraft.response||'').slice(0,1900),components:modifiedDraft.components||[]});
+            return;
+          }
+
+          const matchmakingDraft = hsHelpQuery ? null : prepareHsV2MatchmakingDraft(message, cleaned);
+          if (matchmakingDraft) {
+            if(matchmakingDraft.draft&&matchmakingDraft.draft.previewResult?.pairs?.length)await message.reply(buildHsV2MatchDraftView(matchmakingDraft.draft));
+            else await message.reply({content:String(matchmakingDraft.response||'').slice(0,1900),components:matchmakingDraft.components||[]});
+            return;
+          }
+
+          const v2 = await runHsV2Controller(
+            cleaned,
+            typeof getHsConversationSession === "function"
+              ? getHsConversationSession(message)
+              : null
+          );
+
+          if (v2?.ok && v2.text) {
+            const v2Chunks = splitDiscordText(v2.text, 1900);
+            await message.reply(v2Chunks[0]);
+            for (let i = 1; i < v2Chunks.length; i++) {
+              await message.channel.send(v2Chunks[i]);
+            }
+          } else {
+            await message.reply(
+              `⚠️ HS V2 failed: ${String(v2?.error || "unknown_error").slice(0, 300)}`
+            );
+          }
+
+          return;
+        }
+
         const q = cleaned.toLowerCase();
+
+        // HS CLUB CODE FAST PATH — READ ONLY
+        // Must run before conversational AI intent/fallback so pasted lists never reach OpenAI.
+        const hsEarlyClubCodeQuery =
+          /(?:club\s*codes?|codes?\s+(?:for|of|from)|show\s+me\s+(?:the\s+)?club\s*codes?|give\s+me\s+(?:the\s+)?codes?)/i.test(cleaned);
+
+        if (hsEarlyClubCodeQuery) {
+          reloadLatestDatabase();
+
+          const rawClubCodeInput = String(content || "")
+            .replace(/^@hs(?:\s+|$)/i, "")
+            .replace(
+              client.user
+                ? new RegExp(`<@!?${client.user.id}>`, "g")
+                : /$^/,
+              " "
+            );
+
+          const foundClubCodes = [];
+          const seenClubCodes = new Set();
+
+          const resolveClubCodeCandidate = rawCandidate => {
+            const candidate = String(rawCandidate || "")
+              .replace(/^[-•*\d.)\s]+/, "")
+              .replace(/\s*\(\s*\d{3,5}\s*\).*$/, "")
+              .replace(/\s+-\s+[^\n]+$/, "")
+              .trim();
+
+            if (!candidate) return;
+
+            const matches =
+              resolveHsClubsByClubOrPresident(candidate);
+
+            if (!matches.length) return;
+
+            for (const club of matches) {
+              const key = normalizeClubName(club.club);
+              if (seenClubCodes.has(key)) continue;
+              seenClubCodes.add(key);
+              foundClubCodes.push(club);
+            }
+          };
+
+          for (const rawLine of rawClubCodeInput.split(/\r?\n/)) {
+            const line = String(rawLine || "").trim();
+            if (!line) continue;
+            if (/^(?:winner\s*:|show\s+me|give\s+me|club\s*codes?)/i.test(line)) continue;
+
+            for (const part of line.split(/\s+vs\s+/i)) {
+              resolveClubCodeCandidate(part);
+            }
+          }
+
+          // Single-club natural request fallback.
+          if (!foundClubCodes.length) {
+            const singleCandidate = String(cleaned || "")
+              .replace(/\b(?:show|tell|give|find|check|what|whats|what's|is|the|me|club|codes?|for|of|from|please|pls)\b/gi, " ")
+              .replace(/[?!.:,]+/g, " ")
+              .replace(/\s+/g, " ")
+              .trim();
+            resolveClubCodeCandidate(singleCandidate);
+          }
+
+          if (foundClubCodes.length) {
+            const clubCodeResponse =
+              `🏷️ **CLUB CODES**\n\n` +
+              foundClubCodes.map(club =>
+                `${club.club} — **${club.clubCode || "Not available"}**`
+              ).join("\n") +
+              `\n\n🔒 Read-only — no production data changed.`;
+
+            await message.reply(clubCodeResponse);
+
+            console.log(
+              `🏷️ HS Club Code FAST PATH • clubs=${foundClubCodes.length} • user=${message.author.id}`
+            );
+            return;
+          }
+        }
 
         const isOwner =
           Boolean(message.guild?.ownerId) &&
@@ -11703,6 +15251,13 @@ client.on(
           }
 
         } else if (
+          looksLikeHsManualPairList(cleaned)
+        ) {
+          const manualResult=prepareHsManualPaste(message,cleaned);
+          response=manualResult.response;
+          if(manualResult.components?.length) hsReplyComponents=manualResult.components;
+
+        } else if (
           /manual[_ ]?matchmaking|manual matchmaking/.test(q)
         ) {
           response =
@@ -11712,7 +15267,7 @@ client.on(
             `🔒 No Match ID or pairing was created.`;
 
         } else if (
-          /matchmaking|match making|matchmake/.test(q)
+          /matchmaking|match making|matchmake|pair(?:ing|ings)?|make\s+(?:a\s+)?match(?:es)?/.test(q)
         ) {
 
           // HS PHASE 4 — READ-ONLY MATCHMAKING PREVIEW
@@ -13020,7 +16575,10 @@ client.on(
           /isolation|isolated|isolate|\\bstatus\\b|\\bcheck\\b/.test(q)
         ) {
           // HS-03: LIVE READ-ONLY isolation / war status lookup.
-          // Find the longest known club name mentioned in the user's text.
+          // Supports both a single-club lookup and a live list of all clubs
+          // currently unavailable to matchmaking.
+          reloadLatestDatabase();
+
           const qNorm = normalizeClubName(q);
 
           const mentionedClub = (leaderboardData || [])
@@ -13032,13 +16590,72 @@ client.on(
             .filter(c => c._norm && qNorm.includes(c._norm))
             .sort((a, b) => b._norm.length - a._norm.length)[0] || null;
 
-          if (!mentionedClub) {
+          const hsIsolationListRequest =
+            !mentionedClub &&
+            /\b(?:list|show|send|which|what|all|clubs?)\b/i.test(q) &&
+            /\b(?:isolation|isolated|isolate|unavailable)\b/i.test(q);
+
+          if (hsIsolationListRequest) {
+            const isolatedClubs = (leaderboardData || [])
+              .filter(item =>
+                item?.club &&
+                !isClubMatchmakingAvailable(item.club)
+              )
+              .map(item => {
+                const op = getWarOperation(item.club);
+                const clubKey = normalizeClubName(item.club);
+                const timer = (activeFowTimers || []).find(t =>
+                  !['completed', 'cancelled'].includes(
+                    String(t?.status || '').toLowerCase()
+                  ) &&
+                  t?.sent?.end !== true &&
+                  Array.isArray(t?.clubs) &&
+                  t.clubs.some(c =>
+                    normalizeClubName(c?.club) === clubKey
+                  )
+                );
+
+                const state = op?.status
+                  ? warStateLabel(op.status)
+                  : timer
+                    ? String(timer.type || timer.timerType || 'TIMER ISOLATED')
+                    : 'ISOLATED';
+
+                return {
+                  club: item.club,
+                  elo: Number(item.elo) || 0,
+                  state
+                };
+              })
+              .sort(
+                (a, b) =>
+                  b.elo - a.elo ||
+                  a.club.localeCompare(b.club)
+              );
+
+            const isolationLines = isolatedClubs.map(
+              (item, index) =>
+                `${index + 1}. **${item.club}** (${item.elo}) — ${item.state}`
+            );
+
+            response =
+              `🚫 **HS Live Isolation List**\n\n` +
+              (
+                isolationLines.length
+                  ? isolationLines.join("\n")
+                  : "No clubs are currently isolated."
+              ) +
+              `\n\nTotal Isolated: **${isolatedClubs.length}**\n\n` +
+              `🔒 Live operational state • Read-only`;
+
+          } else if (!mentionedClub) {
             response =
               `🚫 **Live Isolation Status**\n\n` +
               `I couldn't identify a club name from your message.\n\n` +
               `Try:\n` +
               `• @HS why FoW Neverland still isolated?\n` +
-              `• @HS check isolation FoW Mystic Mages\n\n` +
+              `• @HS check isolation FoW Mystic Mages\n` +
+              `• @HS send me list club under isolation\n\n` +
               `🔒 Read-only — no production state changed.`;
 
           } else {
@@ -13391,12 +17008,39 @@ client.on(
                 a.club.localeCompare(b.club)
             );
 
+            // HS conversational context: the computed live list is the
+            // authoritative set for follow-ups such as "those clubs".
+            // Store the exact club array, not names re-parsed from output.
+            if (!hsCountRequest) {
+              const hsListSession =
+                getHsConversationSession(message);
+              hsListSession.lastResults =
+                hsLiveRows.map(item => item.club);
+              hsListSession.lastClub =
+                hsLiveRows.length === 1
+                  ? hsLiveRows[0].club
+                  : null;
+              hsListSession.updatedAt = Date.now();
+            }
+
             if (hsTopMatch) {
               const limit = Math.max(
                 1,
                 Math.min(100, Number(hsTopMatch[1]) || 20)
               );
               hsLiveRows = hsLiveRows.slice(0, limit);
+
+              if (!hsCountRequest) {
+                const hsTopSession =
+                  getHsConversationSession(message);
+                hsTopSession.lastResults =
+                  hsLiveRows.map(item => item.club);
+                hsTopSession.lastClub =
+                  hsLiveRows.length === 1
+                    ? hsLiveRows[0].club
+                    : null;
+                hsTopSession.updatedAt = Date.now();
+              }
             }
 
             const hsRangeLabel = hsRangeMatch
@@ -13482,19 +17126,127 @@ client.on(
           const hsConversation =
             getHsConversationSession(message);
 
-          const hsConversationIntent =
-            await interpretHsConversationIntent(
+          let hsResolvedContextClubs =
+            extractHsClubsFromText(cleaned);
+
+          if (
+            !hsResolvedContextClubs.length &&
+            isHsContextReference(cleaned) &&
+            Array.isArray(hsConversation.lastResults)
+          ) {
+            hsResolvedContextClubs =
+              hsConversation.lastResults
+                .map(name =>
+                  leaderboardData.find(item =>
+                    normalizeClubName(item.club) === normalizeClubName(name)
+                  )
+                )
+                .filter(Boolean);
+          }
+
+          // ========================================================
+          // HS PROJECT BRAIN PRIORITY ROUTER
+          // Pure production-information queries must be answered locally
+          // BEFORE conversational operational classification.
+          //
+          // Examples:
+          // - who's pusher for FoW Sweet Garden?
+          // - what club for pusher Skorvazon?
+          // - elo for FoW Neverland
+          // - club code for FoW Mystic Mages
+          // - derby status for FoW X
+          //
+          // READ-ONLY: this block performs no production mutation.
+          // ========================================================
+          const hsPriorityProjectBrainResponse =
+            resolveHsProjectBrainQuery(
               cleaned,
-              hsConversation
+              message.guild?.id || null
             );
+
+          let hsLocalOperationalIntent =
+            detectHsLocalOperationalIntent(
+              cleaned,
+              hsConversation,
+              hsResolvedContextClubs
+            );
+
+          // If Project Brain can answer the request directly, do not allow
+          // generic conversational classification to misroute it as an
+          // operational matchmaking/control request.
+          if (hsPriorityProjectBrainResponse) {
+            hsLocalOperationalIntent = null;
+          }
+
+          const hsIntentInput =
+            hsResolvedContextClubs.length
+              ? cleaned +
+                "\n\n[HS_RESOLVED_CLUB_CONTEXT]\n" +
+                hsResolvedContextClubs
+                  .map(item =>
+                    item.club + " (" + item.elo + ") - " +
+                    String(item.president || "")
+                  )
+                  .join("\n")
+              : cleaned;
+
+          let hsConversationIntent =
+            hsPriorityProjectBrainResponse
+              ? null
+              : await interpretHsConversationIntent(
+                  hsIntentInput,
+                  hsConversation
+                );
+
+          // Central HS guard: operational status requests stay local even
+          // when the external classifier returns unknown.
+          if (
+            hsLocalOperationalIntent === "war_status" &&
+            (!hsConversationIntent ||
+             hsConversationIntent.intent === "unknown")
+          ) {
+            hsConversationIntent = {
+              ...(hsConversationIntent || {}),
+              intent: "war_status",
+              confidence: 1,
+              parser: "HS LOCAL OPERATIONAL GATE",
+              requires_clarification: false,
+              clarification_question: null
+            };
+          }
 
           if (
             hsConversationIntent &&
             hsConversationIntent.intent !== "unknown"
           ) {
+            if (hsConversationIntent.club) {
+              const entityMatches =
+                resolveHsClubsByClubOrPresident(hsConversationIntent.club);
+              if (entityMatches.length === 1) {
+                hsConversationIntent.club = entityMatches[0].club;
+              } else if (entityMatches.length > 1) {
+                hsResolvedContextClubs = entityMatches;
+                hsConversationIntent.club = null;
+              }
+            }
+
+            if (hsResolvedContextClubs.length) {
+              hsConversationIntent.clubs =
+                hsResolvedContextClubs.map(item => item.club);
+            }
+
             hsConversation.lastIntent =
               hsConversationIntent.intent;
             hsConversation.updatedAt = Date.now();
+
+            if (hsResolvedContextClubs.length) {
+              hsConversation.lastResults =
+                hsResolvedContextClubs.map(item => item.club);
+              hsConversation.lastClub =
+                hsResolvedContextClubs.length === 1
+                  ? hsResolvedContextClubs[0].club
+                  : null;
+            }
 
             if (
               hsConversationIntent.min_elo !== null &&
@@ -13528,7 +17280,40 @@ client.on(
                 );
             }
 
-            if (
+            // Context-aware clarification guard:
+          // If a status request already has a remembered/resolved club set,
+          // the club question is already answered by conversation context.
+          if (
+            hsLocalOperationalIntent === "war_status" &&
+            hsConversationIntent?.requires_clarification &&
+            (
+              hsResolvedContextClubs.length > 0 ||
+              (Array.isArray(hsConversation.lastResults) &&
+               hsConversation.lastResults.length > 0)
+            )
+          ) {
+            if (!hsResolvedContextClubs.length) {
+              hsResolvedContextClubs =
+                hsConversation.lastResults
+                  .map(name =>
+                    leaderboardData.find(item =>
+                      normalizeClubName(item.club) ===
+                      normalizeClubName(name)
+                    )
+                  )
+                  .filter(Boolean);
+            }
+
+            hsConversationIntent.intent = "war_status";
+            hsConversationIntent.requires_clarification = false;
+            hsConversationIntent.clarification_question = null;
+            hsConversationIntent.clubs =
+              hsResolvedContextClubs.map(item => item.club);
+            hsConversationIntent.parser =
+              "HS CONTEXT CLARIFICATION GUARD";
+          }
+
+          if (
               hsConversationIntent.requires_clarification
             ) {
               response =
@@ -13536,6 +17321,35 @@ client.on(
                 `${hsConversationIntent.clarification_question ||
                   "Please clarify what you want me to do."}\n\n` +
                 `🔒 No production data changed.`;
+
+            } else if (
+              hsConversationIntent.intent === "transition_event" ||
+              hsConversationIntent.intent === "start_event" ||
+              hsConversationIntent.intent === "end_event"
+            ) {
+              let eventIntent = hsConversationIntent;
+
+              if (hsConversationIntent.intent === "start_event") {
+                eventIntent = {
+                  ...hsConversationIntent,
+                  from_event: getNaturalControlOperationalMode(),
+                  to_event: hsConversationIntent.event_type
+                };
+              } else if (hsConversationIntent.intent === "end_event") {
+                eventIntent = {
+                  ...hsConversationIntent,
+                  from_event: getNaturalControlOperationalMode(),
+                  to_event: "normal"
+                };
+              }
+
+              const eventResult = prepareHsEventTransition(message,eventIntent);
+              response=eventResult.response;
+              if (eventResult.components?.length) hsReplyComponents=eventResult.components;
+              if (eventResult.ok) {
+                hsConversation.pendingAction={type:"event_transition",draftId:eventResult.draft.id};
+                hsConversation.updatedAt=Date.now();
+              }
 
             } else if (
               hsConversationIntent.intent === "set_destination"
@@ -13567,6 +17381,25 @@ client.on(
                 );
               }
 
+            } else if (
+              hsConversationIntent.intent === "war_status"
+            ) {
+              // HS filtered status is display-only. When conversational
+              // context has clubs, report only those clubs. With no club
+              // context, preserve the existing global dashboard behavior.
+              response =
+                hsResolvedContextClubs.length
+                  ? buildHsFilteredWarStatusDashboard(
+                      hsResolvedContextClubs
+                    )
+                  : hsConversationIntent.club
+                    ? buildHsFilteredWarStatusDashboard(
+                        resolveHsClubsByClubOrPresident(
+                          hsConversationIntent.club
+                        )
+                      )
+                    : buildWarStatusDashboard();
+
             } else {
               const hsIntentSummary = [
                 `Intent: **${hsConversationIntent.intent}**`,
@@ -13595,19 +17428,196 @@ client.on(
             console.log(
               `🧠 HS conversational intent • intent=${hsConversationIntent.intent} • confidence=${hsConversationIntent.confidence} • user=${message.author.id}`
             );
+          } else if (hsPriorityProjectBrainResponse) {
+            response = hsPriorityProjectBrainResponse;
+
+            console.log(
+              `🧠 HS Priority Project Brain answered • user=${message.author.id}`
+            );
+
+          } else if (hsLocalOperationalIntent) {
+            // CENTRAL HS FALLBACK GUARD
+            const contextNames =
+              hsResolvedContextClubs.length
+                ? hsResolvedContextClubs.map(item => item.club)
+                : Array.isArray(hsConversation.lastResults)
+                  ? hsConversation.lastResults
+                  : [];
+
+            response =
+              `🧭 **HS Operational Request**\n\n` +
+              `This is an **HS/FoW operational request** and was not sent to generic AI chat.\n` +
+              (contextNames.length
+                ? `📋 Active club context: **${contextNames.length} club${contextNames.length === 1 ? "" : "s"}**\n`
+                : "") +
+              `🔒 No production data changed.`;
+
+            console.warn(
+              `🧭 HS fallback guard blocked generic AI • local=${hsLocalOperationalIntent} • user=${message.author.id}`
+            );
+
           } else {
             // HS PHASE 5 — HYBRID READ-ONLY AI FALLBACK
             // Used only when no FoW conversational intent was identified.
-            let aiResult = await askHsGeminiReadOnly(cleaned);
+            // HS PHASE 6.1B TOKEN GUARD
+            // Intent interpretation already used Gemini once.
+            // Avoid a second Gemini request when intent is unknown.
+            // ========================================================
+            // HS LOCAL CLUB CODE RESOLVER — READ ONLY
+            // Reads clubCode already stored in leaderboardData.
+            // No ELO/database/timer/matchmaking/isolation mutation.
+            // ========================================================
+            const hsClubCodeQuery =
+              /(?:club\\s*code|code\\s+(?:for|of)|what(?:'s|\\s+is)\\s+(?:the\\s+)?code|give\\s+me\\s+(?:the\\s+)?code)/i.test(cleaned);
 
-          if (!aiResult?.ok) {
-            console.log(
-              `🧠 HS Gemini unavailable • reason=${aiResult?.reason || "unknown"} • trying OpenAI`
-            );
-            aiResult = await askHsOpenAIReadOnly(cleaned);
-          }
+            let hsClubCodeHandled = false;
+            let aiResult = null;
 
-          if (aiResult?.ok) {
+            // Multi-club pasted-list resolver — local/read-only, before AI fallback.
+            if (hsClubCodeQuery && /[\n\r]|\bvs\b|\bwinner\s*:/i.test(content)) {
+              const found = [];
+              const seen = new Set();
+
+              for (const rawLine of String(content || "").split(/\r?\n/)) {
+                const line = String(rawLine || "").trim();
+                if (!line || /^(?:winner\s*:|show\s+me|give\s+me|club\s*codes?)/i.test(line)) continue;
+
+                for (let part of line.split(/\s+vs\s+/i)) {
+                  part = part
+                    .replace(/^[-•*\d.)\s]+/, "")
+                    .replace(/\s*\(\s*\d{3,5}\s*\).*$/, "")
+                    .replace(/\s+-\s+[^\n]+$/, "")
+                    .trim();
+
+                  if (!part) continue;
+
+                  let club = leaderboardData.find(item =>
+                    normalizeClubName(item.club) === normalizeClubName(part)
+                  );
+
+                  if (!club) {
+                    club = leaderboardData.find(item =>
+                      areEquivalentClubNames(item.club, part)
+                    );
+                  }
+
+                  if (!club) continue;
+                  const key = normalizeClubName(club.club);
+                  if (seen.has(key)) continue;
+                  seen.add(key);
+                  found.push(club);
+                }
+              }
+
+              if (found.length) {
+                response =
+                  `🏷️ **CLUB CODES**\n\n` +
+                  found.map(club =>
+                    `${club.club} — **${club.clubCode || "Not available"}**`
+                  ).join("\n") +
+                  `\n\n🔒 Read-only — no production data changed.`;
+
+                hsClubCodeHandled = true;
+                console.log(
+                  `🏷️ HS multi Club Code lookup • clubs=${found.length} • user=${message.author.id}`
+                );
+              }
+            }
+
+            if (hsClubCodeQuery && !hsClubCodeHandled) {
+              const codeNoise =
+                /\\b(?:what(?:'s|\\s+is)|the|club|code|for|of|give|me|please|pls|show|tell|find|check)\\b/gi;
+
+              const requestedClub = String(cleaned || "")
+                .replace(codeNoise, " ")
+                .replace(/[?!.:,]+/g, " ")
+                .replace(/\\s+/g, " ")
+                .trim();
+
+              const exactClub = leaderboardData.find(item =>
+                normalizeClubName(item.club) === normalizeClubName(requestedClub)
+              );
+
+              const equivalentClub =
+                exactClub ||
+                leaderboardData.find(item =>
+                  areEquivalentClubNames(item.club, requestedClub)
+                );
+
+              let foundClub = equivalentClub || null;
+
+              // Safe partial-name fallback only when exactly ONE club matches.
+              if (!foundClub && requestedClub) {
+                const requestedKey = normalizeClubName(requestedClub);
+
+                const partialMatches = leaderboardData.filter(item => {
+                  const clubKey = normalizeClubName(item.club);
+                  return (
+                    requestedKey.length >= 4 &&
+                    (clubKey.includes(requestedKey) ||
+                     requestedKey.includes(clubKey))
+                  );
+                });
+
+                if (partialMatches.length === 1) {
+                  foundClub = partialMatches[0];
+                }
+              }
+
+              if (foundClub) {
+                response =
+                  `🏷️ **CLUB CODE**\\n\\n` +
+                  `🏰 **${foundClub.club}**\\n` +
+                  `🔑 Code: **${foundClub.clubCode || "Not available"}**\\n` +
+                  `👑 President: **${foundClub.president || "Not Set"}**\\n` +
+                  `📊 ELO: **${foundClub.elo}**\\n\\n` +
+                  `🔒 Read-only — no production data changed.`;
+
+                hsClubCodeHandled = true;
+
+                console.log(
+                  `🏷️ HS Club Code lookup • club=${foundClub.club} • code=${foundClub.clubCode || "N/A"} • user=${message.author.id}`
+                );
+              } else {
+                response =
+                  `🏷️ **CLUB CODE**\\n\\n` +
+                  `⚠️ I couldn't identify a unique FoW club from **${requestedClub || cleaned}**.\\n\\n` +
+                  `🔒 Read-only — no production data changed.`;
+
+                hsClubCodeHandled = true;
+              }
+            }
+
+            // ========================================================
+            // HS PROJECT BRAIN V1
+            // Live production knowledge BEFORE generic AI fallback.
+            // READ-ONLY: no production state is changed here.
+            // ========================================================
+            let hsProjectBrainHandled = false;
+
+            if (!hsClubCodeHandled) {
+              const projectBrainResponse =
+                resolveHsProjectBrainQuery(
+                  cleaned,
+                  message.guild?.id || null
+                );
+
+              if (projectBrainResponse) {
+                response = projectBrainResponse;
+                hsProjectBrainHandled = true;
+
+                console.log(
+                  `🧠 HS Project Brain answered • user=${message.author.id}`
+                );
+              }
+            }
+
+            // Generic AI is LAST RESORT only.
+            if (!hsClubCodeHandled && !hsProjectBrainHandled) {
+              aiResult = await askHsOpenAIReadOnly(cleaned);
+            }
+
+          if (!hsClubCodeHandled && !hsProjectBrainHandled && aiResult?.ok) {
             const provider =
               aiResult.provider === "OPENAI" ? "OpenAI" : "Gemini";
 
@@ -13619,7 +17629,7 @@ client.on(
             console.log(
               `🧠 HS Hybrid response • provider=${aiResult.provider} • user=${message.author.id}`
             );
-          } else {
+          } else if (!hsClubCodeHandled && !hsProjectBrainHandled) {
             response =
               `👤 Access detected: **${access}**\n\n` +
               `I received:\n> ${cleaned.slice(0, 900)}\n\n` +
@@ -13632,6 +17642,48 @@ client.on(
             );
           }
           }
+        }
+
+        try {
+          const hsSessionForResponse =
+            getHsConversationSession(message);
+          const renderedClubs =
+            extractHsClubsFromText(response);
+          if (renderedClubs.length) {
+            const renderedNames =
+              renderedClubs.map(item => item.club);
+            const existingNames =
+              Array.isArray(hsSessionForResponse.lastResults)
+                ? hsSessionForResponse.lastResults
+                : [];
+
+            const sameMembership =
+              existingNames.length === renderedNames.length &&
+              existingNames.every((name, index) =>
+                normalizeClubName(name) ===
+                normalizeClubName(renderedNames[index])
+              );
+
+            // Exact list context written by the Derby/live-list handler is
+            // authoritative. Response parsing may confirm it, never expand it.
+            if (!existingNames.length || sameMembership) {
+              hsSessionForResponse.lastResults = renderedNames;
+              hsSessionForResponse.lastClub =
+                renderedNames.length === 1
+                  ? renderedNames[0]
+                  : null;
+              hsSessionForResponse.updatedAt = Date.now();
+            } else {
+              console.warn(
+                `🛡️ HS context integrity preserved • stored=${existingNames.length} • parsed=${renderedNames.length}`
+              );
+            }
+          }
+        } catch (contextError) {
+          console.warn(
+            "HS response context capture skipped:",
+            contextError?.message || contextError
+          );
         }
 
         const hsFullResponse =
@@ -13751,7 +17803,7 @@ client.on(
         .join("\n");
 
       await message.reply(
-        `⚠️ **Kelab tiada didalam database list**\n${unknownList}`
+        `⚠️ **Club not found in the database**\n${unknownList}`
       );
       return;
     }
@@ -13836,7 +17888,7 @@ client.on(
       ) {
 
         reply +=
-          `\n⚠️ **Kelab tiada didalam database list (${unknownClubs.length})**\n`;
+          `\n⚠️ **Clubs not found in the database (${unknownClubs.length})**\n`;
 
         for (const item of unknownClubs) {
           reply += `${item.club} (${item.elo})\n`;
@@ -13988,6 +18040,126 @@ client.on(
       }
     }
 
+    // HS V2 — confirmed edit for an existing saved Match ID.
+    if (interaction.isButton() && String(interaction.customId || "").startsWith("hsv2_edit_")) {
+      const [action, draftId] = String(interaction.customId).split(":");
+      cleanupHsV2SavedEditDrafts();
+      const draft = hsV2SavedEditDrafts.get(draftId);
+      if (!draft) { await interaction.reply({content:"❌ Saved-match edit preview expired.",flags:MessageFlags.Ephemeral}); return; }
+      if (String(interaction.user.id) !== String(draft.userId)) { await interaction.reply({content:"❌ Only the original requester can use this edit confirmation.",flags:MessageFlags.Ephemeral}); return; }
+      if (action === "hsv2_edit_cancel") {
+        hsV2SavedEditDrafts.delete(draftId);
+        await interaction.update({content:`❌ Edit for **${draft.matchId}** cancelled. Saved plan unchanged.`,components:[]});
+        return;
+      }
+      if (!isWarAdminInteraction(interaction)) { await interaction.reply({content:"⛔ You are not authorized to edit saved matchmaking.",flags:MessageFlags.Ephemeral}); return; }
+      const plan = getMatchPlan(draft.matchId);
+      if (!plan) { hsV2SavedEditDrafts.delete(draftId); await interaction.update({content:`❌ Match ID **${draft.matchId}** no longer exists.`,components:[]}); return; }
+      if (Number(plan.updatedAt || plan.createdAt || 0) !== Number(draft.baseUpdatedAt)) {
+        hsV2SavedEditDrafts.delete(draftId);
+        await interaction.update({content:`⚠️ **${draft.matchId}** changed after this preview. Edit blocked; create a fresh preview.`,components:[]});
+        return;
+      }
+      const active = (plan.clubs || []).filter(item => !isClubMatchmakingAvailable(item.club));
+      if (active.length) { hsV2SavedEditDrafts.delete(draftId); await interaction.update({content:`⛔ Edit blocked because preparation/war isolation is now active for **${active.length}** club(s).`,components:[]}); return; }
+      plan.clubs = draft.proposedClubs.map(item => ({...item}));
+      plan.updatedAt = Date.now();
+      plan.updatedBy = String(interaction.user.id);
+      matchPlans.set(plan.id, plan);
+      await saveMatchPlansNow();
+      try {
+        const channelId = plan.matchControlsChannelId || plan.channelId;
+        const channel = await client.channels.fetch(String(channelId));
+        if (plan.matchControlsMessageId && channel?.messages?.fetch) {
+          const oldMessage = await channel.messages.fetch(String(plan.matchControlsMessageId)).catch(() => null);
+          if (oldMessage) await oldMessage.edit({components:[]}).catch(() => {});
+        }
+        if (channel?.isTextBased?.() && typeof channel.send === "function") {
+          const chunks = splitDiscordText(`♻️ **MATCHMAKING EDITED**\n\n${formatManualPlanOutput(plan)}`,1900);
+          let controlsMessage = null;
+          for (let i=0;i<chunks.length;i++) {
+            controlsMessage = await channel.send({content:chunks[i],components:i===chunks.length-1?[buildMatchPlanKoButton(plan.id)]:[]});
+          }
+          if (controlsMessage) {
+            plan.matchControlsMessageId = controlsMessage.id;
+            plan.matchControlsChannelId = controlsMessage.channelId || channel.id;
+            plan.updatedAt = Date.now();
+            matchPlans.set(plan.id,plan);
+            await saveMatchPlansNow();
+          }
+        }
+      } catch (publishError) {
+        console.error("❌ HS V2 saved edit publish failed:",publishError);
+      }
+      hsV2SavedEditDrafts.delete(draftId);
+      await interaction.update({content:`✅ **SAVED MATCH EDITED**\n🆔 Match ID: **${plan.id}**\n🤝 Pairs repaired and synchronized with Supabase.`,components:[]});
+      return;
+    }
+
+    // Derby failed-club rematch suggestion -> editable production draft.
+    if(interaction.isButton()&&String(interaction.customId||'').startsWith('derby_rematch_')){
+      const[action,draftId]=String(interaction.customId).split(':');cleanupHsControlRoomDrafts();const draft=hsControlRoomDrafts.get(draftId);
+      if(!draft){await interaction.update({content:'🧹 **REMATCH SUGGESTION EXPIRED**\nRequest a fresh failed-club rematch suggestion.',components:[]}).catch(()=>{});return;}
+      if(String(interaction.user.id)!==String(draft.userId)){await interaction.reply({content:'❌ Only the original requester can create this rematch draft.',flags:MessageFlags.Ephemeral});return;}
+      if(action==='derby_rematch_cancel'){hsControlRoomDrafts.delete(draftId);await interaction.update({content:`❌ Rematch suggestion for **${draft.rematchOf}** cancelled. No production data changed.`,components:[]});return;}
+      if(action==='derby_rematch_create'){draft.phase='v2_action';draft.updatedAt=Date.now();await interaction.update(buildHsV2MatchDraftView(draft));return;}
+    }
+
+    // HS V2 — compact matchmaking preview pagination.
+    if(interaction.isButton()&&String(interaction.customId||'').startsWith('hsv2_preview_')){
+      const[action,draftId]=String(interaction.customId).split(':');cleanupHsControlRoomDrafts();const draft=hsControlRoomDrafts.get(draftId);
+      if(!draft){await interaction.update({content:'🧹 **MATCHMAKING PREVIEW EXPIRED**',components:[]}).catch(()=>{});return;}
+      if(String(interaction.user.id)!==String(draft.userId)){await interaction.reply({content:'❌ Only the original requester can browse this preview.',flags:MessageFlags.Ephemeral});return;}
+      if(action==='hsv2_preview_prev')draft.previewPage=Math.max(0,(draft.previewPage||0)-1);
+      if(action==='hsv2_preview_next')draft.previewPage=(draft.previewPage||0)+1;
+      await interaction.update(buildHsV2MatchDraftView(draft));return;
+    }
+
+    // HS V2 — destination selection for a stored matchmaking preview.
+    if (
+      interaction.isButton() &&
+      String(interaction.customId || "").startsWith("hsv2_dest:")
+    ) {
+      const [, draftId, destinationKey] = String(interaction.customId).split(":");
+      cleanupHsControlRoomDrafts();
+      const draft = hsControlRoomDrafts.get(draftId);
+
+      if (!draft) {
+        await interaction.reply({content:"❌ HS V2 draft expired. Create a new matchmaking preview.",flags:MessageFlags.Ephemeral});
+        return;
+      }
+      if (String(interaction.user.id) !== String(draft.userId)) {
+        await interaction.reply({content:"❌ Only the original requester can select this destination.",flags:MessageFlags.Ephemeral});
+        return;
+      }
+      if (draft.guildId && String(interaction.guildId || "") !== String(draft.guildId)) {
+        await interaction.reply({content:"❌ This draft belongs to another server.",flags:MessageFlags.Ephemeral});
+        return;
+      }
+
+      const destination = parseHsControlRoomDestination(destinationKey);
+      if (!destination || destination.key === "test") {
+        await interaction.reply({content:"❌ Invalid production destination.",flags:MessageFlags.Ephemeral});
+        return;
+      }
+
+      draft.destinationKey = destination.key;
+      draft.destinationLabel = destination.label;
+      draft.destinationChannelId = destination.channelId;
+      draft.updatedAt = Date.now();
+      await interaction.update({
+        content:
+          `🎛️ **HS V2 — DESTINATION SELECTED**\n\n` +
+          `🎯 Range: **${draft.minElo} - ${draft.maxElo}**\n` +
+          `🤝 Pairs: **${draft.previewResult?.pairs?.length || 0}**\n` +
+          `📤 Destination: **${destination.label}**\n\n` +
+          `Confirm to create the Match ID and publish the matchmaking.\n` +
+          `🔒 No production data changed yet.`,
+        components: buildHsV2ConfirmButtons(draftId)
+      });
+      return;
+    }
+
     // HS PHASE 6.0A — BUTTON SIMULATION
     if (
       interaction.isButton() &&
@@ -14002,6 +18174,10 @@ client.on(
       const draft = hsControlRoomDrafts.get(draftId);
 
       if (!draft) {
+        if (action === "hscr_cancel") {
+          await interaction.editReply({content:"🧹 **OLD MATCHMAKING PREVIEW CLEARED**\n🔒 No production data changed.",components:[]});
+          return;
+        }
         await interaction.followUp({
           content: "❌ HS draft expired. Create a new preview.",
           flags: MessageFlags.Ephemeral
@@ -14019,11 +18195,7 @@ client.on(
 
       if (action === "hscr_cancel") {
         hsControlRoomDrafts.delete(draftId);
-        await interaction.editReply({ components: [] });
-        await interaction.followUp({
-          content: "❌ Draft cancelled.\n🔒 No production data changed.",
-          flags: MessageFlags.Ephemeral
-        });
+        await interaction.editReply({content:"🧹 **MATCHMAKING PREVIEW CLEARED**\n🔒 Draft cancelled. No production data changed.",components:[]});
         return;
       }
 
@@ -14128,8 +18300,19 @@ client.on(
         const clubs = [];
 
         draft.previewResult.pairs.forEach((pair, i) => {
-          const winner = pair.winner || pair.a;
-          const loser = pair.loser || pair.b;
+          // HS WINNER INTEGRITY:
+          // Forced MUST WIN / MUST LOSE outcomes are carried in pair.winner/pair.loser.
+          // Ordinary preview pairs have no forced outcome, so the higher-ELO club
+          // MUST be the winner. Never fall back blindly to pair.a because the exact
+          // optimizer may store either side as "a" for search efficiency.
+          const hasForcedOutcome = Boolean(pair.winner && pair.loser);
+          const higher =
+            Number(pair.a?.elo || 0) >= Number(pair.b?.elo || 0)
+              ? pair.a
+              : pair.b;
+          const lower = higher === pair.a ? pair.b : pair.a;
+          const winner = hasForcedOutcome ? pair.winner : higher;
+          const loser = hasForcedOutcome ? pair.loser : lower;
 
           for (const [role, item] of [
             ["win", winner],
@@ -14164,23 +18347,42 @@ client.on(
           updatedBy: interaction.user.id,
           eventId: getActiveEvent()?.id || null,
           manual: true,
-          hsControlRoom: true
+          hsControlRoom: true,
+          rematchOf: draft.rematchOf || null,
+          sourceMatchId: draft.sourceMatchId || draft.rematchOf || null,
+          source: draft.rematchOf ? "derby_rematch" : "hs_control_room"
         };
 
         matchPlans.set(matchId, plan);
         await saveMatchPlansNow();
 
-        const output = formatManualPlanOutput(plan);
+        const output = `${draft.rematchOf?`🔄 **DERBY REMATCH**\nSource Match ID: **${draft.rematchOf}**\nNew Match ID: **${matchId}**\n\n`:''}${formatManualPlanOutput(plan)}`;
         const chunks = splitDiscordText(output, 1900);
 
+        let controlsMsg = null;
+
         for (let i = 0; i < chunks.length; i++) {
-          await target.send({
+          const sentMsg = await target.send({
             content: chunks[i],
             components:
               i === chunks.length - 1
                 ? [buildMatchPlanKoButton(matchId)]
                 : []
           });
+
+          if (i === chunks.length - 1) {
+            controlsMsg = sentMsg;
+          }
+        }
+
+        if (controlsMsg) {
+          plan.matchControlsMessageId = controlsMsg.id;
+          plan.matchControlsChannelId = controlsMsg.channelId || target.id;
+          plan.updatedAt = Date.now();
+          plan.updatedBy = interaction.user.id;
+
+          matchPlans.set(matchId, plan);
+          await saveMatchPlansNow();
         }
 
         hsControlRoomDrafts.delete(draftId);
@@ -14189,6 +18391,7 @@ client.on(
           content:
             `✅ **MATCHMAKING SENT**\n` +
             `🆔 Match ID: **${matchId}**\n` +
+            (draft.rematchOf ? `🔄 Rematch of: **${draft.rematchOf}**\n` : "") +
             `🎯 ${draft.minElo} - ${draft.maxElo}\n` +
             `📤 ${draft.destinationLabel}\n` +
             `☁️ Database synchronized with Supabase.`,
@@ -14228,7 +18431,189 @@ client.on(
     // MODAL SUBMITS: manual matchmaking search + bulk add
     // ========================================================
     if (interaction.isModalSubmit()) {
+      if(String(interaction.customId||'').startsWith('war_now_paste_modal:')){
+        const sid=String(interaction.customId).split(':')[1];cleanupBatchWarNowSessions();const session=batchWarNowSessions.get(sid);
+        if(!session||String(session.userId)!==String(interaction.user.id)){await interaction.reply({content:'❌ Batch War Start session expired.',flags:MessageFlags.Ephemeral});return;}
+        const items=batchWarNowItems(session),raw=interaction.fields.getTextInputValue('clubs'),tokens=String(raw||'').split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean),unresolved=[];
+        for(const token of tokens){const club=resolveNaturalClubToken(token,items);if(club)session.selected.delete(normalizeClubName(club.club));else unresolved.push(token);}
+        session.updatedAt=Date.now();const view=buildBatchWarNowView(session);if(unresolved.length)view.content+=`\n\n⚠️ Not resolved: **${unresolved.join(', ')}**`;await interaction.reply({...view,flags:MessageFlags.Ephemeral});return;
+      }
+      if(interaction.customId==='isolation_override_bulk_modal'){
+        try{
+          if(!isWarAdminInteraction(interaction)){
+            await interaction.reply({content:'⛔ You are not authorized to manage isolation.',flags:MessageFlags.Ephemeral});
+            return;
+          }
+
+          reloadLatestDatabase();
+
+          const raw=interaction.fields.getTextInputValue('clubs');
+          const lines=String(raw||'')
+            .split(/\r?\n/)
+            .map(x=>x.trim())
+            .filter(Boolean);
+
+          const found=[];
+          const missing=[];
+          const seen=new Set();
+
+          for(const source of lines){
+            const cleaned=String(source)
+              .replace(/^[-•*\d.)\s]+/,'')
+              .replace(/\s*\(\s*\d{3,5}\s*\).*$/,'')
+              .replace(/\s+-\s+[^\n]+$/,'')
+              .trim();
+            if(!cleaned) continue;
+
+            const db=leaderboardData.find(x=>
+              areEquivalentClubNames(x.club,cleaned)
+            );
+            if(!db){
+              missing.push(cleaned);
+              continue;
+            }
+
+            const key=normalizeClubName(db.club);
+            if(seen.has(key)) continue;
+            seen.add(key);
+            found.push(db);
+          }
+
+          const released=[];
+          for(const db of found){
+            const existing=getWarOperation(db.club);
+            const op=setWarOperation(db.club,{
+              status:'AVAILABLE',
+              isolated:false,
+              reminderPending:false,
+              nextReminderAt:null,
+              nextAckReminderAt:null,
+              lastReminderMessageId:null,
+              preparationEndAt:null,
+              coolingEndAt:null,
+              warning15mSent:true,
+              completionSent:true,
+              channelId:existing?.channelId||interaction.channelId,
+              guildId:interaction.guildId,
+              eventType:existing?.eventType||'normal'
+            },interaction.user.id,'ADMIN_BULK_ISOLATION_OVERRIDE');
+
+            const releaseKey=normalizeClubName(db.club);
+
+            if(Array.isArray(activeFowTimers)){
+              for(let i=activeFowTimers.length-1;i>=0;i--){
+                const timer=activeFowTimers[i];
+                if(!Array.isArray(timer?.clubs)) continue;
+
+                timer.clubs=timer.clubs.filter(
+                  c=>normalizeClubName(c?.club)!==releaseKey
+                );
+
+                if(timer.clubs.length===0){
+                  activeFowTimers.splice(i,1);
+                }
+              }
+            }
+
+            released.push(op.club);
+          }
+
+          queueSupabaseStateSave('active_fow_timers',activeFowTimers);
+
+          let content='✅ **BULK ISOLATION OVERRIDE**\n\n';
+          if(released.length){
+            content+='🟢 **AVAILABLE ('+released.length+')**\n'+
+              released.map(x=>'• '+x).join('\n');
+          }else{
+            content+='No clubs were released.';
+          }
+          if(missing.length){
+            content+='\n\n⚠️ **NOT FOUND ('+missing.length+')**\n'+
+              missing.map(x=>'• '+x).join('\n');
+          }
+          content+='\n\nMatchmaking isolation cleared for listed clubs.';
+
+          await interaction.reply({content,flags:MessageFlags.Ephemeral});
+        }catch(error){
+          console.error('❌ Bulk isolation override submit error:',error);
+          try{
+            await interaction.reply({content:'❌ Bulk isolation override failed.',flags:MessageFlags.Ephemeral});
+          }catch{}
+        }
+        return;
+      }
+
+      if(interaction.customId==='war_override_bulk_paste'){
+        try{
+          if(!isWarAdminInteraction(interaction)){
+            await interaction.reply({
+              content:'⛔ You are not authorized to use bulk war override.',
+              flags:MessageFlags.Ephemeral
+            });
+            return;
+          }
+
+          reloadLatestDatabase();
+
+          const parsed=parseWarOverrideBulkPaste(
+            interaction.fields.getTextInputValue('clubs')
+          );
+
+          const id=opsSessionId('wob');
+          const session={
+            id,
+            userId:String(interaction.user.id),
+            records:parsed.found,
+            missing:parsed.missing,
+            duplicate:parsed.duplicate,
+            createdAt:Date.now(),
+            updatedAt:Date.now()
+          };
+
+          warOverrideBulkPasteSessions.set(id,session);
+
+          await interaction.reply({
+            ...buildWarOverrideBulkPastePreview(session),
+            flags:MessageFlags.Ephemeral
+          });
+        }catch(error){
+          console.error('❌ Bulk override paste submit error:',error);
+          try{
+            await interaction.reply({
+              content:'❌ Failed to validate pasted club list.',
+              flags:MessageFlags.Ephemeral
+            });
+          }catch{}
+        }
+        return;
+      }
+
+
       const customId = String(interaction.customId || "");
+
+      if(customId.startsWith('derby_check_')){
+        const parts=customId.split(':'),action=parts[0],draftId=parts[1];cleanupDerbyChecklistDrafts();const draft=derbyChecklistDrafts.get(draftId);
+        if(!draft){await interaction.reply({content:'❌ Derby checklist confirmation expired. Send the result again.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        if(String(draft.userId)!==String(interaction.user.id)){await interaction.reply({content:'❌ Only the person who submitted this result can confirm it.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        if(action==='derby_check_cancel'){derbyChecklistDrafts.delete(draftId);await interaction.update({content:'❌ Derby checklist update cancelled. No production data changed.',components:[]});return;}
+        const plan=getMatchPlan(draft.matchId);if(!plan||Number(plan.updatedAt||plan.createdAt||0)!==Number(draft.baseUpdatedAt)){derbyChecklistDrafts.delete(draftId);await interaction.update({content:'⚠️ Match ID changed after this preview. Send the result again.',components:[]});return;}
+        const pairMap=new Map(getMatchPlanPairs(plan).map(p=>[p.pairNo,p])),pairs=draft.pairNos.map(n=>pairMap.get(Number(n))).filter(Boolean);if(!pairs.length){derbyChecklistDrafts.delete(draftId);await interaction.update({content:'❌ Pair no longer exists.',components:[]});return;}
+        const now=Date.now(),changed=[];
+        if(action==='derby_check_confirm'){
+          for(const pair of pairs){
+            if(draft.action==='success'){for(const c of pair.clubs){c.status='success';c.successAt=now;c.successBy=String(interaction.user.id);c.failedAt=null;c.failedBy=null;}changed.push(`#${pair.pairNo} SUCCESS`);}
+            else if(draft.action==='skip'){for(const c of pair.clubs){c.status='excluded';c.failedAt=null;c.failedBy=null;setWarOperation(c.club,{status:'AVAILABLE'},interaction.user.id,'DERBY_CHECKLIST_SKIP_RELEASE');}changed.push(`#${pair.pairNo} SKIP`);}
+            else {for(const c of pair.clubs){c.status='pending';c.successAt=null;c.successBy=null;c.failedAt=null;c.failedBy=null;}changed.push(`#${pair.pairNo} PENDING`);}
+          }
+        }else if(action.startsWith('derby_check_fail_')){
+          const pair=pairs[0],[a,b]=pair.clubs,choice=action.replace('derby_check_fail_',''),failed=choice==='both'?[a,b]:choice==='a'?[a]:[b],released=choice==='both'?[]:choice==='a'?[b]:[a];
+          for(const c of failed){c.status='failed';c.failedAt=now;c.failedBy=String(interaction.user.id);c.successAt=null;c.successBy=null;}
+          for(const c of released){c.status='excluded';c.failedAt=null;c.failedBy=null;c.successAt=null;c.successBy=null;setWarOperation(c.club,{status:'AVAILABLE'},interaction.user.id,'DERBY_CHECKLIST_FAILED_PARTNER_RELEASE');}
+          changed.push(`#${pair.pairNo} FAILED: ${failed.map(c=>c.club).join(' & ')}`);
+        }else return;
+        plan.resultHistory=[...(plan.resultHistory||[]),{at:now,by:String(interaction.user.id),action:draft.action,pairNos:[...draft.pairNos],result:[...changed]}].slice(-500);plan.updatedAt=now;plan.updatedBy=String(interaction.user.id);matchPlans.set(plan.id,plan);await saveMatchPlansNow();derbyChecklistDrafts.delete(draftId);await publishDerbyChecklist(plan,interaction.channel);
+        await interaction.update({content:`✅ **DERBY CHECKLIST UPDATED**\n\n🆔 Match ID: **${plan.id}**\n${changed.map(x=>`• ${x}`).join('\n')}\n👤 Updated by: <@${interaction.user.id}>`,components:[],allowedMentions:{parse:['users']}});return;
+      }
 
       if (customId.startsWith("man_paste_modal:")) {
         const [,sessionId]=customId.split(":");
@@ -14238,7 +18623,7 @@ client.on(
           await interaction.deferUpdate(); reloadLatestDatabase();
           const parsed=parseManualMatchPaste(interaction.fields.getTextInputValue('matches'));
           if(parsed.errors.length){ await interaction.followUp({content:`❌ **PASTE VALIDATION FAILED**\n${parsed.errors.slice(0,10).map(x=>`- ${x}`).join('\n')}`,flags:MessageFlags.Ephemeral}); if(!parsed.pairs.length) return; }
-          session.pairs=parsed.pairs; session.draft={a:null,b:null,winnerSide:null}; session.editingPairIndex=null; session.updatedAt=Date.now();
+          session.pairs=parsed.pairs; session.draft={a:null,b:null,winnerSide:null}; session.editingPairIndex=null; session.viewPage=0; session.updatedAt=Date.now();
           await interaction.editReply(buildManualMatchmakingView(session));
           if(parsed.warnings.length) await interaction.followUp({content:`⚠️ **Database validation notes**\n${parsed.warnings.slice(0,12).map(x=>`- ${x}`).join('\n')}`,flags:MessageFlags.Ephemeral});
         }catch(error){ console.error('❌ Manual paste modal error:',error); }
@@ -14462,7 +18847,200 @@ New: **${op.club}**
           ""
         );
 
-      if(customId.startsWith('match_cancel_request:')){
+      if(customId.startsWith('derby_check_')){
+        const parts=customId.split(':'),action=parts[0],draftId=parts[1];cleanupDerbyChecklistDrafts();const draft=derbyChecklistDrafts.get(draftId);
+        if(!draft){await interaction.reply({content:'❌ Derby checklist confirmation expired. Send the result again.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        if(String(draft.userId)!==String(interaction.user.id)){await interaction.reply({content:'❌ Only the person who submitted this result can confirm it.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        await interaction.deferUpdate();
+        if(action==='derby_check_cancel'){derbyChecklistDrafts.delete(draftId);await interaction.editReply({content:'❌ Derby checklist update cancelled. No production data changed.',components:[]});return;}
+        const plan=getMatchPlan(draft.matchId);if(!plan||Number(plan.updatedAt||plan.createdAt||0)!==Number(draft.baseUpdatedAt)){derbyChecklistDrafts.delete(draftId);await interaction.editReply({content:'⚠️ Match ID changed after this preview. Send the result again.',components:[]});return;}
+        const pairMap=new Map(getMatchPlanPairs(plan).map(p=>[p.pairNo,p])),pairs=draft.pairNos.map(n=>pairMap.get(Number(n))).filter(Boolean);if(!pairs.length){derbyChecklistDrafts.delete(draftId);await interaction.editReply({content:'❌ Pair no longer exists.',components:[]});return;}
+        const now=Date.now(),changed=[];
+        if(action==='derby_check_confirm'){
+          for(const pair of pairs){
+            if(draft.action==='success'){for(const c of pair.clubs){c.status='success';c.successAt=now;c.successBy=String(interaction.user.id);c.failedAt=null;c.failedBy=null;}changed.push(`#${pair.pairNo} SUCCESS`);}
+            else if(draft.action==='skip'){for(const c of pair.clubs){c.status='excluded';c.failedAt=null;c.failedBy=null;setWarOperation(c.club,{status:'AVAILABLE'},interaction.user.id,'DERBY_CHECKLIST_SKIP_RELEASE');}changed.push(`#${pair.pairNo} SKIP`);}
+            else {for(const c of pair.clubs){c.status='pending';c.successAt=null;c.successBy=null;c.failedAt=null;c.failedBy=null;}changed.push(`#${pair.pairNo} PENDING`);}
+          }
+        }else if(action.startsWith('derby_check_fail_')){
+          const pair=pairs[0],[a,b]=pair.clubs,choice=action.replace('derby_check_fail_',''),failed=choice==='both'?[a,b]:choice==='a'?[a]:[b],released=choice==='both'?[]:choice==='a'?[b]:[a];
+          for(const c of failed){c.status='failed';c.failedAt=now;c.failedBy=String(interaction.user.id);c.successAt=null;c.successBy=null;}
+          for(const c of released){c.status='excluded';c.failedAt=null;c.failedBy=null;c.successAt=null;c.successBy=null;setWarOperation(c.club,{status:'AVAILABLE'},interaction.user.id,'DERBY_CHECKLIST_FAILED_PARTNER_RELEASE');}
+          changed.push(`#${pair.pairNo} FAILED: ${failed.map(c=>c.club).join(' & ')}`);
+        }else{await interaction.editReply({content:'❌ Unsupported checklist action.',components:[]});return;}
+        plan.resultHistory=[...(plan.resultHistory||[]),{at:now,by:String(interaction.user.id),action:draft.action,pairNos:[...draft.pairNos],result:[...changed]}].slice(-500);plan.updatedAt=now;plan.updatedBy=String(interaction.user.id);matchPlans.set(plan.id,plan);await saveMatchPlansNow();derbyChecklistDrafts.delete(draftId);await publishDerbyChecklist(plan,interaction.channel);
+        await interaction.editReply({content:`✅ **DERBY CHECKLIST UPDATED**\n\n🆔 Match ID: **${plan.id}**\n${changed.map(x=>`• ${x}`).join('\n')}\n👤 Updated by: <@${interaction.user.id}>`,components:[],allowedMentions:{parse:['users']}});return;
+      }
+
+      // HS V2 PAGINATED LIVE LIST BUTTON HANDLER
+      if (customId.startsWith("hsv2_list_")) {
+        cleanupHsV2PagedListSessions();
+        const match = customId.match(/^hsv2_list_(prev|next|refresh):(.+)$/);
+        const action = match?.[1] || null;
+        const id = match?.[2] || null;
+        const session = id ? hsV2PagedListSessions.get(id) : null;
+        if (
+          !session ||
+          String(session.userId) !== String(interaction.user.id) ||
+          String(session.channelId) !== String(interaction.channelId || "") ||
+          String(session.guildId) !== String(interaction.guildId || "")
+        ) {
+          await interaction.reply({
+            content: "❌ This HS list session expired. Request the list again.",
+            flags: MessageFlags.Ephemeral
+          }).catch(() => {});
+          return;
+        }
+        if (action === "prev") session.page = Math.max(0, Number(session.page) - 1);
+        if (action === "next") session.page = Number(session.page) + 1;
+        session.updatedAt = Date.now();
+        await interaction.update(buildHsV2PagedListView(session));
+        return;
+      }
+
+
+      // WAR OVERRIDE BULK BUTTON HANDLER
+      if(
+        customId.startsWith('war_override_bulk_confirm:') ||
+        customId.startsWith('war_override_bulk_cancel:')
+      ){
+        const [action,id]=customId.split(':');
+        const session=warOverrideBulkPasteSessions.get(id);
+
+        if(!session || String(session.userId)!==String(interaction.user.id)){
+          await interaction.reply({
+            content:'❌ Bulk override session expired.',
+            flags:MessageFlags.Ephemeral
+          }).catch(()=>{});
+          return;
+        }
+
+        if(action==='war_override_bulk_cancel'){
+          warOverrideBulkPasteSessions.delete(id);
+
+          await interaction.update({
+            content:'❌ Bulk war override cancelled. No state was changed.',
+            components:[]
+          });
+          return;
+        }
+
+        if(!isWarAdminInteraction(interaction)){
+          await interaction.reply({
+            content:'⛔ You are not authorized to use bulk war override.',
+            flags:MessageFlags.Ephemeral
+          });
+          return;
+        }
+
+        await interaction.deferUpdate();
+
+        try{
+          const keys=session.records
+            .filter(x=>x.isolated)
+            .map(x=>x.key);
+
+          const released=await masterReleaseIsolation(keys,interaction);
+
+          warOverrideBulkPasteSessions.delete(id);
+
+          await interaction.editReply({
+            content:
+              `🛡️ **WAR OVERRIDE BULK COMPLETE**\n\n`+
+              `🟢 Released: **${released.length} club(s)**\n`+
+              (released.length
+                ? released.map(x=>`• ${x}`).join('\n')
+                : 'No club required release.')+
+              `\n\n✅ War isolation removed.\n`+
+              `✅ Active timer isolation removed.`,
+            components:[]
+          });
+
+        }catch(error){
+          console.error('❌ Bulk war override confirm error:',error);
+
+          try{
+            await interaction.editReply({
+              content:'❌ Bulk release failed. No further action taken.',
+              components:[]
+            });
+          }catch{}
+        }
+
+        return;
+      }
+
+      if(customId.startsWith('hsmp_confirm:') || customId.startsWith('hsmp_cancel:')){
+        cleanupHsManualPasteDrafts();const [action,draftId]=customId.split(':');const draft=hsManualPasteDrafts.get(draftId);
+        if(!draft){await interaction.reply({content:"❌ This manual matchmaking confirmation expired. Paste the list again.",flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        if(String(interaction.user.id)!==String(draft.userId)){await interaction.reply({content:"❌ Only the user who submitted this matchmaking can confirm it.",flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        if(draft.guildId&&String(interaction.guildId||"")!==draft.guildId){await interaction.reply({content:"❌ This matchmaking confirmation belongs to another server.",flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        if(action==='hsmp_cancel'){hsManualPasteDrafts.delete(draftId);await interaction.update({content:"❌ Manual matchmaking cancelled. No Match ID created.",components:[]});return;}
+        try{await interaction.deferUpdate();const result=await createHsManualPastePlan(draft,interaction);if(!result.ok){hsManualPasteDrafts.delete(draftId);await interaction.editReply({content:result.message,components:[]});return;}hsManualPasteDrafts.delete(draftId);const chunks=splitDiscordText(formatManualPlanOutput(result.plan));await interaction.editReply({content:"✅ **MANUAL MATCHMAKING CREATED**\n🆔 Match ID: **"+result.plan.id+"**\n🤝 Pairs: **"+result.plan.pairCount+"**\n☁️ **Database synchronized with Supabase.**",components:[]});for(const chunk of chunks)await interaction.followUp({content:chunk});const controlsMsg=await interaction.followUp({content:"🆔 **"+result.plan.id+"** • Match controls",components:[buildMatchPlanKoButton(result.plan.id)]});result.plan.matchControlsMessageId=controlsMsg.id;result.plan.matchControlsChannelId=controlsMsg.channelId||interaction.channelId;result.plan.updatedAt=Date.now();matchPlans.set(result.plan.id,result.plan);await saveMatchPlansNow();return;}catch(error){console.error("❌ HS pasted manual matchmaking failed:",error);hsManualPasteDrafts.delete(draftId);try{await interaction.editReply({content:"❌ Failed to create manual matchmaking. Check logs before retrying.",components:[]});}catch{}return;}
+      }
+
+      if(customId.startsWith('hsev_confirm:') || customId.startsWith('hsev_cancel:')){
+        cleanupHsEventTransitionDrafts();
+        const [action,draftId]=customId.split(':');
+        const draft=hsEventTransitionDrafts.get(draftId);
+
+        if(!draft){
+          await interaction.reply({content:"❌ This event confirmation has expired. Send the event request again.",flags:MessageFlags.Ephemeral}).catch(()=>{});
+          return;
+        }
+        if(String(interaction.user.id)!==String(draft.userId)){
+          await interaction.reply({content:"❌ Only the user who requested this event change can confirm it.",flags:MessageFlags.Ephemeral}).catch(()=>{});
+          return;
+        }
+        if(draft.guildId && String(interaction.guildId||"")!==String(draft.guildId)){
+          await interaction.reply({content:"❌ This event confirmation belongs to another server.",flags:MessageFlags.Ephemeral}).catch(()=>{});
+          return;
+        }
+
+        if(action==='hsev_cancel'){
+          hsEventTransitionDrafts.delete(draftId);
+          await interaction.update({content:`❌ **Event change cancelled**\n\n${hsEventModeLabel(draft.fromMode)} remains unchanged.\n🔒 No production event data changed.`,components:[]});
+          return;
+        }
+
+        if(!isWarAdminInteraction(interaction)){
+          await interaction.reply({content:"⛔ You are not authorized to change the production event.",flags:MessageFlags.Ephemeral}).catch(()=>{});
+          return;
+        }
+
+        try{
+          await interaction.deferUpdate();
+          const result=await applyHsEventTransition(draft,interaction.user.id);
+          hsEventTransitionDrafts.delete(draftId);
+          if(!result.ok){
+            await interaction.editReply({content:result.message,components:[]});
+            return;
+          }
+
+          const active=result.active;
+          const detail=active
+            ? `\nDuration: **${eventDurationDays(result.toMode)} days**\n${result.toMode==='grease'?'Preparation: **None**\nKO: **2 hours**':'Preparation: **6 hours**\nKO: **2 hours**'}`
+            : `\nMode: **NORMAL**`;
+
+          await interaction.editReply({
+            content:
+              `✅ **EVENT TRANSITION COMPLETE**\n\n` +
+              `Closed: **${hsEventModeLabel(draft.fromMode)}**\n` +
+              `Started: **${hsEventModeLabel(draft.toMode)}**` +
+              detail +
+              `\n\n☁️ **Event state synchronized with Supabase.**`,
+            components:[]
+          });
+          return;
+        }catch(error){
+          console.error("❌ HS event transition failed:",error);
+          hsEventTransitionDrafts.delete(draftId);
+          try{await interaction.editReply({content:"❌ Event transition failed. Production state was not intentionally advanced further; check logs before retrying.",components:[]});}catch{}
+          return;
+        }
+      }
+
+            if(customId.startsWith('match_cancel_request:')){
         const id=normalizeMatchId(customId.split(':')[1]);
         const plan=getMatchPlan(id);
 
@@ -14482,13 +19060,14 @@ New: **${op.club}**
           return;
         }
 
-        if(hasActiveTimerForMatch(id)){
+        const cancelCheck=inspectMatchPlanCancellation(plan);
+        if(!cancelCheck.canCancel){
           await interaction.reply({
             content:
               `❌ **MATCH ID CANNOT BE CANCELLED YET**\n\n` +
               `🆔 Match ID: **${id}**\n` +
-              `⏱️ An active timer still exists for this Match ID.\n\n` +
-              `Complete or cancel the active timer first.`,
+              `⚔️ War/KO is already active for **${cancelCheck.unsafeOps.length}** club(s).\n\n` +
+              `Use WAR DONE or the authorized isolation override first.`,
             flags:MessageFlags.Ephemeral
           });
           return;
@@ -14499,13 +19078,16 @@ New: **${op.club}**
             `⚠️ **CONFIRM MATCH ID CANCELLATION**\n` +
             `━━━━━━━━━━━━━━━━━━━━\n\n` +
             `🆔 Match ID: **${id}**\n\n` +
-            `This will mark the Match ID as **CANCELLED** and stop further lifecycle tracking.\n` +
+            `⏱️ Preparation timers to stop: **${cancelCheck.timers.length}**\n`+
+            `⚔️ Preparation War Monitors to remove: **${cancelCheck.warOps.length}**\n`+
+            `🔓 Clubs to release: **${cancelCheck.clubs.length}**\n\n`+
+            `This will cancel the Match ID and its linked preparation operations.\n` +
             `The historical record will remain in Supabase.`,
           components:[
             new ActionRowBuilder().addComponents(
               new ButtonBuilder()
                 .setCustomId(`match_cancel_confirm:${id}`)
-                .setLabel('🛑 YES, CANCEL MATCH ID')
+                .setLabel('🛑 CONFIRM CANCEL ALL')
                 .setStyle(ButtonStyle.Danger),
               new ButtonBuilder()
                 .setCustomId(`match_cancel_back:${id}`)
@@ -14547,39 +19129,34 @@ New: **${op.club}**
           return;
         }
 
-        if(hasActiveTimerForMatch(id)){
+        const cancelCheck=inspectMatchPlanCancellation(plan);
+        if(!cancelCheck.canCancel){
           await interaction.update({
             content:
               `❌ **MATCH ID CANNOT BE CANCELLED**\n\n` +
               `🆔 Match ID: **${id}**\n` +
-              `An active timer still exists. Complete or cancel the timer first.`,
+              `War/KO is already active. Use WAR DONE or the authorized isolation override first.`,
             components:[]
           });
           return;
         }
 
-        const now=Date.now();
-
-        plan.status='CANCELLED';
-        plan.cancelledAt=now;
-        plan.cancelledBy=String(interaction.user.id);
-        plan.lifecycleTrackingStoppedAt=now;
-        plan.updatedAt=now;
-        plan.updatedBy=String(interaction.user.id);
-
-        matchPlans.set(plan.id,plan);
-        await saveMatchPlansNow();
+        const cancelled=await cancelMatchPlanAndPreparation(plan,interaction.user.id);
+        if(!cancelled.ok){await interaction.update({content:`❌ Cancellation blocked because war/KO is active.`,components:[]});return;}
+        const now=cancelled.now;
 
         await interaction.update({
           content:
-            `❌ **MATCH ID CANCELLED**\n` +
+            `🛑 **MATCH ID & OPERATIONS CANCELLED**\n` +
             `━━━━━━━━━━━━━━━━━━━━\n\n` +
             `🆔 Match ID: **${id}**\n` +
             `📌 Status: **CANCELLED**\n` +
             `👤 Cancelled by: <@${interaction.user.id}>\n` +
             `🕒 Cancelled: <t:${Math.floor(now/1000)}:F>\n\n` +
+            `⏱️ Preparation timers stopped: **${cancelled.check.timers.length}**\n`+
+            `⚔️ War Monitors removed: **${cancelled.check.warOps.length}**\n`+
+            `🔓 Isolation released: **${cancelled.released}**\n\n`+
             `Historical record has been retained.\n` +
-            `No further Match ID lifecycle tracking will continue.\n\n` +
             `☁️ **Database synchronized with Supabase.**`,
           components:[],
           allowedMentions:{users:[]}
@@ -14594,8 +19171,43 @@ New: **${op.club}**
         await interaction.update({content:`🆔 **${id}** • Match controls closed.\nNo timer was started and no club state was changed.`,components:[]});
         return;
       }
+      if(customId.startsWith('match_war_now:')){
+        const id=normalizeMatchId(customId.split(':')[1]),plan=getMatchPlan(id);
+        if(!plan){await interaction.reply({content:`❌ Match ID **${id}** not found.`,flags:MessageFlags.Ephemeral});return;}
+        if(!isWarAdminInteraction(interaction)){await interaction.reply({content:'⛔ You are not authorized to start war operations.',flags:MessageFlags.Ephemeral});return;}
+        if(String(plan.status||'').toUpperCase()==='CANCELLED'||plan.preparationStartedAt){await interaction.reply({content:`❌ START WAR NOW is unavailable because **${id}** already has preparation or cancellation state.`,flags:MessageFlags.Ephemeral});return;}
+        const existingOps=getActiveWarOpsForMatchId(id),existingKeys=new Set(existingOps.map(op=>normalizeClubName(op.club)));if(existingOps.length&&!plan.warStartedWithoutPreparationAt){await interaction.reply({content:`❌ Existing war operations were not created by Batch Start. Manual review is required.`,flags:MessageFlags.Ephemeral});return;}
+        cleanupBatchWarNowSessions();const items=(plan.clubs||[]).filter(c=>c?.club&&String(c.status||'pending').toLowerCase()!=='excluded'&&!existingKeys.has(normalizeClubName(c.club))),blocked=items.filter(c=>!isClubMatchmakingAvailable(c.club));if(blocked.length){await interaction.reply({content:`❌ START WAR NOW blocked because **${blocked.length}** pending club(s) have another isolation/timer.\n${blocked.map(c=>`• ${c.club}`).join('\n')}`,flags:MessageFlags.Ephemeral});return;}if(!items.length){await interaction.reply({content:`ℹ️ No pending/available clubs remain in **${id}**.`,flags:MessageFlags.Ephemeral});return;}const sid=opsSessionId('warnow');const candidateKeys=new Set(items.map(c=>normalizeClubName(c.club))),session={id:sid,userId:String(interaction.user.id),guildId:String(interaction.guildId||''),matchId:id,candidateKeys,selected:new Set(candidateKeys),page:0,isAdditionalBatch:Boolean(plan.warStartedWithoutPreparationAt),createdAt:Date.now(),updatedAt:Date.now()};batchWarNowSessions.set(sid,session);await interaction.reply({...buildBatchWarNowView(session),flags:MessageFlags.Ephemeral});return;
+      }
+      if(customId.startsWith('war_now_')){
+        const [action,sid]=customId.split(':');cleanupBatchWarNowSessions();const session=batchWarNowSessions.get(sid);
+        if(!session||String(session.userId)!==String(interaction.user.id)){await interaction.reply({content:'❌ Batch War Start session expired.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        const items=batchWarNowItems(session);session.updatedAt=Date.now();
+        if(action==='war_now_select'&&interaction.isStringSelectMenu()){const pageItems=items.slice(session.page*25,session.page*25+25),keys=new Set(pageItems.map(c=>normalizeClubName(c.club)));for(const k of keys)session.selected.delete(k);for(const k of interaction.values)session.selected.add(String(k));await interaction.update(buildBatchWarNowView(session));return;}
+        if(action==='war_now_prev'){session.page=Math.max(0,session.page-1);await interaction.update(buildBatchWarNowView(session));return;}
+        if(action==='war_now_next'){session.page++;await interaction.update(buildBatchWarNowView(session));return;}
+        if(action==='war_now_all'){session.selected=new Set(items.map(c=>normalizeClubName(c.club)));await interaction.update(buildBatchWarNowView(session));return;}
+        if(action==='war_now_cancel'){batchWarNowSessions.delete(sid);await interaction.update({content:'❌ Batch War Start cancelled. No production data changed.',components:[]});return;}
+        if(action==='war_now_dry'){
+          const selected=items.filter(c=>session.selected.has(normalizeClubName(c.club))),excluded=items.filter(c=>!session.selected.has(normalizeClubName(c.club)));
+          await interaction.update({content:`🧪 **BATCH START WAR NOW — DRY RUN**\n━━━━━━━━━━━━━━━━━━━━\n\n🆔 Match ID: **${session.matchId}**\n⚔️ Would enter WAR ACTIVE: **${selected.length}**\n⏸️ Would remain pending/available: **${excluded.length}**\n🚫 Isolation: **WOULD ACTIVATE for selected clubs**\n🔕 Individual War Monitor: **NOT REQUIRED**\n🥊 Next control: **START KO TIMER after all wars close**\n\n**Selected**\n${selected.map(c=>`• ${c.club} (${Number(c.elo)||0})`).join('\n')}${excluded.length?`\n\n**Excluded**\n${excluded.map(c=>`• ${c.club}`).join('\n')}`:''}\n\n🔒 **DRY RUN ONLY — no Match ID, timer, War Monitor, isolation, or Supabase state changed.**`,components:[]});batchWarNowSessions.delete(sid);return;
+        }
+        if(action==='war_now_paste'){
+          const modal=new ModalBuilder().setCustomId(`war_now_paste_modal:${sid}`).setTitle('Paste Clubs Not Yet In War').addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('clubs').setLabel('One club per line (exclude from start)').setStyle(TextInputStyle.Paragraph).setRequired(true)));
+          await interaction.showModal(modal);return;
+        }
+        if(action==='war_now_confirm'){
+          const plan=getMatchPlan(session.matchId);if(!plan||plan.preparationStartedAt||String(plan.status||'').toUpperCase()==='CANCELLED'){batchWarNowSessions.delete(sid);await interaction.update({content:'❌ Operational state changed. Batch start blocked.',components:[]});return;}
+          const selected=items.filter(c=>session.selected.has(normalizeClubName(c.club))),excluded=items.filter(c=>!session.selected.has(normalizeClubName(c.club))),blocked=selected.filter(c=>!isClubMatchmakingAvailable(c.club));if(blocked.length){batchWarNowSessions.delete(sid);await interaction.update({content:`❌ Batch start blocked because club availability changed:\n${blocked.map(c=>`• ${c.club}`).join('\n')}`,components:[]});return;}const now=Date.now(),batchId=`WB-${now.toString(36).toUpperCase()}`,mode=getEventTypeForPlan(plan);
+          for(const c of selected)setWarOperation(c.club,{eventType:mode,status:'WAR_ACTIVE',isolated:true,matchId:plan.id,channelId:plan.channelId||interaction.channelId,guildId:interaction.guildId,monitorAfterPrep:false,preparationEndAt:null,warStartedAt:now,warBatchId:batchId,nextReminderAt:null,reminderPending:false,nextAckReminderAt:null},interaction.user.id,'BATCH_WAR_STARTED_PREPARATION_MISSED');
+          plan.status='ACTIVE';plan.warStartedWithoutPreparationAt=plan.warStartedWithoutPreparationAt||now;plan.preparationSkippedAt=plan.preparationSkippedAt||now;plan.warBatches=[...(plan.warBatches||[]),{id:batchId,startedAt:now,clubs:selected.map(c=>c.club),excluded:excluded.map(c=>c.club),startedBy:String(interaction.user.id)}];plan.lifecycleTrackingStartedAt=plan.lifecycleTrackingStartedAt||now;plan.updatedAt=now;plan.updatedBy=String(interaction.user.id);matchPlans.set(plan.id,plan);await saveMatchPlansNow();batchWarNowSessions.delete(sid);
+          try{const controlsChannel=await client.channels.fetch(String(plan.matchControlsChannelId||plan.channelId||interaction.channelId));if(plan.matchControlsMessageId&&controlsChannel?.messages?.fetch){const controlsMessage=await controlsChannel.messages.fetch(String(plan.matchControlsMessageId)).catch(()=>null);if(controlsMessage)await controlsMessage.edit({components:[buildMatchPlanKoButton(plan.id)]});}}catch(e){console.error('❌ Batch war control refresh failed:',e);}
+          try{const ch=await client.channels.fetch(String(plan.channelId||interaction.channelId));if(ch?.isTextBased?.())await ch.send({content:`⚔️ **WAR IS NOW ACTIVE**\n━━━━━━━━━━━━━━━━━━━━\n\n🆔 Match ID: **${plan.id}**\n⚡ Event: **${warEventLabel(mode)}**\n🏰 Active clubs: **${selected.length}**\n⏸️ Pending / Available: **${excluded.length}**\n🚫 Matchmaking: **ISOLATED for active clubs**\n\n🔔 Tap **START KO TIMER** only after all wars in this Match ID are closed.${excluded.length?`\n\n**Not started**\n${excluded.map(c=>`• ${c.club}`).join('\n')}`:''}`,components:[buildMatchPlanKoButton(plan.id)]});}catch(e){console.error('❌ Batch war start notification failed:',e);}
+          await interaction.update({content:`✅ **DERBY WAR STARTED**\n🆔 ${plan.id}\n⚔️ Active: **${selected.length}**\n⏸️ Pending: **${excluded.length}**\n🔕 Individual War Monitor reminders: **NOT REQUIRED**\n🥊 Use **START KO TIMER** after all wars close.`,components:[]});return;
+        }
+      }
       if(customId.startsWith('match_prep_start:')){const id=normalizeMatchId(customId.split(':')[1]),plan=getMatchPlan(id);if(!plan){await interaction.reply({content:`❌ Match ID **${id||'Unknown'}** not found.`,flags:MessageFlags.Ephemeral});return;}const mode=getEventTypeForPlan(plan),hours=eventPreparationHours(mode);if(!hours){await interaction.reply({content:'❌ This event mode has no preparation stage.',flags:MessageFlags.Ephemeral});return;}if(plan.preparationStartedAt&&!plan.preparationCompletedAt){await interaction.reply({content:`⚠️ ${hours}H preparation for **${id}** is already active.`,flags:MessageFlags.Ephemeral});return;}const session=openPreparationSetup(plan,interaction);await interaction.reply({...buildPreparationSetupView(session),flags:MessageFlags.Ephemeral});return;}
-      if(customId.startsWith('prep_setup_')){const [action,sid]=customId.split(':');const session=preparationSetupSessions.get(sid);if(!session||String(session.userId)!==String(interaction.user.id)){await interaction.reply({content:'❌ Preparation setup expired.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}const plan=getMatchPlan(session.matchId);if(!plan){preparationSetupSessions.delete(sid);await interaction.update({content:'❌ Match ID not found.',components:[]}).catch(()=>{});return;}session.updatedAt=Date.now();if(action==='prep_setup_failed'){session.mode='failed';session.page=0;await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_skip'){session.mode='skip';session.page=0;await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_prev'){session.page=Math.max(0,session.page-1);await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_next'){session.page++;await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_done'){session.mode=null;session.page=0;await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_clear'){if(session.mode==='failed')session.failed.clear();else session.skipped.clear();await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_cancel'){preparationSetupSessions.delete(sid);await interaction.update({content:'❌ Preparation start cancelled. No state changed.',components:[]});return;}if(action==='prep_setup_select'&&interaction.isStringSelectMenu()){const pg=koSetupPageItems(plan,session.page),pageKeys=new Set(pg.items.map(c=>normalizeClubName(c.club))),target=session.mode==='failed'?session.failed:session.skipped,other=session.mode==='failed'?session.skipped:session.failed;for(const k of pageKeys)target.delete(k);for(const k of interaction.values){target.add(String(k));other.delete(String(k));}await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_confirm'){await interaction.deferUpdate();const d=deriveKoSetup(plan,session),now=Date.now(),mode=getEventTypeForPlan(plan),hours=eventPreparationHours(mode);for(const c of plan.clubs||[]){const k=normalizeClubName(c.club);if(d.failed.has(k)){c.status='failed';c.failedAt=now;c.failedBy=interaction.user.id;}else if(d.skipped.has(k)||d.released.has(k)){c.status='excluded';c.failedAt=null;c.failedBy=null;}}plan.preparationStartedAt=now;plan.preparationEndAt=now+hours*3600000;plan.preparationCompletedAt=null;plan.updatedAt=now;plan.updatedBy=interaction.user.id;matchPlans.set(plan.id,plan);await saveMatchPlansNow();const t=createPreparationTimerForPlan(plan,interaction,d);preparationSetupSessions.delete(sid);if(!t){await interaction.editReply({content:'❌ No eligible clubs remain for preparation.',components:[]});return;}await flushSupabaseStateSave('active_fow_timers');const failedNames=[...d.failed].map(k=>(plan.clubs||[]).find(c=>normalizeClubName(c.club)===k)?.club).filter(Boolean),releasedNames=[...d.released].map(k=>(plan.clubs||[]).find(c=>normalizeClubName(c.club)===k)?.club).filter(Boolean),skipNames=[...d.skipped].map(k=>(plan.clubs||[]).find(c=>normalizeClubName(c.club)===k)?.club).filter(Boolean);try{const ch=await client.channels.fetch(String(interaction.channelId));if(ch?.isTextBased?.())await ch.send(`⏳ **FOW PREPARATION STARTED**\n━━━━━━━━━━━━━━━━━━━━\n\n🆔 Match ID: **${plan.id}**\n⚡ Event: **${warEventLabel(mode)}**\n⏱️ Preparation: **${hours} Hours**\n🕘 Ends: <t:${Math.floor(t.endAt/1000)}:F>\n🚫 Matchmaking: **ISOLATED**\n\n⚠️ Failed pending War Monitor: **${failedNames.length}**\n🟢 Released Opponents: **${releasedNames.length}**\n⏭️ Skipped / Available: **${skipNames.length}**`);}catch(e){console.error('❌ Prep public message failed:',e);}if(failedNames.length)try{const ch=await client.channels.fetch(String(CHATGPT_BRIDGE_WAR_STATUS_CHANNEL_ID));if(ch?.isTextBased?.())await ch.send(`⚠️ **WAR MONITOR PENDING — PREPARATION ACTIVE**\n\n🆔 Match ID: **${plan.id}**\n⚡ Event: **${warEventLabel(mode)}**\n⏱️ Preparation: **${hours} Hours**\n\n${failedNames.map(x=>`• ${x}`).join('\\n')}\n\n🚫 Matchmaking: **ISOLATED**\n⏰ 2-hour reminders start after preparation ends.`);}catch(e){console.error('❌ Pending War Monitor message failed:',e);}await interaction.editReply({content:`✅ **${hours}H PREPARATION STARTED**\n\n🆔 Match ID: **${plan.id}**\n🏰 Isolated: **${t.clubs.length}**\n⚠️ Failed: **${failedNames.length}**\n🟢 Released: **${releasedNames.length}**\n⏭️ Skipped: **${skipNames.length}**`,components:[]});return;}}
+      if(customId.startsWith('prep_setup_')){const [action,sid]=customId.split(':');const session=preparationSetupSessions.get(sid);if(!session||String(session.userId)!==String(interaction.user.id)){await interaction.reply({content:'❌ Preparation setup expired.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}const plan=getMatchPlan(session.matchId);if(!plan){preparationSetupSessions.delete(sid);await interaction.update({content:'❌ Match ID not found.',components:[]}).catch(()=>{});return;}session.updatedAt=Date.now();if(action==='prep_setup_failed'){session.mode='failed';session.page=0;await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_skip'){session.mode='skip';session.page=0;await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_prev'){session.page=Math.max(0,session.page-1);await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_next'){session.page++;await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_done'){session.mode=null;session.page=0;await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_clear'){if(session.mode==='failed')session.failed.clear();else session.skipped.clear();await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_cancel'){preparationSetupSessions.delete(sid);await interaction.update({content:'❌ Preparation start cancelled. No state changed.',components:[]});return;}if(action==='prep_setup_select'&&interaction.isStringSelectMenu()){const pg=koSetupPageItems(plan,session.page),pageKeys=new Set(pg.items.map(c=>normalizeClubName(c.club))),target=session.mode==='failed'?session.failed:session.skipped,other=session.mode==='failed'?session.skipped:session.failed;for(const k of pageKeys)target.delete(k);for(const k of interaction.values){target.add(String(k));other.delete(String(k));}await interaction.update(buildPreparationSetupView(session));return;}if(action==='prep_setup_confirm'){await interaction.deferUpdate();const d=deriveKoSetup(plan,session),now=Date.now(),mode=getEventTypeForPlan(plan),hours=eventPreparationHours(mode);for(const c of plan.clubs||[]){const k=normalizeClubName(c.club);if(d.failed.has(k)){c.status='failed';c.failedAt=now;c.failedBy=interaction.user.id;}else if(d.skipped.has(k)||d.released.has(k)){c.status='excluded';c.failedAt=null;c.failedBy=null;}}plan.preparationStartedAt=now;plan.preparationEndAt=now+hours*3600000;plan.preparationCompletedAt=null;plan.updatedAt=now;plan.updatedBy=interaction.user.id;matchPlans.set(plan.id,plan);await saveMatchPlansNow();const operationContext={user:interaction.user,guildId:interaction.guildId||session.guildId,channelId:session.channelId||plan.matchControlsChannelId||plan.channelId||interaction.channelId};const t=createPreparationTimerForPlan(plan,operationContext,d);preparationSetupSessions.delete(sid);if(!t){await interaction.editReply({content:'❌ No eligible clubs remain for preparation.',components:[]});return;}await flushSupabaseStateSave('active_fow_timers');const failedNames=[...d.failed].map(k=>(plan.clubs||[]).find(c=>normalizeClubName(c.club)===k)?.club).filter(Boolean),releasedNames=[...d.released].map(k=>(plan.clubs||[]).find(c=>normalizeClubName(c.club)===k)?.club).filter(Boolean),skipNames=[...d.skipped].map(k=>(plan.clubs||[]).find(c=>normalizeClubName(c.club)===k)?.club).filter(Boolean);await publishDerbyChecklist(plan,interaction.channel);try{const ch=await client.channels.fetch(String(operationContext.channelId));if(ch?.isTextBased?.())await ch.send(`⏳ **FOW PREPARATION STARTED**\n━━━━━━━━━━━━━━━━━━━━\n\n🆔 Match ID: **${plan.id}**\n⚡ Event: **${warEventLabel(mode)}**\n⏱️ Preparation: **${hours} Hours**\n🕘 Ends: <t:${Math.floor(t.endAt/1000)}:F>\n🚫 Matchmaking: **ISOLATED**\n\n⚠️ Failed pending War Monitor: **${failedNames.length}**\n🟢 Released Opponents: **${releasedNames.length}**\n⏭️ Skipped / Available: **${skipNames.length}**`);}catch(e){console.error('❌ Prep public message failed:',e);}if(failedNames.length)try{const ch=await client.channels.fetch(String(CHATGPT_BRIDGE_WAR_STATUS_CHANNEL_ID));if(ch?.isTextBased?.())await ch.send(`⚠️ **WAR MONITOR PENDING — PREPARATION ACTIVE**\n\n🆔 Match ID: **${plan.id}**\n⚡ Event: **${warEventLabel(mode)}**\n⏱️ Preparation: **${hours} Hours**\n\n${failedNames.map(x=>`• ${x}`).join('\\n')}\n\n🚫 Matchmaking: **ISOLATED**\n⏰ 2-hour reminders start after preparation ends.`);}catch(e){console.error('❌ Pending War Monitor message failed:',e);}await interaction.editReply({content:`✅ **${hours}H PREPARATION STARTED**\n\n🆔 Match ID: **${plan.id}**\n🏰 Isolated: **${t.clubs.length}**\n⚠️ Failed: **${failedNames.length}**\n🟢 Released: **${releasedNames.length}**\n⏭️ Skipped: **${skipNames.length}**`,components:[]});return;}}
       if(customId.startsWith('match_ko_start:')){
         const id=normalizeMatchId(customId.split(':')[1]),plan=getMatchPlan(id);
         if(!plan){await interaction.reply({content:`❌ Match ID **${id||'Unknown'}** not found.`,flags:MessageFlags.Ephemeral});return;}
@@ -14834,6 +19446,166 @@ This will:
         return;
       }
 
+      if(customId.startsWith('hsv2_wdone_')){
+        const[action,draftId]=customId.split(':');cleanupHsV2WarDoneDrafts();const draft=hsV2WarDoneDrafts.get(draftId);
+        if(!draft){await interaction.reply({content:'❌ WAR DONE preview expired. Send the instruction again.',flags:MessageFlags.Ephemeral});return;}
+        if(String(interaction.user.id)!==String(draft.userId)){await interaction.reply({content:'❌ Only the original requester can use this confirmation.',flags:MessageFlags.Ephemeral});return;}
+        if(action==='hsv2_wdone_cancel'){hsV2WarDoneDrafts.delete(draftId);await interaction.update({content:'❌ WAR DONE cancelled. No production data changed.',components:[]});return;}
+        if(!isWarAdminInteraction(interaction)){await interaction.reply({content:'⛔ You are not authorized to manage war status.',flags:MessageFlags.Ephemeral});return;}
+        const op=findWarOperationById(draft.opId),status=String(op?.status||'AVAILABLE').toUpperCase();
+        if(!op||!['WAR_ACTIVE','KO_ACTIVE'].includes(status)||Number(op.updatedAt||0)!==Number(draft.baseUpdatedAt)){hsV2WarDoneDrafts.delete(draftId);await interaction.update({content:'⚠️ War state changed after this preview. WAR DONE blocked; create a fresh preview.',components:[]});return;}
+        const type=String(op.eventType||'normal').toLowerCase();hsV2WarDoneDrafts.delete(draftId);op.reminderPending=false;op.nextAckReminderAt=null;op.nextReminderAt=null;op.updatedAt=Date.now();
+        if(type==='normal'){op.status='AWAITING_COOLING_TIME';op.isolated=true;recordWarAudit(op,'WAR_ENDED_AWAITING_COOLING',interaction.user.id,{source:'hs_v2_natural'});await interaction.showModal(createCoolingModal(op));return;}
+        op.status='AVAILABLE';op.isolated=false;op.completionSent=true;recordWarAudit(op,'WAR_ENDED_AVAILABLE',interaction.user.id,{source:'hs_v2_natural'});const mentions=type==='grease'?getWarReminderMentions():[];
+        await interaction.update({content:`✅ **${type==='grease'?'GREASE WAR DONE':'WAR DONE'}**\n\n🏙️ **${op.club}**\n🏆 ELO: **${Number(op.elo)||0}**\n⚔️ Event: **${warEventLabel(type)}**\n🟢 Status: **AVAILABLE**\n✅ Matchmaking: **AVAILABLE**\n👤 Confirmed by: <@${interaction.user.id}>${mentions.length?`\n\n${mentions.join(' ')}`:''}`,components:[],allowedMentions:{parse:['users']}});return;
+      }
+
+      if(customId.startsWith('war_batch_ack:')){
+        const matchId=normalizeMatchId(customId.split(':')[1]);
+        if(!isWarAdminInteraction(interaction)){await interaction.reply({content:'⛔ You are not authorized to manage this war status.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        const ops=getActiveWarOpsForMatchId(matchId).filter(op=>['WAR_ACTIVE','KO_ACTIVE'].includes(String(op.status||'').toUpperCase()));
+        if(!ops.length){await interaction.reply({content:`ℹ️ No active Derby wars remain for **${matchId}**.`,flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        const now=Date.now();
+        for(const op of ops){op.reminderPending=false;op.lastAckAt=now;op.lastAckBy=String(interaction.user.id);op.nextAckReminderAt=null;op.nextReminderAt=now+WAR_REMINDER_INTERVAL_MS;op.updatedAt=now;recordWarAudit(op,'WAR_BATCH_ACKNOWLEDGED',interaction.user.id,{matchId,batchSize:ops.length});}
+        saveWarOperations();
+        await interaction.update({content:`✅ **DERBY WAR STATUS ACKNOWLEDGED**\n\n🆔 Match ID: **${matchId}**\n🏰 Clubs acknowledged: **${ops.length}**\n⏰ Next batch reminder: <t:${Math.floor((now+WAR_REMINDER_INTERVAL_MS)/1000)}:R>\n👤 Confirmed by: <@${interaction.user.id}>`,components:[],allowedMentions:{parse:['users']}});return;
+      }
+      if(customId.startsWith('war_batch_checksoon:')){
+        const matchId=normalizeMatchId(customId.split(':')[1]);
+        if(!isWarAdminInteraction(interaction)){await interaction.reply({content:'⛔ You are not authorized to manage this war status.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        const ops=getActiveWarOpsForMatchId(matchId).filter(op=>['WAR_ACTIVE','KO_ACTIVE'].includes(String(op.status||'').toUpperCase()));
+        if(!ops.length){await interaction.reply({content:`ℹ️ No active Derby wars remain for **${matchId}**.`,flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        await interaction.reply({content:`⏰ **CHECK SOON — ALL DERBY CLUBS**\n\n🆔 Match ID: **${matchId}**\n🏰 Clubs: **${ops.length}**\n\nWhen should the batch reminder return?`,components:[new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setCustomId(`war_batch_snooze:15:${matchId}`).setLabel('15m').setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder().setCustomId(`war_batch_snooze:30:${matchId}`).setLabel('30m').setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder().setCustomId(`war_batch_snooze:45:${matchId}`).setLabel('45m').setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder().setCustomId(`war_batch_snooze:60:${matchId}`).setLabel('1h').setStyle(ButtonStyle.Primary)
+        )],flags:MessageFlags.Ephemeral});return;
+      }
+      if(customId.startsWith('war_batch_snooze:')){
+        const [,minutesText,rawMatchId]=customId.split(':'),minutes=Number(minutesText),matchId=normalizeMatchId(rawMatchId);
+        if(![15,30,45,60].includes(minutes)||!isWarAdminInteraction(interaction)){await interaction.reply({content:'⛔ Invalid or unauthorized batch action.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        const ops=getActiveWarOpsForMatchId(matchId).filter(op=>['WAR_ACTIVE','KO_ACTIVE'].includes(String(op.status||'').toUpperCase()));
+        const now=Date.now();for(const op of ops){op.reminderPending=false;op.nextAckReminderAt=null;op.nextReminderAt=now+minutes*60000;op.lastCheckSoonAt=now;op.lastCheckSoonBy=String(interaction.user.id);op.checkSoonMinutes=minutes;op.updatedAt=now;recordWarAudit(op,'WAR_BATCH_CHECK_SOON',interaction.user.id,{matchId,minutes,batchSize:ops.length});}saveWarOperations();
+        await interaction.update({content:`⏰ **BATCH CHECK SOON SET**\n\n🆔 Match ID: **${matchId}**\n🏰 Clubs: **${ops.length}**\n🔔 Reminder returns: <t:${Math.floor((now+minutes*60000)/1000)}:R>`,components:[]});return;
+      }
+      if(customId.startsWith('war_batch_done:')){
+        const matchId=normalizeMatchId(customId.split(':')[1]);
+        if(!isWarAdminInteraction(interaction)){await interaction.reply({content:'⛔ You are not authorized to manage this war status.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        const ops=getActiveWarOpsForMatchId(matchId).filter(op=>['WAR_ACTIVE','KO_ACTIVE'].includes(String(op.status||'').toUpperCase()));
+        if(!ops.length){await interaction.reply({content:`ℹ️ No active Derby wars remain for **${matchId}**.`,flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        const normal=ops.some(op=>String(op.eventType||'normal').toLowerCase()==='normal');
+        if(normal){await interaction.reply({content:'⚠️ Normal-event clubs require individual Cooling Time. Use the club dropdown for WAR DONE.',flags:MessageFlags.Ephemeral});return;}
+        await interaction.reply({content:`⚠️ **CONFIRM WAR DONE — ALL DERBY CLUBS**\n\n🆔 Match ID: **${matchId}**\n🏰 Clubs to release: **${ops.length}**\n\nThis will stop all reminders and release isolation for every active club in this Match ID.`,components:[new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setCustomId(`war_batch_done_confirm:${matchId}`).setLabel('✅ CONFIRM ALL DONE').setStyle(ButtonStyle.Danger),
+          new ButtonBuilder().setCustomId(`war_batch_done_cancel:${matchId}`).setLabel('CANCEL').setStyle(ButtonStyle.Secondary)
+        )],flags:MessageFlags.Ephemeral});return;
+      }
+      if(customId.startsWith('war_batch_done_cancel:')){await interaction.update({content:'❌ Batch WAR DONE cancelled. No production state changed.',components:[]});return;}
+      if(customId.startsWith('war_batch_done_confirm:')){
+        const matchId=normalizeMatchId(customId.split(':')[1]);
+        if(!isWarAdminInteraction(interaction)){await interaction.reply({content:'⛔ You are not authorized to manage this war status.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
+        const ops=getActiveWarOpsForMatchId(matchId).filter(op=>['WAR_ACTIVE','KO_ACTIVE'].includes(String(op.status||'').toUpperCase())&&String(op.eventType||'normal').toLowerCase()!=='normal');
+        const now=Date.now();for(const op of ops){op.status='AVAILABLE';op.isolated=false;op.reminderPending=false;op.nextAckReminderAt=null;op.nextReminderAt=null;op.completionSent=true;op.updatedAt=now;recordWarAudit(op,'WAR_BATCH_DONE_AVAILABLE',interaction.user.id,{matchId,batchSize:ops.length});}saveWarOperations();
+        await interaction.update({content:`✅ **ALL DERBY WARS COMPLETED**\n\n🆔 Match ID: **${matchId}**\n🏰 Clubs released: **${ops.length}**\n🟢 Status: **AVAILABLE**\n✅ Matchmaking isolation released.`,components:[]});return;
+      }
+      if(customId.startsWith('war_batch_pick:')&&interaction.isStringSelectMenu()){
+        const op=findWarOperationById(interaction.values?.[0]);
+        if(!op||!['WAR_ACTIVE','KO_ACTIVE'].includes(String(op.status||'').toUpperCase())){
+          await interaction.reply({content:'ℹ️ This club is no longer WAR ACTIVE.',flags:MessageFlags.Ephemeral}).catch(()=>{});
+          return;
+        }
+        if(!isWarAdminInteraction(interaction)){
+          await interaction.reply({content:'⛔ You are not authorized to manage this war status.',flags:MessageFlags.Ephemeral}).catch(()=>{});
+          return;
+        }
+        await interaction.reply({content:buildWarReminderText(op),components:warReminderComponents(op),flags:MessageFlags.Ephemeral});
+        return;
+      }
+
+      if (customId.startsWith("war_checksoon:")) {
+        const opId = customId.split(":")[1];
+        const op = findWarOperationById(opId);
+        if (!op || !["WAR_ACTIVE", "KO_ACTIVE"].includes(String(op.status || "").toUpperCase())) {
+          await interaction.reply({
+            content: "ℹ️ This war is no longer active.",
+            flags: MessageFlags.Ephemeral
+          }).catch(() => {});
+          return;
+        }
+        if (!isWarAdminInteraction(interaction)) {
+          await interaction.reply({
+            content: "⛔ You are not authorized to manage this war status.",
+            flags: MessageFlags.Ephemeral
+          }).catch(() => {});
+          return;
+        }
+        const row = new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setCustomId(`war_snooze:15:${op.id}`).setLabel("15m").setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder().setCustomId(`war_snooze:30:${op.id}`).setLabel("30m").setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder().setCustomId(`war_snooze:45:${op.id}`).setLabel("45m").setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder().setCustomId(`war_snooze:60:${op.id}`).setLabel("1h").setStyle(ButtonStyle.Primary)
+        );
+        await interaction.reply({
+          content:
+            `⏰ **CHECK SOON**\n\n` +
+            `🏙️ Club: **${op.club}**\n` +
+            `🏆 ELO: **${Number(op.elo) || 0}**\n\n` +
+            `When should I remind this war again?`,
+          components: [row],
+          flags: MessageFlags.Ephemeral
+        });
+        return;
+      }
+
+      if (customId.startsWith("war_snooze:")) {
+        const [, minutesText, opId] = customId.split(":");
+        const minutes = Number(minutesText);
+        const op = findWarOperationById(opId);
+        if (![15, 30, 45, 60].includes(minutes)) {
+          await interaction.reply({
+            content: "❌ Invalid Check Soon duration.",
+            flags: MessageFlags.Ephemeral
+          }).catch(() => {});
+          return;
+        }
+        if (!op || !["WAR_ACTIVE", "KO_ACTIVE"].includes(String(op.status || "").toUpperCase())) {
+          await interaction.update({
+            content: "ℹ️ This war is no longer active.",
+            components: []
+          }).catch(() => {});
+          return;
+        }
+        if (!isWarAdminInteraction(interaction)) {
+          await interaction.reply({
+            content: "⛔ You are not authorized to manage this war status.",
+            flags: MessageFlags.Ephemeral
+          }).catch(() => {});
+          return;
+        }
+        const now = Date.now();
+        op.lastCheckSoonAt = now;
+        op.lastCheckSoonBy = interaction.user.id;
+        op.checkSoonMinutes = minutes;
+        op.reminderPending = false;
+        op.nextAckReminderAt = null;
+        op.nextReminderAt = now + minutes * 60 * 1000;
+        op.updatedAt = now;
+        recordWarAudit(op, "WAR_CHECK_SOON_SET", interaction.user.id, { minutes });
+        await interaction.update({
+          content:
+            `⏰ **CHECK SOON SET**\n\n` +
+            `🏙️ Club: **${op.club}**\n` +
+            `🏆 ELO: **${Number(op.elo) || 0}**\n` +
+            `👤 Set by: <@${interaction.user.id}>\n` +
+            `⏱️ Reminder: **${minutes === 60 ? "1h" : `${minutes}m`}**\n` +
+            `🔔 Next check: <t:${Math.floor(op.nextReminderAt / 1000)}:R>`,
+          components: [],
+          allowedMentions: { parse: ["users"] }
+        });
+        return;
+      }
+
       if (customId.startsWith("war_ack:") || customId.startsWith("war_end:")) {
         const [action,opId]=customId.split(":"); const op=findWarOperationById(opId);
         if(!op){await interaction.reply({content:'❌ War operation not found or expired.',flags:MessageFlags.Ephemeral}).catch(()=>{});return;}
@@ -14879,6 +19651,16 @@ This will:
             return;
           }
           await interaction.deferUpdate();
+          if(action==='man_prev'||action==='man_next'){
+            const totalPages=Math.max(1,Math.ceil((session.pairs||[]).length/5));
+            session.viewPage=action==='man_prev'?Math.max(0,(Number(session.viewPage)||0)-1):Math.min(totalPages-1,(Number(session.viewPage)||0)+1);
+            await interaction.editReply(buildManualMatchmakingView(session));return;
+          }
+          if(action==='man_saved'){
+            const plans=[...matchPlans.values()].filter(p=>!p.guildId||!session.guildId||String(p.guildId)===String(session.guildId)).sort((a,b)=>(Number(String(b.id).replace(/\D/g,''))||0)-(Number(String(a.id).replace(/\D/g,''))||0));
+            const lines=plans.slice(0,25).map(plan=>`${plan.id} — **${plan.pairCount||Math.floor((plan.clubs||[]).length/2)} pairs** — ${String(plan.status||'PENDING').toUpperCase()}`);
+            await interaction.followUp({content:lines.length?`📚 **SAVED MATCH IDS**\n\n${lines.join('\n')}\n\nUse \`/edit_matchmaking match_id:<ID>\` to open one.`:'ℹ️ No saved Match IDs for this server.',flags:MessageFlags.Ephemeral});return;
+          }
           if (action === "man_pair" && interaction.isStringSelectMenu()) {
             const idx=Number(interaction.values[0]);
             const pair=session.pairs[idx];
@@ -14915,6 +19697,7 @@ This will:
             if(used.has(normalizeClubName(d.a.club))||used.has(normalizeClubName(d.b.club))){ await interaction.followUp({content:"❌ One of these clubs is already used in another pair.",flags:MessageFlags.Ephemeral}); return; }
             const savedPair={a:d.a,b:d.b,winnerSide:d.winnerSide};
             if(session.editingPairIndex != null) session.pairs[session.editingPairIndex]=savedPair; else session.pairs.push(savedPair);
+            session.viewPage=Math.max(0,Math.ceil(session.pairs.length/5)-1);
             session.editingPairIndex=null;
             session.draft={a:null,b:null,winnerSide:null};
             await interaction.editReply(buildManualMatchmakingView(session));
@@ -14922,6 +19705,7 @@ This will:
           }
           if (action === "man_remove" && interaction.isButton()) {
             if(session.editingPairIndex != null) session.pairs.splice(session.editingPairIndex,1); else session.pairs.pop();
+            session.viewPage=Math.min(Number(session.viewPage)||0,Math.max(0,Math.ceil(session.pairs.length/5)-1));
             session.editingPairIndex=null; session.draft={a:null,b:null,winnerSide:null};
             await interaction.editReply(buildManualMatchmakingView(session)); return;
           }
@@ -15361,25 +20145,27 @@ This will:
               return;
             }
 
-            const now = Date.now();
-
-            currentPlan.status = 'CANCELLED';
-            currentPlan.cancelledAt = now;
-            currentPlan.cancelledBy = String(interaction.user.id);
-            currentPlan.lifecycleTrackingStoppedAt = now;
-            currentPlan.updatedAt = now;
-
-            await saveMatchPlansNow();
+            const cancelCheck=inspectMatchPlanCancellation(currentPlan);
+            if(!cancelCheck.canCancel){
+              await interaction.editReply({content:`❌ **${matchId}** cannot be cancelled because WAR/KO is already active. Use WAR DONE or the authorized isolation override first.`,components:[]});
+              return;
+            }
+            const cancelled=await cancelMatchPlanAndPreparation(currentPlan,interaction.user.id);
+            if(!cancelled.ok){await interaction.editReply({content:`❌ Cancellation blocked because operational state changed.`,components:[]});return;}
+            const now = cancelled.now;
             matchCancelSessions.delete(session.id);
 
             await interaction.editReply({
               content:
-                `❌ **MATCH ID CANCELLED**\n` +
+                `🛑 **MATCH ID & OPERATIONS CANCELLED**\n` +
                 `━━━━━━━━━━━━━━━━━━━━\n\n` +
                 `🆔 Match ID: **${matchId}**\n` +
                 `📌 Status: **CANCELLED**\n` +
                 `👤 Cancelled by: <@${interaction.user.id}>\n` +
                 `🕒 Cancelled: <t:${Math.floor(now / 1000)}:F>\n\n` +
+                `⏱️ Preparation timers stopped: **${cancelled.check.timers.length}**\n`+
+                `⚔️ War Monitors removed: **${cancelled.check.warOps.length}**\n`+
+                `🔓 Isolation released: **${cancelled.released}**\n\n`+
                 `Historical record has been retained.\n` +
                 `No further Match ID lifecycle tracking will continue.\n\n` +
                 `☁️ **Database synchronized with Supabase.**`,
@@ -16572,6 +21358,25 @@ This will:
       }
       return;
     }
+    if (interaction.commandName === "isolation_override_bulk") {
+      if(!isWarAdminInteraction(interaction)){
+        await interaction.reply({content:'⛔ You are not authorized to manage isolation.',flags:MessageFlags.Ephemeral});
+        return;
+      }
+      const modal=new ModalBuilder()
+        .setCustomId('isolation_override_bulk_modal')
+        .setTitle('Bulk Isolation Override');
+      const input=new TextInputBuilder()
+        .setCustomId('clubs')
+        .setLabel('Paste club list')
+        .setStyle(TextInputStyle.Paragraph)
+        .setRequired(true)
+        .setPlaceholder('FoW Berserker (5987)\nFoW Adeptus Astartes (5910)');
+      modal.addComponents(new ActionRowBuilder().addComponents(input));
+      await interaction.showModal(modal);
+      return;
+    }
+
     if (interaction.commandName === "war_override") {
       if(!isWarAdminInteraction(interaction)){await interaction.reply({content:'⛔ You are not authorized to manage war status.',flags:MessageFlags.Ephemeral});return;}
       const clubInput=interaction.options.getString('club',true); const db=leaderboardData.find(x=>areEquivalentClubNames(x.club,clubInput));
@@ -16617,7 +21422,7 @@ This will:
           originalCreatedAt=plan.createdAt; originalCreatedBy=plan.createdBy; eventId=plan.eventId||eventId;
         }
 
-        const session={id:createShortSessionId(),userId:interaction.user.id,guildId:interaction.guildId,channelId:interaction.channelId,mode,matchId,pairs,draft:{a:null,b:null,winnerSide:null},range:null,editingPairIndex:null,originalCreatedAt,originalCreatedBy,eventId,createdAt:Date.now(),updatedAt:Date.now()};
+        const session={id:createShortSessionId(),userId:interaction.user.id,guildId:interaction.guildId,channelId:interaction.channelId,mode,matchId,pairs,draft:{a:null,b:null,winnerSide:null},range:null,editingPairIndex:null,viewPage:0,originalCreatedAt,originalCreatedBy,eventId,createdAt:Date.now(),updatedAt:Date.now()};
         manualMatchSessions.set(session.id,session);
         await interaction.reply({...buildManualMatchmakingView(session),flags:MessageFlags.Ephemeral});
       } catch(error){
@@ -16669,6 +21474,24 @@ This will:
     }
 
     if(interaction.commandName==='isolation_status'){try{await interaction.reply({content:buildIsolationTimerDashboard(),flags:MessageFlags.Ephemeral});}catch(error){console.error('❌ /isolation_status error:',error);}return;}
+
+    if(interaction.commandName==='war_override_bulk'){
+      try{
+        if(!isWarAdminInteraction(interaction)){
+          await interaction.reply({
+            content:'⛔ You are not authorized to use bulk war override.',
+            flags:MessageFlags.Ephemeral
+          });
+          return;
+        }
+
+        await interaction.showModal(createWarOverrideBulkPasteModal());
+      }catch(error){
+        console.error('❌ /war_override_bulk error:',error);
+      }
+      return;
+    }
+
     if(interaction.commandName==='isolation_override'){
       try{if(!isWarAdminInteraction(interaction)){await interaction.reply({content:'⛔ You are not authorized to use master isolation override.',flags:MessageFlags.Ephemeral});return;}cleanupOpsSessions(isolationOverrideSessions);const session={id:opsSessionId('iso'),userId:String(interaction.user.id),page:0,selected:new Set(),createdAt:Date.now(),updatedAt:Date.now()};isolationOverrideSessions.set(session.id,session);await interaction.reply({...buildIsolationOverrideView(session),flags:MessageFlags.Ephemeral});}catch(error){console.error('❌ /isolation_override error:',error);try{await interaction.reply({content:'❌ Failed to open master isolation override.',flags:MessageFlags.Ephemeral});}catch{}}return;
     }
