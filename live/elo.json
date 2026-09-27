@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-27T15:43:17.810Z",
+  "generated_at": "2026-09-27T15:51:11.727Z",
   "count": 82,
   "clubs": [
     {
@@ -17,19 +17,19 @@
       "president": "X2"
     },
     {
+      "elo": 6785,
+      "club": "Force Of Warmongers",
+      "clubCode": "KQLLHJ",
+      "president": "Warmongers Prez"
+    },
+    {
       "elo": 6776,
       "club": "FoW Evolution",
       "clubCode": "SPFLJH",
       "president": "Evo Prez"
     },
     {
-      "elo": 6756,
-      "club": "Force Of Warmongers",
-      "clubCode": "KQLLHJ",
-      "president": "Warmongers Prez"
-    },
-    {
-      "elo": 6689,
+      "elo": 6660,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
@@ -41,16 +41,16 @@
       "president": "FKR 25"
     },
     {
-      "elo": 6534,
+      "elo": 6562,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6436,
-      "club": "FoW Empress Enclave",
-      "clubCode": "LDTRJR",
-      "president": "Hot 2"
+      "elo": 6428,
+      "club": "FoW Royal Abattoir",
+      "clubCode": "LDQSQM",
+      "president": "Steakopolis"
     },
     {
       "elo": 6423,
@@ -59,25 +59,25 @@
       "president": "1445"
     },
     {
-      "elo": 6400,
-      "club": "FoW Royal Abattoir",
-      "clubCode": "LDQSQM",
-      "president": "Steakopolis"
+      "elo": 6408,
+      "club": "FoW Empress Enclave",
+      "clubCode": "LDTRJR",
+      "president": "Hot 2"
     },
     {
-      "elo": 6300,
-      "club": "FoW Neverland",
-      "clubCode": "SFBLPJ",
-      "president": "ASH2"
-    },
-    {
-      "elo": 6260,
+      "elo": 6291,
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
     },
     {
-      "elo": 6238,
+      "elo": 6272,
+      "club": "FoW Neverland",
+      "clubCode": "SFBLPJ",
+      "president": "ASH2"
+    },
+    {
+      "elo": 6207,
       "club": "FoW Peace Keeper",
       "clubCode": "CFSNDK",
       "president": "Mahkota 2"
