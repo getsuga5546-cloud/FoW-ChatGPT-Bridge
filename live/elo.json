@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-28T08:13:11.996Z",
+  "generated_at": "2026-09-28T08:17:31.186Z",
   "count": 82,
   "clubs": [
     {
@@ -221,16 +221,16 @@
       "president": "Ash-13"
     },
     {
+      "elo": 5689,
+      "club": "Force Of War II",
+      "clubCode": "CGBHTG",
+      "president": "BarBerry"
+    },
+    {
       "elo": 5684,
       "club": "FoW Bope",
       "clubCode": "HDDKRN",
       "president": "Issac 32"
-    },
-    {
-      "elo": 5659,
-      "club": "Force Of War II",
-      "clubCode": "CGBHTG",
-      "president": "BarBerry"
     },
     {
       "elo": 5631,
