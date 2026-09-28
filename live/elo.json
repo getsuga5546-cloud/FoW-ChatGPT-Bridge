@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-28T05:05:07.109Z",
+  "generated_at": "2026-09-28T05:06:04.915Z",
   "count": 82,
   "clubs": [
     {
@@ -310,6 +310,12 @@
       "president": "July-12"
     },
     {
+      "elo": 5423,
+      "club": "FoW Destruction inc",
+      "clubCode": "QHJCSB",
+      "president": "MN9"
+    },
+    {
       "elo": 5393,
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
@@ -332,12 +338,6 @@
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
       "president": "Mahkota 5"
-    },
-    {
-      "elo": 5358,
-      "club": "FoW Destruction inc",
-      "clubCode": "QHJCSB",
-      "president": "MN9"
     },
     {
       "elo": 5347,
