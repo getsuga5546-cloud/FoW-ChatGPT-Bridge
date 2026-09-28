@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-28T05:04:38.110Z",
+  "generated_at": "2026-09-28T05:05:07.109Z",
   "count": 82,
   "clubs": [
     {
@@ -322,6 +322,12 @@
       "president": "Altair"
     },
     {
+      "elo": 5365,
+      "club": "FoW Tutelaries",
+      "clubCode": "PRNNGT",
+      "president": "MN13"
+    },
+    {
       "elo": 5364,
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
@@ -380,12 +386,6 @@
       "club": "FoW Trailblazers",
       "clubCode": "GMQJNC",
       "president": "Jan 3"
-    },
-    {
-      "elo": 5243,
-      "club": "FoW Tutelaries",
-      "clubCode": "PRNNGT",
-      "president": "MN13"
     },
     {
       "elo": 5217,
