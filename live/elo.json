@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-29T01:43:17.161Z",
+  "generated_at": "2026-09-29T01:56:50.769Z",
   "count": 82,
   "clubs": [
     {
@@ -442,7 +442,7 @@
       "president": "Queen Champ"
     },
     {
-      "elo": 5082,
+      "elo": 5113,
       "club": "FoW Whitecap Bay",
       "clubCode": "TKPBKN",
       "president": "Lady Of Lightning"
