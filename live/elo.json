@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-29T01:42:15.382Z",
+  "generated_at": "2026-09-29T01:43:17.161Z",
   "count": 82,
   "clubs": [
     {
@@ -310,16 +310,16 @@
       "president": "Ingot Landing"
     },
     {
+      "elo": 5428,
+      "club": "FoW Bartenders",
+      "clubCode": "QDJMRH",
+      "president": "FL-2"
+    },
+    {
       "elo": 5423,
       "club": "FoW Destruction inc",
       "clubCode": "QHJCSB",
       "president": "MN9"
-    },
-    {
-      "elo": 5393,
-      "club": "FoW Bartenders",
-      "clubCode": "QDJMRH",
-      "president": "FL-2"
     },
     {
       "elo": 5375,
