@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-09-29T17:44:26.442Z",
+  "generated_at": "2026-09-30T04:29:46.398Z",
   "count": 82,
   "clubs": [
     {
@@ -17,7 +17,7 @@
       "president": "X2"
     },
     {
-      "elo": 6785,
+      "elo": 6813,
       "club": "Force Of Warmongers",
       "clubCode": "KQLLHJ",
       "president": "Warmongers Prez"
@@ -29,43 +29,43 @@
       "president": "Evo Prez"
     },
     {
-      "elo": 6688,
+      "elo": 6660,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
     },
     {
-      "elo": 6578,
+      "elo": 6609,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6562,
+      "elo": 6531,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6439,
+      "elo": 6467,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
     },
     {
-      "elo": 6432,
+      "elo": 6461,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6360,
+      "elo": 6331,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6350,
+      "elo": 6322,
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
@@ -143,19 +143,19 @@
       "president": "MY-6"
     },
     {
+      "elo": 6050,
+      "club": "FoW Berserker",
+      "clubCode": "NFPJCN",
+      "president": "11.25"
+    },
+    {
       "elo": 6036,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
     },
     {
-      "elo": 6020,
-      "club": "FoW Berserker",
-      "clubCode": "NFPJCN",
-      "president": "11.25"
-    },
-    {
-      "elo": 5984,
+      "elo": 5954,
       "club": "Force of War IX",
       "clubCode": "HGNMSM",
       "president": "Uranium"
