@@ -5,7 +5,8 @@
   "description": "FoW ELO Discord bot and leaderboard",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js"
+    "start": "node bot.js",
+    "test": "node --test tests/*.cjs"
   },
   "engines": {
     "node": ">=20"

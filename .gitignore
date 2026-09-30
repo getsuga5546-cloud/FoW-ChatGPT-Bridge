@@ -44,3 +44,6 @@ fow_matchmaking_sessions.json
 fow_timer_setup_sessions.json
 fow_timers.json
 push_reminders.json
+
+# Deployment lock
+.deploy.lock

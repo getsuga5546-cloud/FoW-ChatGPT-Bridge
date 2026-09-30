@@ -1,0 +1,7 @@
+bot.js
+hs-add-pair.cjs
+match-war-end.cjs
+hs-private-dry-run.cjs
+HS_V2_OPERATIONS_GUIDE.md
+package.json
+package-lock.json
