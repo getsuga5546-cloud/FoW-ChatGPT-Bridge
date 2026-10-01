@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-01T05:19:13.176Z",
+  "generated_at": "2026-10-01T05:21:18.677Z",
   "count": 82,
   "clubs": [
     {
@@ -424,6 +424,12 @@
       "president": "PawStormX"
     },
     {
+      "elo": 5150,
+      "club": "The FoW Beach House",
+      "clubCode": "QMGGFC",
+      "president": "MN 2"
+    },
+    {
       "elo": 5146,
       "club": "FoW Whitecap Bay",
       "clubCode": "TKPBKN",
@@ -434,12 +440,6 @@
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
       "president": "Pearl"
-    },
-    {
-      "elo": 5116,
-      "club": "The FoW Beach House",
-      "clubCode": "QMGGFC",
-      "president": "MN 2"
     },
     {
       "elo": 5115,
