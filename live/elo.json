@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-01T02:56:45.679Z",
+  "generated_at": "2026-10-01T05:19:13.176Z",
   "count": 82,
   "clubs": [
     {
@@ -370,16 +370,16 @@
       "president": "IBS 8"
     },
     {
+      "elo": 5249,
+      "club": "FoW Trailblazers",
+      "clubCode": "GMQJNC",
+      "president": "Jan 3"
+    },
+    {
       "elo": 5248,
       "club": "FoW SunWings",
       "clubCode": "DQLBCD",
       "president": "X13"
-    },
-    {
-      "elo": 5247,
-      "club": "FoW Trailblazers",
-      "clubCode": "GMQJNC",
-      "president": "Jan 3"
     },
     {
       "elo": 5226,
