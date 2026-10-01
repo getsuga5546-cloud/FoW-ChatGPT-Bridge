@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-01T02:52:03.477Z",
+  "generated_at": "2026-10-01T02:56:45.679Z",
   "count": 82,
   "clubs": [
     {
@@ -149,7 +149,7 @@
       "president": "11.25"
     },
     {
-      "elo": 6036,
+      "elo": 6008,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
@@ -382,12 +382,6 @@
       "president": "Jan 3"
     },
     {
-      "elo": 5242,
-      "club": "FoW Sentinels 5",
-      "clubCode": "JFPTQP",
-      "president": "S5 Prez"
-    },
-    {
       "elo": 5226,
       "club": "FoW Rhaezalix",
       "clubCode": "SJJJTR",
@@ -398,6 +392,12 @@
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
       "president": "X10"
+    },
+    {
+      "elo": 5213,
+      "club": "FoW Sentinels 5",
+      "clubCode": "JFPTQP",
+      "president": "S5 Prez"
     },
     {
       "elo": 5206,
