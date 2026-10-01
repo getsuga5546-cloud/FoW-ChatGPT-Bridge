@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-01T01:42:18.608Z",
+  "generated_at": "2026-10-01T02:52:03.477Z",
   "count": 82,
   "clubs": [
     {
@@ -424,6 +424,12 @@
       "president": "PawStormX"
     },
     {
+      "elo": 5146,
+      "club": "FoW Whitecap Bay",
+      "clubCode": "TKPBKN",
+      "president": "Lady Of Lightning"
+    },
+    {
       "elo": 5140,
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
@@ -440,12 +446,6 @@
       "club": "FoW Rocket Racoons",
       "clubCode": "GBCMTG",
       "president": "Queen Champ"
-    },
-    {
-      "elo": 5113,
-      "club": "FoW Whitecap Bay",
-      "clubCode": "TKPBKN",
-      "president": "Lady Of Lightning"
     },
     {
       "elo": 4896,
