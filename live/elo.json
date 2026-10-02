@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-01T06:25:01.497Z",
+  "generated_at": "2026-10-02T00:52:04.311Z",
   "count": 82,
   "clubs": [
     {
@@ -29,19 +29,19 @@
       "president": "Evo Prez"
     },
     {
-      "elo": 6660,
+      "elo": 6690,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
     },
     {
-      "elo": 6609,
+      "elo": 6579,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6531,
+      "elo": 6560,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
@@ -53,40 +53,40 @@
       "president": "Hot 2"
     },
     {
-      "elo": 6461,
+      "elo": 6432,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6331,
+      "elo": 6363,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6322,
+      "elo": 6290,
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
     },
     {
-      "elo": 6213,
+      "elo": 6245,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
-    },
-    {
-      "elo": 6207,
-      "club": "FoW Peace Keeper",
-      "clubCode": "CFSNDK",
-      "president": "Mahkota 2"
     },
     {
       "elo": 6176,
       "club": "FoW Jewelry Brigade",
       "clubCode": "QCLNMD",
       "president": "BP-2"
+    },
+    {
+      "elo": 6175,
+      "club": "FoW Peace Keeper",
+      "clubCode": "CFSNDK",
+      "president": "Mahkota 2"
     },
     {
       "elo": 6175,
@@ -155,94 +155,94 @@
       "president": "Aug-2"
     },
     {
-      "elo": 5954,
+      "elo": 5983,
       "club": "Force of War IX",
       "clubCode": "HGNMSM",
       "president": "Uranium"
     },
     {
-      "elo": 5925,
+      "elo": 5953,
       "club": "FoW Icebears Drei",
       "clubCode": "CCGQHQ",
       "president": "MRH2"
     },
     {
-      "elo": 5918,
+      "elo": 5946,
       "club": "FoW Stranger Things",
       "clubCode": "NHTMMJ",
       "president": "Rigel"
     },
     {
-      "elo": 5881,
+      "elo": 5852,
       "club": "FoW Adeptus Astartes",
       "clubCode": "HTMGCD",
       "president": "Issac 27"
     },
     {
-      "elo": 5835,
+      "elo": 5807,
       "club": "FoW Hellblade",
       "clubCode": "QPNJJH",
       "president": "Auralis"
     },
     {
-      "elo": 5830,
-      "club": "FoW Ice Bears",
-      "clubCode": "DFTHCS",
-      "president": "July-1"
-    },
-    {
-      "elo": 5775,
+      "elo": 5806,
       "club": "FoW Regalia Realms",
       "clubCode": "RTMJML",
       "president": "CoCoa Peeble"
     },
     {
-      "elo": 5775,
+      "elo": 5806,
       "club": "FoW Encore Racoons",
       "clubCode": "DRCQRR",
       "president": "Wn-3"
     },
     {
-      "elo": 5763,
-      "club": "FoW Neverland II",
-      "clubCode": "BTDMNB",
-      "president": "Ash-13"
+      "elo": 5802,
+      "club": "FoW Ice Bears",
+      "clubCode": "DFTHCS",
+      "president": "July-1"
     },
     {
-      "elo": 5760,
-      "club": "Twist Of Fate",
-      "clubCode": "MNGBBC",
-      "president": "n28.10 Oolong"
-    },
-    {
-      "elo": 5732,
+      "elo": 5761,
       "club": "FoW Diamond Dust",
       "clubCode": "CSDCQC",
       "president": "IRIS-3"
     },
     {
-      "elo": 5659,
-      "club": "Force Of War II",
-      "clubCode": "CGBHTG",
-      "president": "BarBerry"
+      "elo": 5732,
+      "club": "FoW Neverland II",
+      "clubCode": "BTDMNB",
+      "president": "Ash-13"
     },
     {
-      "elo": 5631,
+      "elo": 5729,
+      "club": "Twist Of Fate",
+      "clubCode": "MNGBBC",
+      "president": "n28.10 Oolong"
+    },
+    {
+      "elo": 5662,
       "club": "FoW Scorpion XX",
       "clubCode": "RNCPLJ",
       "president": "OC400"
     },
     {
-      "elo": 5626,
+      "elo": 5658,
       "club": "FoW Bope",
       "clubCode": "HDDKRN",
       "president": "Issac 32"
     },
     {
-      "elo": 5617,
-      "club": "FoW Soul Guard",
-      "clubCode": "BBGPGR",
-      "president": "June 2"
+      "elo": 5630,
+      "club": "Force Of War II",
+      "clubCode": "CGBHTG",
+      "president": "BarBerry"
+    },
+    {
+      "elo": 5629,
+      "club": "FoW Synédrion Xenon",
+      "clubCode": "NFFJCN",
+      "president": "Jan 9"
     },
     {
       "elo": 5617,
@@ -251,69 +251,69 @@
       "president": "s76 Honeysuckle"
     },
     {
-      "elo": 5609,
-      "club": "FoW Sentinels",
-      "clubCode": "LNDGDP",
-      "president": "Mahkota 3"
-    },
-    {
-      "elo": 5598,
-      "club": "FoW Synédrion Xenon",
-      "clubCode": "NFFJCN",
-      "president": "Jan 9"
-    },
-    {
-      "elo": 5586,
-      "club": "FoW Eternal Wanderer ",
-      "clubCode": "RMRRCH",
-      "president": "42 Ingot"
-    },
-    {
-      "elo": 5578,
+      "elo": 5606,
       "club": "FoW Imperial Legacy",
       "clubCode": "HCFCRD",
       "president": "May 2"
     },
     {
-      "elo": 5480,
-      "club": "FoW Blue Crown",
-      "clubCode": "MGRRNS",
-      "president": "QC-1"
+      "elo": 5585,
+      "club": "FoW Soul Guard",
+      "clubCode": "BBGPGR",
+      "president": "June 2"
     },
     {
-      "elo": 5480,
+      "elo": 5578,
+      "club": "FoW Sentinels",
+      "clubCode": "LNDGDP",
+      "president": "Mahkota 3"
+    },
+    {
+      "elo": 5555,
+      "club": "FoW Eternal Wanderer ",
+      "clubCode": "RMRRCH",
+      "president": "42 Ingot"
+    },
+    {
+      "elo": 5509,
       "club": "FoW Minotaurs",
       "clubCode": "DLBMTN",
       "president": "Pricess Melo"
     },
     {
-      "elo": 5469,
+      "elo": 5500,
       "club": "FoW Eternal Wanderer 2",
       "clubCode": "RBLGNS",
       "president": "764"
     },
     {
-      "elo": 5462,
+      "elo": 5490,
       "club": "FoW Eternal Wanderer 3",
       "clubCode": "SDKHRT",
       "president": "Ingot Landing"
     },
     {
-      "elo": 5456,
+      "elo": 5488,
       "club": "FoW Space Sheep",
       "clubCode": "DRKJDP",
       "president": "Navy"
     },
     {
-      "elo": 5456,
-      "club": "FoW Bartenders",
-      "clubCode": "QDJMRH",
-      "president": "FL-2"
+      "elo": 5452,
+      "club": "FoW Blue Crown",
+      "clubCode": "MGRRNS",
+      "president": "QC-1"
     },
     {
       "elo": 5447,
       "club": "The Drain",
       "president": "July-12"
+    },
+    {
+      "elo": 5424,
+      "club": "FoW Bartenders",
+      "clubCode": "QDJMRH",
+      "president": "FL-2"
     },
     {
       "elo": 5423,
@@ -322,10 +322,16 @@
       "president": "MN9"
     },
     {
-      "elo": 5403,
+      "elo": 5374,
       "club": "FoW Sentinel 3",
       "clubCode": "GMPLQL",
       "president": "Hokusai 20"
+    },
+    {
+      "elo": 5365,
+      "club": "Force Of War V",
+      "clubCode": "HRQQNR",
+      "president": "Mahkota 5"
     },
     {
       "elo": 5365,
@@ -334,10 +340,10 @@
       "president": "MN13"
     },
     {
-      "elo": 5363,
-      "club": "FoW Firebirds",
-      "clubCode": "MRRDRS",
-      "president": "Altair"
+      "elo": 5345,
+      "club": "Road to FoW",
+      "clubCode": "BHJJDD",
+      "president": "NightBloom"
     },
     {
       "elo": 5344,
@@ -346,28 +352,16 @@
       "president": "Apr-3"
     },
     {
-      "elo": 5336,
-      "club": "Force Of War V",
-      "clubCode": "HRQQNR",
-      "president": "Mahkota 5"
+      "elo": 5335,
+      "club": "FoW Firebirds",
+      "clubCode": "MRRDRS",
+      "president": "Altair"
     },
     {
-      "elo": 5317,
-      "club": "Road to FoW",
-      "clubCode": "BHJJDD",
-      "president": "NightBloom"
-    },
-    {
-      "elo": 5303,
+      "elo": 5331,
       "club": "FoW Soul Society",
       "clubCode": "LQNTCH",
       "president": "Amethys"
-    },
-    {
-      "elo": 5266,
-      "club": "FoW IceBears Deux",
-      "clubCode": "FDJKGL",
-      "president": "IBS 8"
     },
     {
       "elo": 5249,
@@ -382,22 +376,16 @@
       "president": "X13"
     },
     {
-      "elo": 5226,
-      "club": "FoW Rhaezalix",
-      "clubCode": "SJJJTR",
-      "president": "OC20"
+      "elo": 5237,
+      "club": "FoW IceBears Deux",
+      "clubCode": "FDJKGL",
+      "president": "IBS 8"
     },
     {
       "elo": 5216,
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
       "president": "X10"
-    },
-    {
-      "elo": 5213,
-      "club": "FoW Sentinels 5",
-      "clubCode": "JFPTQP",
-      "president": "S5 Prez"
     },
     {
       "elo": 5206,
@@ -412,10 +400,22 @@
       "president": "NightScorpion"
     },
     {
+      "elo": 5198,
+      "club": "FoW Rhaezalix",
+      "clubCode": "SJJJTR",
+      "president": "OC20"
+    },
+    {
       "elo": 5189,
       "club": "FoW Shooters",
       "clubCode": "MMPTBB",
       "president": "shot 7"
+    },
+    {
+      "elo": 5185,
+      "club": "FoW Sentinels 5",
+      "clubCode": "JFPTQP",
+      "president": "S5 Prez"
     },
     {
       "elo": 5151,
