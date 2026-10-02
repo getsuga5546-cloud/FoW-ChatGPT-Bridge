@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-02T01:03:44.415Z",
+  "generated_at": "2026-10-02T14:40:02.808Z",
   "count": 82,
   "clubs": [
     {
@@ -23,7 +23,7 @@
       "president": "Warmongers Prez"
     },
     {
-      "elo": 6776,
+      "elo": 6804,
       "club": "FoW Evolution",
       "clubCode": "SPFLJH",
       "president": "Evo Prez"
