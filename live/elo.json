@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-02T00:52:25.975Z",
+  "generated_at": "2026-10-02T00:54:17.538Z",
   "count": 82,
   "clubs": [
     {
@@ -143,7 +143,7 @@
       "president": "MY-6"
     },
     {
-      "elo": 6050,
+      "elo": 6022,
       "club": "FoW Berserker",
       "clubCode": "NFPJCN",
       "president": "11.25"
