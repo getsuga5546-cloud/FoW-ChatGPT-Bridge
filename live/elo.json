@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-02T00:54:17.538Z",
+  "generated_at": "2026-10-02T01:02:58.756Z",
   "count": 82,
   "clubs": [
     {
@@ -299,6 +299,12 @@
       "president": "Navy"
     },
     {
+      "elo": 5461,
+      "club": "FoW Tutelaries",
+      "clubCode": "PRNNGT",
+      "president": "MN13"
+    },
+    {
       "elo": 5452,
       "club": "FoW Blue Crown",
       "clubCode": "MGRRNS",
@@ -332,12 +338,6 @@
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
       "president": "Mahkota 5"
-    },
-    {
-      "elo": 5365,
-      "club": "FoW Tutelaries",
-      "clubCode": "PRNNGT",
-      "president": "MN13"
     },
     {
       "elo": 5345,
