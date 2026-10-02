@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-02T00:52:04.311Z",
+  "generated_at": "2026-10-02T00:52:25.975Z",
   "count": 82,
   "clubs": [
     {
@@ -305,11 +305,6 @@
       "president": "QC-1"
     },
     {
-      "elo": 5447,
-      "club": "The Drain",
-      "president": "July-12"
-    },
-    {
       "elo": 5424,
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
@@ -320,6 +315,11 @@
       "club": "FoW Destruction inc",
       "clubCode": "QHJCSB",
       "president": "MN9"
+    },
+    {
+      "elo": 5416,
+      "club": "The Drain",
+      "president": "July-12"
     },
     {
       "elo": 5374,
