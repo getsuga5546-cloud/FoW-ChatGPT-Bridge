@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-04T03:24:35.898Z",
+  "generated_at": "2026-10-04T03:24:51.517Z",
   "count": 82,
   "clubs": [
     {
@@ -323,15 +323,15 @@
       "president": "MN9"
     },
     {
-      "elo": 5416,
-      "club": "The Drain",
-      "president": "July-12"
-    },
-    {
       "elo": 5404,
       "club": "FoW Sentinel 3",
       "clubCode": "GMPLQL",
       "president": "Hokusai 20"
+    },
+    {
+      "elo": 5388,
+      "club": "The Drain",
+      "president": "July-12"
     },
     {
       "elo": 5345,
