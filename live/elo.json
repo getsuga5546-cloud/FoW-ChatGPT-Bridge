@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-05T15:59:17.539Z",
+  "generated_at": "2026-10-05T18:16:18.894Z",
   "count": 82,
   "clubs": [
     {
@@ -424,16 +424,16 @@
       "president": "S5 Prez"
     },
     {
+      "elo": 5184,
+      "club": "The FoW Beach House",
+      "clubCode": "QMGGFC",
+      "president": "MN 2"
+    },
+    {
       "elo": 5151,
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
-    },
-    {
-      "elo": 5150,
-      "club": "The FoW Beach House",
-      "clubCode": "QMGGFC",
-      "president": "MN 2"
     },
     {
       "elo": 5146,
