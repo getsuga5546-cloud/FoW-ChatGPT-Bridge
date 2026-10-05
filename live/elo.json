@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-05T01:20:20.556Z",
+  "generated_at": "2026-10-05T01:38:54.933Z",
   "count": 82,
   "clubs": [
     {
@@ -364,6 +364,12 @@
       "president": "Amethys"
     },
     {
+      "elo": 5273,
+      "club": "FoW Rocket Racoons",
+      "clubCode": "GBCMTG",
+      "president": "Queen Champ"
+    },
+    {
       "elo": 5248,
       "club": "FoW SunWings",
       "clubCode": "DQLBCD",
@@ -380,12 +386,6 @@
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
       "president": "X10"
-    },
-    {
-      "elo": 5212,
-      "club": "FoW Rocket Racoons",
-      "clubCode": "GBCMTG",
-      "president": "Queen Champ"
     },
     {
       "elo": 5206,
