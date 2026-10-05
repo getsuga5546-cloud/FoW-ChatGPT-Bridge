@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-04T03:24:51.517Z",
+  "generated_at": "2026-10-05T01:19:58.408Z",
   "count": 82,
   "clubs": [
     {
@@ -281,6 +281,12 @@
       "president": "Pricess Melo"
     },
     {
+      "elo": 5484,
+      "club": "FoW Tutelaries",
+      "clubCode": "PRNNGT",
+      "president": "MN13"
+    },
+    {
       "elo": 5480,
       "club": "FoW Blue Crown",
       "clubCode": "MGRRNS",
@@ -297,12 +303,6 @@
       "club": "FoW Eternal Wanderer 3",
       "clubCode": "SDKHRT",
       "president": "Ingot Landing"
-    },
-    {
-      "elo": 5461,
-      "club": "FoW Tutelaries",
-      "clubCode": "PRNNGT",
-      "president": "MN13"
     },
     {
       "elo": 5460,
