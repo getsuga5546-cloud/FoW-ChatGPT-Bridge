@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-05T01:38:54.933Z",
+  "generated_at": "2026-10-05T08:41:59.172Z",
   "count": 82,
   "clubs": [
     {
@@ -281,6 +281,12 @@
       "president": "Pricess Melo"
     },
     {
+      "elo": 5485,
+      "club": "FoW Destruction inc",
+      "clubCode": "QHJCSB",
+      "president": "MN9"
+    },
+    {
       "elo": 5484,
       "club": "FoW Tutelaries",
       "clubCode": "PRNNGT",
@@ -315,12 +321,6 @@
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
       "president": "FL-2"
-    },
-    {
-      "elo": 5423,
-      "club": "FoW Destruction inc",
-      "clubCode": "QHJCSB",
-      "president": "MN9"
     },
     {
       "elo": 5404,
