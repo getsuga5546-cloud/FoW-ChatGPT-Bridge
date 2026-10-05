@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-05T14:00:41.748Z",
+  "generated_at": "2026-10-05T14:00:55.827Z",
   "count": 82,
   "clubs": [
     {
@@ -329,15 +329,15 @@
       "president": "FL-2"
     },
     {
-      "elo": 5388,
-      "club": "The Drain",
-      "president": "July-12"
-    },
-    {
       "elo": 5375,
       "club": "Road to FoW",
       "clubCode": "BHJJDD",
       "president": "NightBloom"
+    },
+    {
+      "elo": 5360,
+      "club": "The Drain",
+      "president": "July-12"
     },
     {
       "elo": 5344,
