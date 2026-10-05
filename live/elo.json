@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-05T15:05:48.275Z",
+  "generated_at": "2026-10-05T15:59:17.539Z",
   "count": 82,
   "clubs": [
     {
@@ -239,12 +239,6 @@
       "president": "BarBerry"
     },
     {
-      "elo": 5613,
-      "club": "FoW Soul Guard",
-      "clubCode": "BBGPGR",
-      "president": "June 2"
-    },
-    {
       "elo": 5586,
       "club": "FoW S34h3hs77u2h",
       "clubCode": "LMKCMP",
@@ -255,6 +249,12 @@
       "club": "FoW Eternal Wanderer ",
       "clubCode": "RMRRCH",
       "president": "42 Ingot"
+    },
+    {
+      "elo": 5583,
+      "club": "FoW Soul Guard",
+      "clubCode": "BBGPGR",
+      "president": "June 2"
     },
     {
       "elo": 5578,
