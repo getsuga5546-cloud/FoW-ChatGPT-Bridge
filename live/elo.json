@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-05T01:19:58.408Z",
+  "generated_at": "2026-10-05T01:20:20.556Z",
   "count": 82,
   "clubs": [
     {
@@ -364,12 +364,6 @@
       "president": "Amethys"
     },
     {
-      "elo": 5249,
-      "club": "FoW Trailblazers",
-      "clubCode": "GMQJNC",
-      "president": "Jan 3"
-    },
-    {
       "elo": 5248,
       "club": "FoW SunWings",
       "clubCode": "DQLBCD",
@@ -416,6 +410,12 @@
       "club": "FoW Shooters",
       "clubCode": "MMPTBB",
       "president": "shot 7"
+    },
+    {
+      "elo": 5187,
+      "club": "FoW Trailblazers",
+      "clubCode": "GMQJNC",
+      "president": "Jan 3"
     },
     {
       "elo": 5185,
