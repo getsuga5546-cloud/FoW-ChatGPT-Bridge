@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-06T22:52:16.586Z",
+  "generated_at": "2026-10-06T22:54:10.551Z",
   "count": 82,
   "clubs": [
     {
@@ -436,7 +436,7 @@
       "president": "MN 2"
     },
     {
-      "elo": 5151,
+      "elo": 5149,
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
