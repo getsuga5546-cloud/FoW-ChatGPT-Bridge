@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-06T22:54:10.551Z",
+  "generated_at": "2026-10-06T22:55:45.019Z",
   "count": 82,
   "clubs": [
     {
@@ -436,16 +436,16 @@
       "president": "MN 2"
     },
     {
+      "elo": 5168,
+      "club": "FoW BlackSite",
+      "clubCode": "DRTNBL",
+      "president": "Pearl"
+    },
+    {
       "elo": 5149,
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
-    },
-    {
-      "elo": 5140,
-      "club": "FoW BlackSite",
-      "clubCode": "DRTNBL",
-      "president": "Pearl"
     },
     {
       "elo": 4896,
