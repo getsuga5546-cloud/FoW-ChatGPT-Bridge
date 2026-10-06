@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-06T23:00:58.102Z",
+  "generated_at": "2026-10-06T23:01:16.260Z",
   "count": 82,
   "clubs": [
     {
@@ -335,15 +335,15 @@
       "president": "FL-2"
     },
     {
-      "elo": 5360,
-      "club": "The Drain",
-      "president": "July-12"
-    },
-    {
       "elo": 5344,
       "club": "FoW Fyr",
       "clubCode": "DRRSHC",
       "president": "Apr-3"
+    },
+    {
+      "elo": 5329,
+      "club": "The Drain",
+      "president": "July-12"
     },
     {
       "elo": 5309,
