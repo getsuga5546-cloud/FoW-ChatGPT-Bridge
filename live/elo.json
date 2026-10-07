@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-07T08:02:40.538Z",
+  "generated_at": "2026-10-07T22:05:50.217Z",
   "count": 82,
   "clubs": [
     {
@@ -412,6 +412,12 @@
       "president": "OC20"
     },
     {
+      "elo": 5197,
+      "club": "FoW BlackSite",
+      "clubCode": "DRTNBL",
+      "president": "Pearl"
+    },
+    {
       "elo": 5189,
       "club": "FoW Shooters",
       "clubCode": "MMPTBB",
@@ -434,12 +440,6 @@
       "club": "The FoW Beach House",
       "clubCode": "QMGGFC",
       "president": "MN 2"
-    },
-    {
-      "elo": 5168,
-      "club": "FoW BlackSite",
-      "clubCode": "DRTNBL",
-      "president": "Pearl"
     },
     {
       "elo": 5149,
