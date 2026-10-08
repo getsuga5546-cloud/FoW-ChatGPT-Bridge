@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-08T05:50:13.846Z",
+  "generated_at": "2026-10-08T05:55:07.866Z",
   "count": 82,
   "clubs": [
     {
@@ -35,25 +35,25 @@
       "president": "Skorvazon"
     },
     {
-      "elo": 6588,
+      "elo": 6620,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6579,
+      "elo": 6547,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6439,
+      "elo": 6471,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
     },
     {
-      "elo": 6432,
+      "elo": 6400,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
@@ -197,16 +197,16 @@
       "president": "Issac 27"
     },
     {
-      "elo": 5759,
+      "elo": 5762,
       "club": "FoW Diamond Dust",
       "clubCode": "CSDCQC",
       "president": "IRIS-3"
     },
     {
-      "elo": 5759,
-      "club": "FoW Neverland II",
-      "clubCode": "BTDMNB",
-      "president": "Ash-13"
+      "elo": 5740,
+      "club": "FoW Ice Bears",
+      "clubCode": "DFTHCS",
+      "president": "July-1"
     },
     {
       "elo": 5729,
@@ -215,16 +215,16 @@
       "president": "n28.10 Oolong"
     },
     {
+      "elo": 5726,
+      "club": "FoW Neverland II",
+      "clubCode": "BTDMNB",
+      "president": "Ash-13"
+    },
+    {
       "elo": 5716,
       "club": "FoW Bope",
       "clubCode": "HDDKRN",
       "president": "Issac 32"
-    },
-    {
-      "elo": 5712,
-      "club": "FoW Ice Bears",
-      "clubCode": "DFTHCS",
-      "president": "July-1"
     },
     {
       "elo": 5648,
@@ -239,16 +239,16 @@
       "president": "42 Ingot"
     },
     {
-      "elo": 5615,
-      "club": "FoW Soul Guard",
-      "clubCode": "BBGPGR",
-      "president": "June 2"
-    },
-    {
       "elo": 5608,
       "club": "FoW Sentinels",
       "clubCode": "LNDGDP",
       "president": "Mahkota 3"
+    },
+    {
+      "elo": 5587,
+      "club": "FoW Soul Guard",
+      "clubCode": "BBGPGR",
+      "president": "June 2"
     },
     {
       "elo": 5574,
