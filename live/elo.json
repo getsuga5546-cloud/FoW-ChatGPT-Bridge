@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-08T03:50:14.079Z",
+  "generated_at": "2026-10-08T03:51:11.002Z",
   "count": 82,
   "clubs": [
     {
@@ -376,6 +376,12 @@
       "president": "X13"
     },
     {
+      "elo": 5218,
+      "club": "The FoW Beach House",
+      "clubCode": "QMGGFC",
+      "president": "MN 2"
+    },
+    {
       "elo": 5216,
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
@@ -440,12 +446,6 @@
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
-    },
-    {
-      "elo": 5184,
-      "club": "The FoW Beach House",
-      "clubCode": "QMGGFC",
-      "president": "MN 2"
     },
     {
       "elo": 4896,
