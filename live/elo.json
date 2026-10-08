@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-08T04:53:14.703Z",
+  "generated_at": "2026-10-08T04:53:35.815Z",
   "count": 82,
   "clubs": [
     {
@@ -347,15 +347,15 @@
       "president": "Mahkota 5"
     },
     {
-      "elo": 5329,
-      "club": "The Drain",
-      "president": "July-12"
-    },
-    {
       "elo": 5304,
       "club": "FoW Rocket Racoons",
       "clubCode": "GBCMTG",
       "president": "Queen Champ"
+    },
+    {
+      "elo": 5300,
+      "club": "The Drain",
+      "president": "July-12"
     },
     {
       "elo": 5277,
