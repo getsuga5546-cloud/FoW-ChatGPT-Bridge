@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-09T18:04:47.444Z",
+  "generated_at": "2026-10-09T18:09:48.778Z",
   "count": 82,
   "clubs": [
     {
-      "elo": 6953,
+      "elo": 6982,
       "club": "FORCE OF WAR",
       "clubCode": "GCHHLB",
       "president": "Felicity"
     },
     {
-      "elo": 6883,
+      "elo": 6854,
       "club": "Force of War X",
       "clubCode": "KQHFPQ",
       "president": "X2"
