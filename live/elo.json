@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-09T08:30:47.241Z",
+  "generated_at": "2026-10-09T09:46:38.315Z",
   "count": 82,
   "clubs": [
     {
@@ -353,6 +353,12 @@
       "president": "Queen Champ"
     },
     {
+      "elo": 5279,
+      "club": "FoW Soul Society",
+      "clubCode": "LQNTCH",
+      "president": "Amethys"
+    },
+    {
       "elo": 5277,
       "club": "FoW Firebirds",
       "clubCode": "MRRDRS",
@@ -368,12 +374,6 @@
       "club": "FoW SunWings",
       "clubCode": "DQLBCD",
       "president": "X13"
-    },
-    {
-      "elo": 5243,
-      "club": "FoW Soul Society",
-      "clubCode": "LQNTCH",
-      "president": "Amethys"
     },
     {
       "elo": 5232,
