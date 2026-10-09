@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-09T18:34:24.811Z",
+  "generated_at": "2026-10-09T18:39:06.522Z",
   "count": 82,
   "clubs": [
     {
@@ -394,6 +394,12 @@
       "president": "X10"
     },
     {
+      "elo": 5207,
+      "club": "FoW IceBears Deux",
+      "clubCode": "FDJKGL",
+      "president": "IBS 8"
+    },
+    {
       "elo": 5206,
       "club": "FoW Cheers!",
       "clubCode": "KCJNLD",
@@ -440,12 +446,6 @@
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
-    },
-    {
-      "elo": 5178,
-      "club": "FoW IceBears Deux",
-      "clubCode": "FDJKGL",
-      "president": "IBS 8"
     },
     {
       "elo": 4896,
