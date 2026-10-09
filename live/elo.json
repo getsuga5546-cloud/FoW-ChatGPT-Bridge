@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-09T14:18:54.244Z",
+  "generated_at": "2026-10-09T14:19:10.150Z",
   "count": 82,
   "clubs": [
     {
@@ -359,15 +359,15 @@
       "president": "Queen Champ"
     },
     {
-      "elo": 5304,
-      "club": "The Drain",
-      "president": "July-12"
-    },
-    {
       "elo": 5277,
       "club": "FoW Firebirds",
       "clubCode": "MRRDRS",
       "president": "Altair"
+    },
+    {
+      "elo": 5271,
+      "club": "The Drain",
+      "president": "July-12"
     },
     {
       "elo": 5248,
