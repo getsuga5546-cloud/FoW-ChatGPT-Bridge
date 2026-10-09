@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-09T16:08:17.337Z",
+  "generated_at": "2026-10-09T17:04:38.810Z",
   "count": 82,
   "clubs": [
     {
@@ -335,6 +335,12 @@
       "president": "Apr-3"
     },
     {
+      "elo": 5333,
+      "club": "FoW Rocket Racoons",
+      "clubCode": "GBCMTG",
+      "president": "Queen Champ"
+    },
+    {
       "elo": 5332,
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
@@ -351,12 +357,6 @@
       "club": "FoW Soul Society",
       "clubCode": "LQNTCH",
       "president": "Amethys"
-    },
-    {
-      "elo": 5304,
-      "club": "FoW Rocket Racoons",
-      "clubCode": "GBCMTG",
-      "president": "Queen Champ"
     },
     {
       "elo": 5277,
