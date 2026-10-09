@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-09T21:12:36.437Z",
+  "generated_at": "2026-10-09T23:06:02.622Z",
   "count": 82,
   "clubs": [
     {
@@ -305,6 +305,12 @@
       "president": "MN13"
     },
     {
+      "elo": 5440,
+      "club": "FoW Eternal Wanderer 3",
+      "clubCode": "SDKHRT",
+      "president": "Ingot Landing"
+    },
+    {
       "elo": 5436,
       "club": "FoW Sentinel 3",
       "clubCode": "GMPLQL",
@@ -315,12 +321,6 @@
       "club": "Road to FoW",
       "clubCode": "BHJJDD",
       "president": "NightBloom"
-    },
-    {
-      "elo": 5406,
-      "club": "FoW Eternal Wanderer 3",
-      "clubCode": "SDKHRT",
-      "president": "Ingot Landing"
     },
     {
       "elo": 5370,
