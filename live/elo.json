@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-09T20:01:34.632Z",
+  "generated_at": "2026-10-09T20:11:07.033Z",
   "count": 82,
   "clubs": [
     {
@@ -227,12 +227,6 @@
       "president": "June 2"
     },
     {
-      "elo": 5651,
-      "club": "FoW S34h3hs77u2h",
-      "clubCode": "LMKCMP",
-      "president": "s76 Honeysuckle"
-    },
-    {
       "elo": 5630,
       "club": "FoW Bope",
       "clubCode": "HDDKRN",
@@ -249,6 +243,12 @@
       "club": "FoW Eternal Wanderer ",
       "clubCode": "RMRRCH",
       "president": "42 Ingot"
+    },
+    {
+      "elo": 5616,
+      "club": "FoW S34h3hs77u2h",
+      "clubCode": "LMKCMP",
+      "president": "s76 Honeysuckle"
     },
     {
       "elo": 5608,
