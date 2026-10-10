@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-10T16:17:22.392Z",
+  "generated_at": "2026-10-10T17:32:56.276Z",
   "count": 82,
   "clubs": [
     {
@@ -23,13 +23,13 @@
       "president": "Evo Prez"
     },
     {
-      "elo": 6782,
+      "elo": 6810,
       "club": "Force Of Warmongers",
       "clubCode": "KQLLHJ",
       "president": "Warmongers Prez"
     },
     {
-      "elo": 6689,
+      "elo": 6661,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
@@ -41,13 +41,13 @@
       "president": "FL 13"
     },
     {
-      "elo": 6516,
+      "elo": 6547,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6500,
+      "elo": 6469,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
@@ -65,16 +65,16 @@
       "president": "1445"
     },
     {
+      "elo": 6275,
+      "club": "FoW Neverland",
+      "clubCode": "SFBLPJ",
+      "president": "ASH2"
+    },
+    {
       "elo": 6261,
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
-    },
-    {
-      "elo": 6245,
-      "club": "FoW Neverland",
-      "clubCode": "SFBLPJ",
-      "president": "ASH2"
     },
     {
       "elo": 6203,
@@ -87,12 +87,6 @@
       "club": "Force of War VI",
       "clubCode": "DNPGNR",
       "president": "Dec-2"
-    },
-    {
-      "elo": 6202,
-      "club": "Force of War III",
-      "clubCode": "BKGGJL",
-      "president": "Celestra"
     },
     {
       "elo": 6201,
@@ -141,6 +135,12 @@
       "club": "FoW Peace Keeper",
       "clubCode": "CFSNDK",
       "president": "Mahkota 2"
+    },
+    {
+      "elo": 6172,
+      "club": "Force of War III",
+      "clubCode": "BKGGJL",
+      "president": "Celestra"
     },
     {
       "elo": 6059,
