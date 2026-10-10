@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-10T11:22:14.389Z",
+  "generated_at": "2026-10-10T11:43:14.451Z",
   "count": 82,
   "clubs": [
     {
@@ -436,16 +436,16 @@
       "president": "Pearl"
     },
     {
+      "elo": 5189,
+      "club": "FoW Trailblazers",
+      "clubCode": "GMQJNC",
+      "president": "Jan 3"
+    },
+    {
       "elo": 5185,
       "club": "FoW Sentinels 5",
       "clubCode": "JFPTQP",
       "president": "S5 Prez"
-    },
-    {
-      "elo": 5156,
-      "club": "FoW Trailblazers",
-      "clubCode": "GMQJNC",
-      "president": "Jan 3"
     },
     {
       "elo": 4896,
