@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-10T15:35:38.032Z",
+  "generated_at": "2026-10-10T15:35:50.665Z",
   "count": 82,
   "clubs": [
     {
@@ -395,7 +395,7 @@
       "president": "X10"
     },
     {
-      "elo": 5213,
+      "elo": 5212,
       "club": "The Drain",
       "president": "July-12"
     },
