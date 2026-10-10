@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-10T05:09:48.904Z",
+  "generated_at": "2026-10-10T05:10:24.295Z",
   "count": 82,
   "clubs": [
     {
@@ -365,11 +365,6 @@
       "president": "X13"
     },
     {
-      "elo": 5242,
-      "club": "The Drain",
-      "president": "July-12"
-    },
-    {
       "elo": 5232,
       "club": "FoW Rhaezalix",
       "clubCode": "SJJJTR",
@@ -392,6 +387,11 @@
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
       "president": "X10"
+    },
+    {
+      "elo": 5213,
+      "club": "The Drain",
+      "president": "July-12"
     },
     {
       "elo": 5211,
