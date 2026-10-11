@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-11T13:47:40.127Z",
+  "generated_at": "2026-10-11T14:19:43.359Z",
   "count": 82,
   "clubs": [
     {
@@ -443,7 +443,7 @@
       "president": "IBS 8"
     },
     {
-      "elo": 5152,
+      "elo": 5180,
       "club": "The Drain",
       "president": "July-12"
     },
