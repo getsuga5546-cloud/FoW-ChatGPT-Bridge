@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-11T16:59:45.826Z",
+  "generated_at": "2026-10-11T17:13:56.695Z",
   "count": 82,
   "clubs": [
     {
@@ -323,6 +323,12 @@
       "president": "OC400"
     },
     {
+      "elo": 5372,
+      "club": "FoW Space Sheep",
+      "clubCode": "DRKJDP",
+      "president": "Navy"
+    },
+    {
       "elo": 5346,
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
@@ -333,12 +339,6 @@
       "club": "FoW Fyr",
       "clubCode": "DRRSHC",
       "president": "Apr-3"
-    },
-    {
-      "elo": 5343,
-      "club": "FoW Space Sheep",
-      "clubCode": "DRKJDP",
-      "president": "Navy"
     },
     {
       "elo": 5333,
@@ -359,12 +359,6 @@
       "president": "shot 7"
     },
     {
-      "elo": 5273,
-      "club": "FoW Bartenders",
-      "clubCode": "QDJMRH",
-      "president": "FL-2"
-    },
-    {
       "elo": 5253,
       "club": "FoW Sentinels 5",
       "clubCode": "JFPTQP",
@@ -375,6 +369,12 @@
       "club": "FoW SunWings",
       "clubCode": "DQLBCD",
       "president": "X13"
+    },
+    {
+      "elo": 5244,
+      "club": "FoW Bartenders",
+      "clubCode": "QDJMRH",
+      "president": "FL-2"
     },
     {
       "elo": 5232,
@@ -393,6 +393,12 @@
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
       "president": "X10"
+    },
+    {
+      "elo": 5216,
+      "club": "FoW IceBears Deux",
+      "clubCode": "FDJKGL",
+      "president": "IBS 8"
     },
     {
       "elo": 5211,
@@ -435,12 +441,6 @@
       "club": "FoW Trailblazers",
       "clubCode": "GMQJNC",
       "president": "Jan 3"
-    },
-    {
-      "elo": 5184,
-      "club": "FoW IceBears Deux",
-      "clubCode": "FDJKGL",
-      "president": "IBS 8"
     },
     {
       "elo": 5180,
