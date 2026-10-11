@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-11T17:32:12.368Z",
+  "generated_at": "2026-10-11T17:44:10.493Z",
   "count": 82,
   "clubs": [
     {
@@ -251,16 +251,16 @@
       "president": "QC-1"
     },
     {
+      "elo": 5609,
+      "club": "FoW S34h3hs77u2h",
+      "clubCode": "LMKCMP",
+      "president": "s76 Honeysuckle"
+    },
+    {
       "elo": 5600,
       "club": "Force Of War II",
       "clubCode": "CGBHTG",
       "president": "BarBerry"
-    },
-    {
-      "elo": 5581,
-      "club": "FoW S34h3hs77u2h",
-      "clubCode": "LMKCMP",
-      "president": "s76 Honeysuckle"
     },
     {
       "elo": 5580,
@@ -269,7 +269,7 @@
       "president": "Pricess Melo"
     },
     {
-      "elo": 5546,
+      "elo": 5574,
       "club": "FoW Sentinels",
       "clubCode": "LNDGDP",
       "president": "Mahkota 3"
@@ -279,12 +279,6 @@
       "club": "FoW Soul Guard",
       "clubCode": "BBGPGR",
       "president": "June 2"
-    },
-    {
-      "elo": 5497,
-      "club": "Road to FoW",
-      "clubCode": "BHJJDD",
-      "president": "NightBloom"
     },
     {
       "elo": 5485,
@@ -299,16 +293,16 @@
       "president": "MN13"
     },
     {
+      "elo": 5469,
+      "club": "Road to FoW",
+      "clubCode": "BHJJDD",
+      "president": "NightBloom"
+    },
+    {
       "elo": 5462,
       "club": "FoW Sentinel 3",
       "clubCode": "GMPLQL",
       "president": "Hokusai 20"
-    },
-    {
-      "elo": 5446,
-      "club": "FoW Eternal Wanderer 2",
-      "clubCode": "RBLGNS",
-      "president": "764"
     },
     {
       "elo": 5432,
@@ -321,6 +315,12 @@
       "club": "FoW Scorpion XX",
       "clubCode": "RNCPLJ",
       "president": "OC400"
+    },
+    {
+      "elo": 5418,
+      "club": "FoW Eternal Wanderer 2",
+      "clubCode": "RBLGNS",
+      "president": "764"
     },
     {
       "elo": 5372,
