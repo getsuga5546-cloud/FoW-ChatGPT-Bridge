@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-12T15:24:15.031Z",
+  "generated_at": "2026-10-12T16:12:10.261Z",
   "count": 84,
   "clubs": [
     {
@@ -383,6 +383,12 @@
       "president": "X13"
     },
     {
+      "elo": 5244,
+      "club": "FoW IceBears Deux",
+      "clubCode": "FDJKGL",
+      "president": "IBS 8"
+    },
+    {
       "elo": 5242,
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
@@ -405,12 +411,6 @@
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
       "president": "X10"
-    },
-    {
-      "elo": 5216,
-      "club": "FoW IceBears Deux",
-      "clubCode": "FDJKGL",
-      "president": "IBS 8"
     },
     {
       "elo": 5211,
