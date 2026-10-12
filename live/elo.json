@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-12T06:23:01.983Z",
+  "generated_at": "2026-10-12T06:27:03.530Z",
   "count": 84,
   "clubs": [
     {
@@ -35,9 +35,9 @@
       "president": "Skorvazon"
     },
     {
+      "elo": 6652,
       "club": "FoW Ordem e Progresso",
-      "president": "OC270",
-      "elo": 6652
+      "president": "OC270"
     },
     {
       "elo": 6651,
@@ -58,9 +58,9 @@
       "president": "Hot 2"
     },
     {
+      "elo": 6441,
       "club": "FoW Made In Brazil",
-      "president": "OC269",
-      "elo": 6441
+      "president": "OC269"
     },
     {
       "elo": 6402,
