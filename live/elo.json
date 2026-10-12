@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-12T05:24:55.994Z",
-  "count": 82,
+  "generated_at": "2026-10-12T06:23:01.983Z",
+  "count": 84,
   "clubs": [
     {
       "elo": 7010,
@@ -35,6 +35,11 @@
       "president": "Skorvazon"
     },
     {
+      "club": "FoW Ordem e Progresso",
+      "president": "OC270",
+      "elo": 6652
+    },
+    {
       "elo": 6651,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
@@ -51,6 +56,11 @@
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
+    },
+    {
+      "club": "FoW Made In Brazil",
+      "president": "OC269",
+      "elo": 6441
     },
     {
       "elo": 6402,
