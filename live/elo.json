@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-12T06:27:03.530Z",
+  "generated_at": "2026-10-12T06:29:47.997Z",
   "count": 84,
   "clubs": [
     {
@@ -37,7 +37,8 @@
     {
       "elo": 6652,
       "club": "FoW Ordem e Progresso",
-      "president": "OC270"
+      "president": "OC270",
+      "clubCode": "QTTKPC"
     },
     {
       "elo": 6651,
