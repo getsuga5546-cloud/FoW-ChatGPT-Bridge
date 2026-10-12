@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-12T16:12:10.261Z",
+  "generated_at": "2026-10-12T17:06:36.547Z",
   "count": 84,
   "clubs": [
     {
@@ -251,22 +251,28 @@
       "president": "May 2"
     },
     {
-      "elo": 5597,
+      "elo": 5625,
       "club": "FoW Soul Guard",
       "clubCode": "BBGPGR",
       "president": "June 2"
     },
     {
-      "elo": 5581,
+      "elo": 5612,
       "club": "FoW Minotaurs",
       "clubCode": "DLBMTN",
       "president": "Pricess Melo"
     },
     {
-      "elo": 5578,
+      "elo": 5610,
       "club": "FoW S34h3hs77u2h",
       "clubCode": "LMKCMP",
       "president": "s76 Honeysuckle"
+    },
+    {
+      "elo": 5597,
+      "club": "Force Of War II",
+      "clubCode": "CGBHTG",
+      "president": "BarBerry"
     },
     {
       "elo": 5577,
@@ -275,25 +281,19 @@
       "president": "Jan 9"
     },
     {
-      "elo": 5570,
+      "elo": 5539,
       "club": "FoW Sentinels",
       "clubCode": "LNDGDP",
       "president": "Mahkota 3"
     },
     {
-      "elo": 5570,
+      "elo": 5538,
       "club": "FoW Eternal Wanderer ",
       "clubCode": "RMRRCH",
       "president": "42 Ingot"
     },
     {
-      "elo": 5569,
-      "club": "Force Of War II",
-      "clubCode": "CGBHTG",
-      "president": "BarBerry"
-    },
-    {
-      "elo": 5516,
+      "elo": 5488,
       "club": "FoW Eternal Wanderer 3",
       "clubCode": "SDKHRT",
       "president": "Ingot Landing"
@@ -311,28 +311,28 @@
       "president": "MN13"
     },
     {
-      "elo": 5469,
-      "club": "Road to FoW",
-      "clubCode": "BHJJDD",
-      "president": "NightBloom"
-    },
-    {
-      "elo": 5437,
+      "elo": 5466,
       "club": "FoW Sentinel 3",
       "clubCode": "GMPLQL",
       "president": "Hokusai 20"
     },
     {
-      "elo": 5418,
+      "elo": 5446,
       "club": "FoW Eternal Wanderer 2",
       "clubCode": "RBLGNS",
       "president": "764"
     },
     {
-      "elo": 5366,
-      "club": "FoW Scorpion XX",
-      "clubCode": "RNCPLJ",
-      "president": "OC400"
+      "elo": 5441,
+      "club": "Road to FoW",
+      "clubCode": "BHJJDD",
+      "president": "NightBloom"
+    },
+    {
+      "elo": 5368,
+      "club": "FoW Soul Society",
+      "clubCode": "LQNTCH",
+      "president": "Amethys"
     },
     {
       "elo": 5344,
@@ -341,10 +341,10 @@
       "president": "Apr-3"
     },
     {
-      "elo": 5340,
-      "club": "FoW Soul Society",
-      "clubCode": "LQNTCH",
-      "president": "Amethys"
+      "elo": 5337,
+      "club": "FoW Scorpion XX",
+      "clubCode": "RNCPLJ",
+      "president": "OC400"
     },
     {
       "elo": 5333,
@@ -353,16 +353,16 @@
       "president": "Queen Champ"
     },
     {
-      "elo": 5318,
-      "club": "Force Of War V",
-      "clubCode": "HRQQNR",
-      "president": "Mahkota 5"
-    },
-    {
       "elo": 5316,
       "club": "FoW Space Sheep",
       "clubCode": "DRKJDP",
       "president": "Navy"
+    },
+    {
+      "elo": 5290,
+      "club": "Force Of War V",
+      "clubCode": "HRQQNR",
+      "president": "Mahkota 5"
     },
     {
       "elo": 5281,
@@ -389,12 +389,6 @@
       "president": "IBS 8"
     },
     {
-      "elo": 5242,
-      "club": "FoW Bartenders",
-      "clubCode": "QDJMRH",
-      "president": "FL-2"
-    },
-    {
       "elo": 5232,
       "club": "FoW Rhaezalix",
       "clubCode": "SJJJTR",
@@ -411,6 +405,12 @@
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
       "president": "X10"
+    },
+    {
+      "elo": 5214,
+      "club": "FoW Bartenders",
+      "clubCode": "QDJMRH",
+      "president": "FL-2"
     },
     {
       "elo": 5211,
@@ -438,6 +438,12 @@
     },
     {
       "elo": 5197,
+      "club": "FoW Firebirds",
+      "clubCode": "MRRDRS",
+      "president": "Altair"
+    },
+    {
+      "elo": 5197,
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
       "president": "Pearl"
@@ -449,13 +455,7 @@
       "president": "Jan 3"
     },
     {
-      "elo": 5167,
-      "club": "FoW Firebirds",
-      "clubCode": "MRRDRS",
-      "president": "Altair"
-    },
-    {
-      "elo": 5120,
+      "elo": 5090,
       "club": "The Drain",
       "president": "July-12"
     },
