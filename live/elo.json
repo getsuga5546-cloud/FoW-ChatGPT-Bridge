@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-12T07:42:49.428Z",
+  "generated_at": "2026-10-12T08:52:44.164Z",
   "count": 84,
   "clubs": [
     {
@@ -11,7 +11,7 @@
       "president": "Felicity"
     },
     {
-      "elo": 6856,
+      "elo": 6886,
       "club": "Force of War X",
       "clubCode": "KQHFPQ",
       "president": "X2"
@@ -23,13 +23,13 @@
       "president": "Evo Prez"
     },
     {
-      "elo": 6810,
+      "elo": 6780,
       "club": "Force Of Warmongers",
       "clubCode": "KQLLHJ",
       "president": "Warmongers Prez"
     },
     {
-      "elo": 6661,
+      "elo": 6693,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
@@ -41,19 +41,19 @@
       "clubCode": "QTTKPC"
     },
     {
-      "elo": 6651,
+      "elo": 6619,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6547,
+      "elo": 6575,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6469,
+      "elo": 6441,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
@@ -65,13 +65,13 @@
       "clubCode": "JJTDHF"
     },
     {
-      "elo": 6402,
+      "elo": 6431,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6332,
+      "elo": 6303,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
