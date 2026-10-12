@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-12T06:29:47.997Z",
+  "generated_at": "2026-10-12T06:30:53.752Z",
   "count": 84,
   "clubs": [
     {
@@ -61,7 +61,8 @@
     {
       "elo": 6441,
       "club": "FoW Made In Brazil",
-      "president": "OC269"
+      "president": "OC269",
+      "clubCode": "JJTDHF"
     },
     {
       "elo": 6402,
