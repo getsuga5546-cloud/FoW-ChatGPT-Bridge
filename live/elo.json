@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-12T18:03:58.832Z",
+  "generated_at": "2026-10-13T03:34:54.556Z",
   "count": 84,
   "clubs": [
     {
@@ -389,6 +389,12 @@
       "president": "IBS 8"
     },
     {
+      "elo": 5242,
+      "club": "FoW Sweet Garden",
+      "clubCode": "TMRTCR",
+      "president": "PawStormX"
+    },
+    {
       "elo": 5232,
       "club": "FoW Rhaezalix",
       "clubCode": "SJJJTR",
@@ -411,12 +417,6 @@
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
       "president": "FL-2"
-    },
-    {
-      "elo": 5211,
-      "club": "FoW Sweet Garden",
-      "clubCode": "TMRTCR",
-      "president": "PawStormX"
     },
     {
       "elo": 5206,
