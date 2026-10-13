@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-13T23:10:35.715Z",
+  "generated_at": "2026-10-13T23:26:30.480Z",
   "count": 84,
   "clubs": [
     {
@@ -71,13 +71,13 @@
       "president": "Steakopolis"
     },
     {
-      "elo": 6304,
+      "elo": 6333,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6275,
+      "elo": 6305,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
@@ -87,18 +87,6 @@
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
-    },
-    {
-      "elo": 6230,
-      "club": "Force of War III",
-      "clubCode": "BKGGJL",
-      "president": "Celestra"
-    },
-    {
-      "elo": 6229,
-      "club": "FoW RingoRacoons",
-      "clubCode": "PLCJKH",
-      "president": "SP-2"
     },
     {
       "elo": 6210,
@@ -141,6 +129,18 @@
       "club": "Force of War VI",
       "clubCode": "DNPGNR",
       "president": "Dec-2"
+    },
+    {
+      "elo": 6200,
+      "club": "FoW RingoRacoons",
+      "clubCode": "PLCJKH",
+      "president": "SP-2"
+    },
+    {
+      "elo": 6200,
+      "club": "Force of War III",
+      "clubCode": "BKGGJL",
+      "president": "Celestra"
     },
     {
       "elo": 6190,
