@@ -1,11 +1,17 @@
 name: FoW VPS SSH audit (read-only)
 
-# Manual only. This workflow never deploys, changes or restarts the live bot.
+# Either manually dispatch from GitHub Actions or let ChatGPT trigger with a
+# small audit-requests/ file added via the GitHub connector. No deployment.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'audit-requests/**'
 
 permissions:
   contents: read
+  issues: write # Only to post a sanitized result to issue #41.
 
 concurrency:
   group: fow-vps-read-only-audit
@@ -16,7 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Audit current VPS code without changing production
+      - name: Audit current VPS via a forced read-only SSH command
+        id: ssh_audit
         shell: bash
         env:
           FOW_VPS_HOST: ${{ secrets.FOW_VPS_HOST }}
@@ -38,7 +45,10 @@ jobs:
           trap 'rm -f "$keyfile" "$knownhosts"' EXIT
           printf '%s\n' "$FOW_VPS_SSH_PRIVATE_KEY" > "$keyfile"
           printf '%s\n' "$FOW_VPS_SSH_KNOWN_HOSTS" > "$knownhosts"
-          ssh \
+
+          # The dedicated VPS account's authorized_keys forces only the
+          # fixed fow-readonly-audit command. Arbitrary remote commands cannot run.
+          ssh -T \
             -F /dev/null \
             -o BatchMode=yes \
             -o IdentitiesOnly=yes \
@@ -46,17 +56,29 @@ jobs:
             -o UserKnownHostsFile="$knownhosts" \
             -o ConnectTimeout=15 \
             -i "$keyfile" \
-            "$FOW_VPS_USER@$FOW_VPS_HOST" 'bash -se' <<'REMOTE_READ_ONLY'
-          cd /opt/fow-elo-bot
-          echo '=== BRANCH ==='
-          git branch --show-current
-          echo '=== COMMIT ==='
-          git log -1 --format='%h %s'
-          echo '=== CHANGES (NAMES ONLY) ==='
-          git status --short --branch
-          echo '=== BOT SOURCE SHA256 ==='
-          sha256sum bot.js
-          echo '=== SYNTAX CHECK ==='
-          node --check bot.js
-          echo '=== AUDIT COMPLETE: NO DEPLOY / NO RESTART ==='
-          REMOTE_READ_ONLY
+            "$FOW_VPS_USER@$FOW_VPS_HOST" 'audit' > "$RUNNER_TEMP/fow-ssh-audit.txt"
+
+          cat "$RUNNER_TEMP/fow-ssh-audit.txt"
+
+      - name: Post sanitized audit result to GitHub issue 41
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUDIT_OUTCOME: ${{ steps.ssh_audit.outcome }}
+          AUDIT_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          report="$RUNNER_TEMP/fow-audit-issue.md"
+          {
+            printf '### FoW VPS remote audit — %s\n\n' "$AUDIT_OUTCOME"
+            printf 'Workflow log: %s\n\n' "$AUDIT_RUN_URL"
+            if [[ "$AUDIT_OUTCOME" == "success" && -f "$RUNNER_TEMP/fow-ssh-audit.txt" ]]; then
+              printf '\`\`\`text\n'
+              sed -n '1,15p' "$RUNNER_TEMP/fow-ssh-audit.txt"
+              printf '\`\`\`\n'
+            else
+              printf 'Setup/SSH audit failed. No production changes were made. Review the workflow log.\n'
+            fi
+          } > "$report"
+          gh issue comment 41 --repo "$GITHUB_REPOSITORY" --body-file "$report"
