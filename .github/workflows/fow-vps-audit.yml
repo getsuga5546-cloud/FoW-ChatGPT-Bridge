@@ -1,0 +1,62 @@
+name: FoW VPS SSH audit (read-only)
+
+# Manual only. This workflow never deploys, changes or restarts the live bot.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fow-vps-read-only-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Audit current VPS code without changing production
+        shell: bash
+        env:
+          FOW_VPS_HOST: ${{ secrets.FOW_VPS_HOST }}
+          FOW_VPS_USER: ${{ secrets.FOW_VPS_USER }}
+          FOW_VPS_SSH_PRIVATE_KEY: ${{ secrets.FOW_VPS_SSH_PRIVATE_KEY }}
+          FOW_VPS_SSH_KNOWN_HOSTS: ${{ secrets.FOW_VPS_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          for required in FOW_VPS_HOST FOW_VPS_USER FOW_VPS_SSH_PRIVATE_KEY FOW_VPS_SSH_KNOWN_HOSTS; do
+            if [[ -z "${!required}" ]]; then
+              echo "::error::Missing required secret: $required"
+              exit 1
+            fi
+          done
+          umask 077
+          mkdir -p "$HOME/.ssh"
+          keyfile="$(mktemp "$HOME/.ssh/fow-key.XXXXXX")"
+          knownhosts="$(mktemp "$HOME/.ssh/fow-knownhosts.XXXXXX")"
+          trap 'rm -f "$keyfile" "$knownhosts"' EXIT
+          printf '%s\n' "$FOW_VPS_SSH_PRIVATE_KEY" > "$keyfile"
+          printf '%s\n' "$FOW_VPS_SSH_KNOWN_HOSTS" > "$knownhosts"
+          ssh \
+            -F /dev/null \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$knownhosts" \
+            -o ConnectTimeout=15 \
+            -i "$keyfile" \
+            "$FOW_VPS_USER@$FOW_VPS_HOST" 'bash -se' <<'REMOTE_READ_ONLY'
+          cd /opt/fow-elo-bot
+          echo '=== BRANCH ==='
+          git branch --show-current
+          echo '=== COMMIT ==='
+          git log -1 --format='%h %s'
+          echo '=== CHANGES (NAMES ONLY) ==='
+          git status --short --branch
+          echo '=== BOT SOURCE SHA256 ==='
+          sha256sum bot.js
+          echo '=== SYNTAX CHECK ==='
+          node --check bot.js
+          echo '=== AUDIT COMPLETE: NO DEPLOY / NO RESTART ==='
+          REMOTE_READ_ONLY
