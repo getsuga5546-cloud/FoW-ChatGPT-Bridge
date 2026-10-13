@@ -74,9 +74,9 @@ jobs:
             printf '### FoW VPS remote audit — %s\n\n' "$AUDIT_OUTCOME"
             printf 'Workflow log: %s\n\n' "$AUDIT_RUN_URL"
             if [[ "$AUDIT_OUTCOME" == "success" && -f "$RUNNER_TEMP/fow-ssh-audit.txt" ]]; then
-              printf '\`\`\`text\n'
+              printf '```text\n'
               sed -n '1,15p' "$RUNNER_TEMP/fow-ssh-audit.txt"
-              printf '\`\`\`\n'
+              printf '```\n'
             else
               printf 'Setup/SSH audit failed. No production changes were made. Review the workflow log.\n'
             fi
