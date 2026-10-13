@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-13T10:10:09.791Z",
+  "generated_at": "2026-10-13T14:32:14.005Z",
   "count": 84,
   "clubs": [
     {
@@ -353,12 +353,6 @@
       "president": "Queen Champ"
     },
     {
-      "elo": 5290,
-      "club": "Force Of War V",
-      "clubCode": "HRQQNR",
-      "president": "Mahkota 5"
-    },
-    {
       "elo": 5288,
       "club": "FoW Space Sheep",
       "clubCode": "DRKJDP",
@@ -375,6 +369,12 @@
       "club": "FoW IceBears Deux",
       "clubCode": "FDJKGL",
       "president": "IBS 8"
+    },
+    {
+      "elo": 5261,
+      "club": "Force Of War V",
+      "clubCode": "HRQQNR",
+      "president": "Mahkota 5"
     },
     {
       "elo": 5253,
