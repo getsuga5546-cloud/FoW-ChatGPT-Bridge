@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-14T05:34:14.276Z",
+  "generated_at": "2026-10-14T06:55:48.867Z",
   "count": 84,
   "clubs": [
     {
@@ -17,16 +17,16 @@
       "president": "X2"
     },
     {
+      "elo": 6833,
+      "club": "FoW Evolution",
+      "clubCode": "SPFLJH",
+      "president": "Evo Prez"
+    },
+    {
       "elo": 6808,
       "club": "Force Of Warmongers",
       "clubCode": "KQLLHJ",
       "president": "Warmongers Prez"
-    },
-    {
-      "elo": 6805,
-      "club": "FoW Evolution",
-      "clubCode": "SPFLJH",
-      "president": "Evo Prez"
     },
     {
       "elo": 6696,
