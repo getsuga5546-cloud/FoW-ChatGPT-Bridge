@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-14T01:51:53.049Z",
+  "generated_at": "2026-10-14T02:30:04.142Z",
   "count": 84,
   "clubs": [
     {
@@ -53,46 +53,46 @@
       "president": "FKR 25"
     },
     {
-      "elo": 6444,
+      "elo": 6476,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
     },
     {
-      "elo": 6441,
-      "club": "FoW Made In Brazil",
-      "clubCode": "JJTDHF",
-      "president": "OC269"
-    },
-    {
-      "elo": 6428,
+      "elo": 6456,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6333,
-      "club": "FoW Flower Garden",
-      "clubCode": "NJPHDJ",
-      "president": "1445"
+      "elo": 6409,
+      "club": "FoW Made In Brazil",
+      "clubCode": "JJTDHF",
+      "president": "OC269"
     },
     {
-      "elo": 6305,
+      "elo": 6334,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
     },
     {
-      "elo": 6238,
-      "club": "FoW Sentinels 4",
-      "clubCode": "TNJJCH",
-      "president": "Mrh 9"
+      "elo": 6305,
+      "club": "FoW Flower Garden",
+      "clubCode": "NJPHDJ",
+      "president": "1445"
     },
     {
       "elo": 6231,
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
+    },
+    {
+      "elo": 6209,
+      "club": "FoW Sentinels 4",
+      "clubCode": "TNJJCH",
+      "president": "Mrh 9"
     },
     {
       "elo": 6209,
