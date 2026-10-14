@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-13T23:26:30.480Z",
+  "generated_at": "2026-10-14T00:02:27.326Z",
   "count": 84,
   "clubs": [
     {
@@ -83,16 +83,16 @@
       "president": "ASH2"
     },
     {
+      "elo": 6238,
+      "club": "FoW Sentinels 4",
+      "clubCode": "TNJJCH",
+      "president": "Mrh 9"
+    },
+    {
       "elo": 6231,
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
-    },
-    {
-      "elo": 6210,
-      "club": "FoW Sentinels 4",
-      "clubCode": "TNJJCH",
-      "president": "Mrh 9"
     },
     {
       "elo": 6209,
@@ -155,16 +155,16 @@
       "president": "At-2"
     },
     {
-      "elo": 6117,
-      "club": "FoW Berserker",
-      "clubCode": "NFPJCN",
-      "president": "11.25"
-    },
-    {
       "elo": 6101,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
+    },
+    {
+      "elo": 6089,
+      "club": "FoW Berserker",
+      "clubCode": "NFPJCN",
+      "president": "11.25"
     },
     {
       "elo": 6063,
