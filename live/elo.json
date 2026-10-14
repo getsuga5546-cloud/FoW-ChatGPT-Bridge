@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-14T03:12:17.039Z",
+  "generated_at": "2026-10-14T04:55:54.801Z",
   "count": 84,
   "clubs": [
     {
@@ -35,28 +35,22 @@
       "president": "Skorvazon"
     },
     {
-      "elo": 6652,
+      "elo": 6682,
       "club": "FoW Ordem e Progresso",
       "clubCode": "QTTKPC",
       "president": "OC270"
     },
     {
-      "elo": 6618,
-      "club": "Force of War IV",
-      "clubCode": "RLBLPB",
-      "president": "FL 13"
-    },
-    {
-      "elo": 6574,
+      "elo": 6602,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6476,
-      "club": "FoW Empress Enclave",
-      "clubCode": "LDTRJR",
-      "president": "Hot 2"
+      "elo": 6588,
+      "club": "Force of War IV",
+      "clubCode": "RLBLPB",
+      "president": "FL 13"
     },
     {
       "elo": 6456,
@@ -65,28 +59,28 @@
       "president": "Steakopolis"
     },
     {
-      "elo": 6409,
+      "elo": 6448,
+      "club": "FoW Empress Enclave",
+      "clubCode": "LDTRJR",
+      "president": "Hot 2"
+    },
+    {
+      "elo": 6438,
       "club": "FoW Made In Brazil",
       "clubCode": "JJTDHF",
       "president": "OC269"
     },
     {
       "elo": 6334,
-      "club": "FoW Neverland",
-      "clubCode": "SFBLPJ",
-      "president": "ASH2"
-    },
-    {
-      "elo": 6305,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6231,
-      "club": "FoW Iron Horn Brigade",
-      "clubCode": "GFKJFN",
-      "president": "AK-131"
+      "elo": 6305,
+      "club": "FoW Neverland",
+      "clubCode": "SFBLPJ",
+      "president": "ASH2"
     },
     {
       "elo": 6228,
@@ -135,6 +129,12 @@
       "club": "Force of War VI",
       "clubCode": "DNPGNR",
       "president": "Dec-2"
+    },
+    {
+      "elo": 6202,
+      "club": "FoW Iron Horn Brigade",
+      "clubCode": "GFKJFN",
+      "president": "AK-131"
     },
     {
       "elo": 6200,
