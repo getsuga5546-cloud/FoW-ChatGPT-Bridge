@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-15T22:48:33.572Z",
+  "generated_at": "2026-10-15T22:49:09.368Z",
   "count": 84,
   "clubs": [
     {
@@ -209,7 +209,7 @@
       "president": "CoCoa Peeble"
     },
     {
-      "elo": 5802,
+      "elo": 5771,
       "club": "FoW Stranger Things",
       "clubCode": "NHTMMJ",
       "president": "Rigel"
