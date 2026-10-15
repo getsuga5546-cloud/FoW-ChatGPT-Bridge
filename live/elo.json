@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-15T22:49:09.368Z",
+  "generated_at": "2026-10-15T23:15:33.704Z",
   "count": 84,
   "clubs": [
     {
@@ -95,6 +95,18 @@
       "president": "Celestra"
     },
     {
+      "elo": 6218,
+      "club": "FoW RascalRacoons",
+      "clubCode": "GLTKGG",
+      "president": "Mercury"
+    },
+    {
+      "elo": 6216,
+      "club": "Force of War VIII",
+      "clubCode": "MQKJMK",
+      "president": "At-2"
+    },
+    {
       "elo": 6209,
       "club": "FoW Sentinels 4",
       "clubCode": "TNJJCH",
@@ -143,46 +155,34 @@
       "president": "AK-131"
     },
     {
-      "elo": 6190,
-      "club": "FoW RascalRacoons",
-      "clubCode": "GLTKGG",
-      "president": "Mercury"
-    },
-    {
-      "elo": 6188,
-      "club": "Force of War VIII",
-      "clubCode": "MQKJMK",
-      "president": "At-2"
-    },
-    {
-      "elo": 6101,
+      "elo": 6129,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
     },
     {
-      "elo": 6096,
+      "elo": 6068,
       "club": "FoW Icebears Drei",
       "clubCode": "CCGQHQ",
       "president": "MRH2"
     },
     {
-      "elo": 6088,
+      "elo": 6060,
       "club": "FoW Berserker",
       "clubCode": "NFPJCN",
       "president": "11.25"
     },
     {
       "elo": 6007,
-      "club": "Force of War IX",
-      "clubCode": "HGNMSM",
-      "president": "Uranium"
-    },
-    {
-      "elo": 5976,
       "club": "FoW Encore Racoons",
       "clubCode": "DRCQRR",
       "president": "Wn-3"
+    },
+    {
+      "elo": 5979,
+      "club": "Force of War IX",
+      "clubCode": "HGNMSM",
+      "president": "Uranium"
     },
     {
       "elo": 5957,
@@ -191,19 +191,19 @@
       "president": "n28.10 Oolong"
     },
     {
-      "elo": 5953,
+      "elo": 5922,
       "club": "FoW Hellblade",
       "clubCode": "QPNJJH",
       "president": "Auralis"
     },
     {
-      "elo": 5850,
+      "elo": 5881,
       "club": "FoW Ice Bears",
       "clubCode": "DFTHCS",
       "president": "July-1"
     },
     {
-      "elo": 5837,
+      "elo": 5806,
       "club": "FoW Regalia Realms",
       "clubCode": "RTMJML",
       "president": "CoCoa Peeble"
