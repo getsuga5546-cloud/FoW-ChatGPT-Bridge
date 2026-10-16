@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-16T01:47:15.913Z",
+  "generated_at": "2026-10-16T09:34:46.997Z",
   "count": 84,
   "clubs": [
     {
@@ -323,6 +323,12 @@
       "president": "764"
     },
     {
+      "elo": 5394,
+      "club": "FoW Rocket Racoons",
+      "clubCode": "GBCMTG",
+      "president": "Queen Champ"
+    },
+    {
       "elo": 5385,
       "club": "Road to FoW",
       "clubCode": "BHJJDD",
@@ -345,12 +351,6 @@
       "club": "FoW Scorpion XX",
       "clubCode": "RNCPLJ",
       "president": "OC400"
-    },
-    {
-      "elo": 5333,
-      "club": "FoW Rocket Racoons",
-      "clubCode": "GBCMTG",
-      "president": "Queen Champ"
     },
     {
       "elo": 5288,
