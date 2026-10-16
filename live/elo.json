@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-16T15:39:28.259Z",
-  "count": 84,
+  "generated_at": "2026-10-16T15:44:26.032Z",
+  "count": 87,
   "clubs": [
     {
       "elo": 7038,
@@ -21,6 +21,12 @@
       "club": "FoW Evolution",
       "clubCode": "SPFLJH",
       "president": "Evo Prez"
+    },
+    {
+      "club": "FoW Sobrenatural BR1",
+      "president": "M 26",
+      "elo": 6787,
+      "clubCode": "KRMHFN"
     },
     {
       "elo": 6780,
@@ -51,6 +57,12 @@
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
+    },
+    {
+      "club": "FoW Sobrenatural BR3",
+      "president": "RLG 337",
+      "elo": 6547,
+      "clubCode": "TGPNJJ"
     },
     {
       "elo": 6487,
@@ -237,6 +249,12 @@
       "club": "FoW Diamond Dust",
       "clubCode": "CSDCQC",
       "president": "IRIS-3"
+    },
+    {
+      "club": "FoW Blood Legion",
+      "president": "Casablanca",
+      "elo": 5699,
+      "clubCode": "BTMMNQ"
     },
     {
       "elo": 5687,
