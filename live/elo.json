@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-16T09:34:46.997Z",
+  "generated_at": "2026-10-16T12:08:31.855Z",
   "count": 84,
   "clubs": [
     {
@@ -299,16 +299,16 @@
       "president": "Ingot Landing"
     },
     {
+      "elo": 5487,
+      "club": "FoW Tutelaries",
+      "clubCode": "PRNNGT",
+      "president": "MN13"
+    },
+    {
       "elo": 5485,
       "club": "FoW Destruction inc",
       "clubCode": "QHJCSB",
       "president": "MN9"
-    },
-    {
-      "elo": 5484,
-      "club": "FoW Tutelaries",
-      "clubCode": "PRNNGT",
-      "president": "MN13"
     },
     {
       "elo": 5476,
