@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-17T07:29:56.755Z",
+  "generated_at": "2026-10-17T08:20:13.253Z",
   "count": 87,
   "clubs": [
     {
@@ -467,7 +467,7 @@
       "president": "Jan 3"
     },
     {
-      "elo": 5138,
+      "elo": 5167,
       "club": "FoW Firebirds",
       "clubCode": "MRRDRS",
       "president": "Altair"
