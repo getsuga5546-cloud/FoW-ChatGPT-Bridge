@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-17T06:04:16.883Z",
+  "generated_at": "2026-10-17T07:29:56.755Z",
   "count": 87,
   "clubs": [
     {
@@ -25,32 +25,38 @@
     {
       "club": "FoW Sobrenatural BR1",
       "president": "M 26",
-      "elo": 6787,
+      "elo": 6816,
       "clubCode": "KRMHFN"
     },
     {
-      "elo": 6780,
+      "elo": 6809,
       "club": "Force Of Warmongers",
       "clubCode": "KQLLHJ",
       "president": "Warmongers Prez"
     },
     {
-      "elo": 6724,
+      "elo": 6695,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
     },
     {
-      "elo": 6710,
+      "elo": 6681,
       "club": "FoW Ordem e Progresso",
       "clubCode": "QTTKPC",
       "president": "OC270"
     },
     {
-      "elo": 6574,
+      "elo": 6602,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
+    },
+    {
+      "club": "FoW Sobrenatural BR3",
+      "president": "RLG 337",
+      "elo": 6575,
+      "clubCode": "TGPNJJ"
     },
     {
       "elo": 6560,
@@ -59,31 +65,25 @@
       "president": "FL 13"
     },
     {
-      "club": "FoW Sobrenatural BR3",
-      "president": "RLG 337",
-      "elo": 6547,
-      "clubCode": "TGPNJJ"
-    },
-    {
-      "elo": 6487,
+      "elo": 6459,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6448,
-      "club": "FoW Empress Enclave",
-      "clubCode": "LDTRJR",
-      "president": "Hot 2"
-    },
-    {
-      "elo": 6407,
+      "elo": 6437,
       "club": "FoW Made In Brazil",
       "clubCode": "JJTDHF",
       "president": "OC269"
     },
     {
-      "elo": 6365,
+      "elo": 6420,
+      "club": "FoW Empress Enclave",
+      "clubCode": "LDTRJR",
+      "president": "Hot 2"
+    },
+    {
+      "elo": 6335,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
@@ -101,7 +101,7 @@
       "president": "SP-2"
     },
     {
-      "elo": 6218,
+      "elo": 6246,
       "club": "FoW RascalRacoons",
       "clubCode": "GLTKGG",
       "president": "Mercury"
@@ -167,7 +167,7 @@
       "president": "Celestra"
     },
     {
-      "elo": 6129,
+      "elo": 6101,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
