@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-18T12:19:02.804Z",
+  "generated_at": "2026-10-18T12:49:50.779Z",
   "count": 87,
   "clubs": [
     {
@@ -167,64 +167,64 @@
       "president": "Celestra"
     },
     {
-      "elo": 6101,
+      "elo": 6130,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
     },
     {
-      "elo": 6096,
+      "elo": 6126,
       "club": "FoW Icebears Drei",
       "clubCode": "CCGQHQ",
       "president": "MRH2"
     },
     {
-      "elo": 6060,
+      "elo": 6030,
       "club": "FoW Berserker",
       "clubCode": "NFPJCN",
       "president": "11.25"
     },
     {
-      "elo": 6035,
-      "club": "FoW Encore Racoons",
-      "clubCode": "DRCQRR",
-      "president": "Wn-3"
-    },
-    {
-      "elo": 5986,
+      "elo": 6014,
       "club": "Twist Of Fate",
       "clubCode": "MNGBBC",
       "president": "n28.10 Oolong"
     },
     {
-      "elo": 5951,
+      "elo": 6006,
+      "club": "FoW Encore Racoons",
+      "clubCode": "DRCQRR",
+      "president": "Wn-3"
+    },
+    {
+      "elo": 5979,
       "club": "Force of War IX",
       "clubCode": "HGNMSM",
       "president": "Uranium"
     },
     {
-      "elo": 5894,
+      "elo": 5866,
       "club": "FoW Hellblade",
       "clubCode": "QPNJJH",
       "president": "Auralis"
     },
     {
-      "elo": 5852,
-      "club": "FoW Ice Bears",
-      "clubCode": "DFTHCS",
-      "president": "July-1"
-    },
-    {
-      "elo": 5834,
+      "elo": 5862,
       "club": "FoW Regalia Realms",
       "clubCode": "RTMJML",
       "president": "CoCoa Peeble"
     },
     {
-      "elo": 5800,
+      "elo": 5828,
       "club": "FoW Stranger Things",
       "clubCode": "NHTMMJ",
       "president": "Rigel"
+    },
+    {
+      "elo": 5824,
+      "club": "FoW Ice Bears",
+      "clubCode": "DFTHCS",
+      "president": "July-1"
     },
     {
       "club": "FoW Blood Legion",
@@ -233,13 +233,13 @@
       "clubCode": "BTMMNQ"
     },
     {
-      "elo": 5748,
+      "elo": 5720,
       "club": "FoW Blue Crown",
       "clubCode": "MGRRNS",
       "president": "QC-1"
     },
     {
-      "elo": 5719,
+      "elo": 5691,
       "club": "Force Of War II",
       "clubCode": "CGBHTG",
       "president": "BarBerry"
