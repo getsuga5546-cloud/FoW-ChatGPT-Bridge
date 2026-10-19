@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-19T13:22:40.199Z",
+  "generated_at": "2026-10-19T13:42:14.780Z",
   "count": 87,
   "clubs": [
     {
@@ -23,10 +23,10 @@
       "president": "Evo Prez"
     },
     {
-      "club": "FoW Sobrenatural BR1",
-      "president": "M 26",
       "elo": 6816,
-      "clubCode": "KRMHFN"
+      "club": "FoW Sobrenatural BR1",
+      "clubCode": "KRMHFN",
+      "president": "M 26"
     },
     {
       "elo": 6809,
@@ -53,10 +53,10 @@
       "president": "FKR 25"
     },
     {
-      "club": "FoW Sobrenatural BR3",
-      "president": "RLG 337",
       "elo": 6575,
-      "clubCode": "TGPNJJ"
+      "club": "FoW Sobrenatural BR3",
+      "clubCode": "TGPNJJ",
+      "president": "RLG 337"
     },
     {
       "elo": 6530,
@@ -227,10 +227,10 @@
       "president": "July-1"
     },
     {
-      "club": "FoW Blood Legion",
-      "president": "Casablanca",
       "elo": 5757,
-      "clubCode": "BTMMNQ"
+      "club": "FoW Blood Legion",
+      "clubCode": "BTMMNQ",
+      "president": "Casablanca"
     },
     {
       "elo": 5720,
