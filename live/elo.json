@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-19T09:03:48.470Z",
+  "generated_at": "2026-10-19T09:06:19.798Z",
   "count": 87,
   "clubs": [
     {
@@ -365,16 +365,16 @@
       "president": "Apr-3"
     },
     {
+      "elo": 5341,
+      "club": "FoW Scorpion XX",
+      "clubCode": "RNCPLJ",
+      "president": "OC400"
+    },
+    {
       "elo": 5323,
       "club": "FoW Space Sheep",
       "clubCode": "DRKJDP",
       "president": "Navy"
-    },
-    {
-      "elo": 5311,
-      "club": "FoW Scorpion XX",
-      "clubCode": "RNCPLJ",
-      "president": "OC400"
     },
     {
       "elo": 5281,
