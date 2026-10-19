@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-19T16:36:08.389Z",
+  "generated_at": "2026-10-19T17:31:45.500Z",
   "count": 88,
   "clubs": [
     {
@@ -89,7 +89,7 @@
       "president": "1445"
     },
     {
-      "club": "BR 7",
+      "club": "FoW Sobrenatural BR7",
       "president": "Full Moon 1",
       "elo": 6335,
       "clubCode": "HQLHFK"
