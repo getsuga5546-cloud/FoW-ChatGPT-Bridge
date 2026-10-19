@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-19T14:02:33.488Z",
-  "count": 87,
+  "generated_at": "2026-10-19T16:36:08.389Z",
+  "count": 88,
   "clubs": [
     {
       "elo": 7038,
@@ -87,6 +87,12 @@
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
+    },
+    {
+      "club": "BR 7",
+      "president": "Full Moon 1",
+      "elo": 6335,
+      "clubCode": "HQLHFK"
     },
     {
       "elo": 6334,
