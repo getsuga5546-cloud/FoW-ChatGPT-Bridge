@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-19T09:00:54.487Z",
+  "generated_at": "2026-10-19T09:03:48.470Z",
   "count": 87,
   "clubs": [
     {
@@ -35,19 +35,19 @@
       "president": "Warmongers Prez"
     },
     {
-      "elo": 6695,
+      "elo": 6726,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
     },
     {
-      "elo": 6681,
+      "elo": 6650,
       "club": "FoW Ordem e Progresso",
       "clubCode": "QTTKPC",
       "president": "OC270"
     },
     {
-      "elo": 6602,
+      "elo": 6632,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
@@ -59,13 +59,13 @@
       "clubCode": "TGPNJJ"
     },
     {
-      "elo": 6560,
+      "elo": 6530,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6459,
+      "elo": 6489,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
@@ -77,31 +77,25 @@
       "president": "OC269"
     },
     {
-      "elo": 6420,
+      "elo": 6390,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
     },
     {
-      "elo": 6335,
+      "elo": 6363,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6274,
+      "elo": 6334,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
     },
     {
-      "elo": 6261,
-      "club": "FoW RingoRacoons",
-      "clubCode": "PLCJKH",
-      "president": "SP-2"
-    },
-    {
-      "elo": 6246,
+      "elo": 6218,
       "club": "FoW RascalRacoons",
       "clubCode": "GLTKGG",
       "president": "Mercury"
@@ -159,6 +153,12 @@
       "club": "FoW Iron Horn Brigade",
       "clubCode": "GFKJFN",
       "president": "AK-131"
+    },
+    {
+      "elo": 6201,
+      "club": "FoW RingoRacoons",
+      "clubCode": "PLCJKH",
+      "president": "SP-2"
     },
     {
       "elo": 6196,
