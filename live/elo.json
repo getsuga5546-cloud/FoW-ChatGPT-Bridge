@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-18T12:49:50.779Z",
+  "generated_at": "2026-10-19T09:00:54.487Z",
   "count": 87,
   "clubs": [
     {
@@ -383,6 +383,12 @@
       "president": "shot 7"
     },
     {
+      "elo": 5273,
+      "club": "FoW Bartenders",
+      "clubCode": "QDJMRH",
+      "president": "FL-2"
+    },
+    {
       "elo": 5263,
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
@@ -405,12 +411,6 @@
       "club": "FoW IceBears Deux",
       "clubCode": "FDJKGL",
       "president": "IBS 8"
-    },
-    {
-      "elo": 5245,
-      "club": "FoW Bartenders",
-      "clubCode": "QDJMRH",
-      "president": "FL-2"
     },
     {
       "elo": 5242,
