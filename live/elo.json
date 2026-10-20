@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-20T21:37:08.550Z",
+  "generated_at": "2026-10-20T23:25:05.713Z",
   "count": 88,
   "clubs": [
     {
@@ -407,6 +407,12 @@
       "president": "shot 7"
     },
     {
+      "elo": 5280,
+      "club": "The FoW Beach House",
+      "clubCode": "QMGGFC",
+      "president": "MN 2"
+    },
+    {
       "elo": 5272,
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
@@ -417,12 +423,6 @@
       "club": "FoW SunWings",
       "clubCode": "DQLBCD",
       "president": "X13"
-    },
-    {
-      "elo": 5248,
-      "club": "The FoW Beach House",
-      "clubCode": "QMGGFC",
-      "president": "MN 2"
     },
     {
       "elo": 5242,
