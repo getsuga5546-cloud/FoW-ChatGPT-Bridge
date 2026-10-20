@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-20T11:29:53.845Z",
+  "generated_at": "2026-10-20T11:31:00.540Z",
   "count": 88,
   "clubs": [
     {
@@ -407,6 +407,12 @@
       "president": "X13"
     },
     {
+      "elo": 5248,
+      "club": "The FoW Beach House",
+      "clubCode": "QMGGFC",
+      "president": "MN 2"
+    },
+    {
       "elo": 5244,
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
@@ -429,12 +435,6 @@
       "club": "FoW Rhaezalix",
       "clubCode": "SJJJTR",
       "president": "OC20"
-    },
-    {
-      "elo": 5218,
-      "club": "The FoW Beach House",
-      "clubCode": "QMGGFC",
-      "president": "MN 2"
     },
     {
       "elo": 5216,
