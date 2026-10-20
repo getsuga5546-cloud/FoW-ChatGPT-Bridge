@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-20T08:54:37.461Z",
+  "generated_at": "2026-10-20T11:27:01.999Z",
   "count": 88,
   "clubs": [
     {
@@ -35,52 +35,58 @@
       "president": "Warmongers Prez"
     },
     {
-      "elo": 6726,
+      "elo": 6756,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
     },
     {
-      "elo": 6679,
-      "club": "FoW Ordem e Progresso",
-      "clubCode": "QTTKPC",
-      "president": "OC270"
-    },
-    {
-      "elo": 6632,
+      "elo": 6661,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6558,
-      "club": "Force of War IV",
-      "clubCode": "RLBLPB",
-      "president": "FL 13"
+      "elo": 6649,
+      "club": "FoW Ordem e Progresso",
+      "clubCode": "QTTKPC",
+      "president": "OC270"
     },
     {
-      "elo": 6546,
+      "elo": 6577,
       "club": "FoW Sobrenatural BR3",
       "clubCode": "TGPNJJ",
       "president": "RLG 337"
     },
     {
-      "elo": 6517,
+      "elo": 6529,
+      "club": "Force of War IV",
+      "clubCode": "RLBLPB",
+      "president": "FL 13"
+    },
+    {
+      "elo": 6486,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6409,
+      "elo": 6440,
       "club": "FoW Made In Brazil",
       "clubCode": "JJTDHF",
       "president": "OC269"
     },
     {
-      "elo": 6394,
+      "elo": 6363,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
+    },
+    {
+      "elo": 6363,
+      "club": "FoW Sobrenatural BR7",
+      "clubCode": "HQLHFK",
+      "president": "Full Moon 1"
     },
     {
       "elo": 6362,
@@ -89,28 +95,10 @@
       "president": "Hot 2"
     },
     {
-      "elo": 6335,
-      "club": "FoW Sobrenatural BR7",
-      "clubCode": "HQLHFK",
-      "president": "Full Moon 1"
-    },
-    {
-      "elo": 6303,
+      "elo": 6332,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
-    },
-    {
-      "elo": 6237,
-      "club": "FoW Sentinels 4",
-      "clubCode": "TNJJCH",
-      "president": "Mrh 9"
-    },
-    {
-      "elo": 6237,
-      "club": "FoW Warmonger Bulls",
-      "clubCode": "SQBDQT",
-      "president": "WarHawk"
     },
     {
       "elo": 6218,
@@ -123,6 +111,18 @@
       "club": "Force of War VIII",
       "clubCode": "MQKJMK",
       "president": "At-2"
+    },
+    {
+      "elo": 6209,
+      "club": "FoW Sentinels 4",
+      "clubCode": "TNJJCH",
+      "president": "Mrh 9"
+    },
+    {
+      "elo": 6208,
+      "club": "FoW Warmonger Bulls",
+      "clubCode": "SQBDQT",
+      "president": "WarHawk"
     },
     {
       "elo": 6206,
