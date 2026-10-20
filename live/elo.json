@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-20T11:27:01.999Z",
+  "generated_at": "2026-10-20T11:29:53.845Z",
   "count": 88,
   "clubs": [
     {
@@ -419,6 +419,12 @@
       "president": "PawStormX"
     },
     {
+      "elo": 5235,
+      "club": "FoW Cheers!",
+      "clubCode": "KCJNLD",
+      "president": "Melo's Warehouse"
+    },
+    {
       "elo": 5232,
       "club": "FoW Rhaezalix",
       "clubCode": "SJJJTR",
@@ -441,12 +447,6 @@
       "club": "FoW IceBears Deux",
       "clubCode": "FDJKGL",
       "president": "IBS 8"
-    },
-    {
-      "elo": 5206,
-      "club": "FoW Cheers!",
-      "clubCode": "KCJNLD",
-      "president": "Melo's Warehouse"
     },
     {
       "elo": 5205,
