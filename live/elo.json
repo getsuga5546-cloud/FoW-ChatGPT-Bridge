@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-21T11:33:14.429Z",
+  "generated_at": "2026-10-21T12:30:31.675Z",
   "count": 88,
   "clubs": [
     {
@@ -41,13 +41,13 @@
       "president": "Skorvazon"
     },
     {
-      "elo": 6678,
+      "elo": 6708,
       "club": "FoW Ordem e Progresso",
       "clubCode": "QTTKPC",
       "president": "OC270"
     },
     {
-      "elo": 6633,
+      "elo": 6603,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
@@ -65,37 +65,37 @@
       "president": "RLG 337"
     },
     {
-      "elo": 6486,
+      "elo": 6514,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6412,
+      "elo": 6443,
       "club": "FoW Made In Brazil",
       "clubCode": "JJTDHF",
       "president": "OC269"
     },
     {
-      "elo": 6395,
-      "club": "FoW Sobrenatural BR7",
-      "clubCode": "HQLHFK",
-      "president": "Full Moon 1"
-    },
-    {
-      "elo": 6394,
+      "elo": 6366,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6330,
+      "elo": 6364,
+      "club": "FoW Sobrenatural BR7",
+      "clubCode": "HQLHFK",
+      "president": "Full Moon 1"
+    },
+    {
+      "elo": 6358,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
     },
     {
-      "elo": 6301,
+      "elo": 6330,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
@@ -107,22 +107,16 @@
       "president": "Mercury"
     },
     {
-      "elo": 6244,
-      "club": "Force of War VIII",
-      "clubCode": "MQKJMK",
-      "president": "At-2"
-    },
-    {
-      "elo": 6229,
-      "club": "FoW RingoRacoons",
-      "clubCode": "PLCJKH",
-      "president": "SP-2"
-    },
-    {
       "elo": 6224,
       "club": "Force of War III",
       "clubCode": "BKGGJL",
       "president": "Celestra"
+    },
+    {
+      "elo": 6216,
+      "club": "Force of War VIII",
+      "clubCode": "MQKJMK",
+      "president": "At-2"
     },
     {
       "elo": 6209,
@@ -173,34 +167,40 @@
       "president": "AK-131"
     },
     {
-      "elo": 6098,
+      "elo": 6200,
+      "club": "FoW RingoRacoons",
+      "clubCode": "PLCJKH",
+      "president": "SP-2"
+    },
+    {
+      "elo": 6129,
       "club": "FoW Icebears Drei",
       "clubCode": "CCGQHQ",
       "president": "MRH2"
     },
     {
-      "elo": 6076,
-      "club": "Force Of War VII",
-      "clubCode": "GPDKRS",
-      "president": "Aug-2"
-    },
-    {
-      "elo": 6076,
+      "elo": 6106,
       "club": "Twist Of Fate",
       "clubCode": "MNGBBC",
       "president": "n28.10 Oolong"
     },
     {
-      "elo": 6030,
-      "club": "FoW Berserker",
-      "clubCode": "NFPJCN",
-      "president": "11.25"
+      "elo": 6045,
+      "club": "Force Of War VII",
+      "clubCode": "GPDKRS",
+      "president": "Aug-2"
     },
     {
-      "elo": 6005,
+      "elo": 6033,
       "club": "FoW Encore Racoons",
       "clubCode": "DRCQRR",
       "president": "Wn-3"
+    },
+    {
+      "elo": 6000,
+      "club": "FoW Berserker",
+      "clubCode": "NFPJCN",
+      "president": "11.25"
     },
     {
       "elo": 5919,
@@ -209,25 +209,25 @@
       "president": "CoCoa Peeble"
     },
     {
-      "elo": 5919,
-      "club": "Force of War IX",
-      "clubCode": "HGNMSM",
-      "president": "Uranium"
-    },
-    {
-      "elo": 5874,
+      "elo": 5906,
       "club": "FoW Blood Legion",
       "clubCode": "BTMMNQ",
       "president": "Casablanca"
     },
     {
-      "elo": 5868,
+      "elo": 5891,
+      "club": "Force of War IX",
+      "clubCode": "HGNMSM",
+      "president": "Uranium"
+    },
+    {
+      "elo": 5836,
       "club": "FoW Hellblade",
       "clubCode": "QPNJJH",
       "president": "Auralis"
     },
     {
-      "elo": 5768,
+      "elo": 5799,
       "club": "FoW Stranger Things",
       "clubCode": "NHTMMJ",
       "president": "Rigel"
@@ -239,16 +239,16 @@
       "president": "July-1"
     },
     {
-      "elo": 5757,
-      "club": "FoW Minotaurs",
-      "clubCode": "DLBMTN",
-      "president": "Pricess Melo"
-    },
-    {
       "elo": 5728,
       "club": "FoW Bope",
       "clubCode": "HDDKRN",
       "president": "Issac 32"
+    },
+    {
+      "elo": 5726,
+      "club": "FoW Minotaurs",
+      "clubCode": "DLBMTN",
+      "president": "Pricess Melo"
     },
     {
       "elo": 5723,
