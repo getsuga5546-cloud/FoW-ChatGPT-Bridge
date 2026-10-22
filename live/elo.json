@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-22T21:20:28.312Z",
+  "generated_at": "2026-10-22T22:03:48.437Z",
   "count": 88,
   "clubs": [
     {
@@ -341,6 +341,12 @@
       "president": "May 2"
     },
     {
+      "elo": 5411,
+      "club": "FoW Trailblazers",
+      "clubCode": "GMQJNC",
+      "president": "Jan 3"
+    },
+    {
       "elo": 5394,
       "club": "FoW Rocket Racoons",
       "clubCode": "GBCMTG",
@@ -357,12 +363,6 @@
       "club": "FoW Tutelaries",
       "clubCode": "PRNNGT",
       "president": "MN13"
-    },
-    {
-      "elo": 5347,
-      "club": "FoW Trailblazers",
-      "clubCode": "GMQJNC",
-      "president": "Jan 3"
     },
     {
       "elo": 5345,
