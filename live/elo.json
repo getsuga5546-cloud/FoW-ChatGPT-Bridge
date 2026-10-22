@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-22T15:18:55.443Z",
+  "generated_at": "2026-10-22T15:46:44.252Z",
   "count": 88,
   "clubs": [
     {
@@ -245,12 +245,6 @@
       "president": "Issac 32"
     },
     {
-      "elo": 5726,
-      "club": "FoW Minotaurs",
-      "clubCode": "DLBMTN",
-      "president": "Pricess Melo"
-    },
-    {
       "elo": 5712,
       "club": "FoW Soul Guard",
       "clubCode": "BBGPGR",
@@ -405,6 +399,12 @@
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
       "president": "FL-2"
+    },
+    {
+      "elo": 5266,
+      "club": "FoW Minotaurs",
+      "clubCode": "DLBMTN",
+      "president": "Pricess Melo"
     },
     {
       "elo": 5266,
