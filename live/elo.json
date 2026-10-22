@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-22T10:30:52.309Z",
+  "generated_at": "2026-10-22T10:51:33.382Z",
   "count": 88,
   "clubs": [
     {
@@ -407,6 +407,12 @@
       "president": "FL-2"
     },
     {
+      "elo": 5266,
+      "club": "FoW Cheers!",
+      "clubCode": "KCJNLD",
+      "president": "Melo's Warehouse"
+    },
+    {
       "elo": 5248,
       "club": "FoW SunWings",
       "clubCode": "DQLBCD",
@@ -429,12 +435,6 @@
       "club": "FoW Space Sheep",
       "clubCode": "DRKJDP",
       "president": "Navy"
-    },
-    {
-      "elo": 5235,
-      "club": "FoW Cheers!",
-      "clubCode": "KCJNLD",
-      "president": "Melo's Warehouse"
     },
     {
       "elo": 5232,
