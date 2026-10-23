@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-23T21:15:05.216Z",
+  "generated_at": "2026-10-23T21:59:50.772Z",
   "count": 88,
   "clubs": [
     {
@@ -481,7 +481,8 @@
     {
       "elo": 5122,
       "club": "The Drain",
-      "president": "July-12"
+      "president": "July-12",
+      "clubCode": "MQFPBN"
     },
     {
       "elo": 4896,
