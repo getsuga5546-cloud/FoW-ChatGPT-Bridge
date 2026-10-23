@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-23T01:11:39.521Z",
+  "generated_at": "2026-10-23T05:30:47.658Z",
   "count": 88,
   "clubs": [
     {
@@ -23,16 +23,16 @@
       "president": "Evo Prez"
     },
     {
+      "elo": 6837,
+      "club": "Force Of Warmongers",
+      "clubCode": "KQLLHJ",
+      "president": "Warmongers Prez"
+    },
+    {
       "elo": 6816,
       "club": "FoW Sobrenatural BR1",
       "clubCode": "KRMHFN",
       "president": "M 26"
-    },
-    {
-      "elo": 6809,
-      "club": "Force Of Warmongers",
-      "clubCode": "KQLLHJ",
-      "president": "Warmongers Prez"
     },
     {
       "elo": 6782,
@@ -47,16 +47,16 @@
       "president": "OC270"
     },
     {
+      "elo": 6633,
+      "club": "FoW Magslingers",
+      "clubCode": "JCTQHD",
+      "president": "FKR 25"
+    },
+    {
       "elo": 6606,
       "club": "FoW Sobrenatural BR3",
       "clubCode": "TGPNJJ",
       "president": "RLG 337"
-    },
-    {
-      "elo": 6603,
-      "club": "FoW Magslingers",
-      "clubCode": "JCTQHD",
-      "president": "FKR 25"
     },
     {
       "elo": 6556,
@@ -65,13 +65,13 @@
       "president": "FL 13"
     },
     {
-      "elo": 6456,
+      "elo": 6487,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6442,
+      "elo": 6470,
       "club": "FoW Made In Brazil",
       "clubCode": "JJTDHF",
       "president": "OC269"
@@ -83,22 +83,34 @@
       "president": "1445"
     },
     {
+      "elo": 6389,
+      "club": "FoW Empress Enclave",
+      "clubCode": "LDTRJR",
+      "president": "Hot 2"
+    },
+    {
       "elo": 6360,
       "club": "FoW Sobrenatural BR7",
       "clubCode": "HQLHFK",
       "president": "Full Moon 1"
     },
     {
-      "elo": 6358,
-      "club": "FoW Empress Enclave",
-      "clubCode": "LDTRJR",
-      "president": "Hot 2"
-    },
-    {
       "elo": 6328,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
+    },
+    {
+      "elo": 6234,
+      "club": "FoW Eternal Crown",
+      "clubCode": "NFLDLC",
+      "president": "MY-6"
+    },
+    {
+      "elo": 6232,
+      "club": "FoW Jewelry Brigade",
+      "clubCode": "QCLNMD",
+      "president": "BP-2"
     },
     {
       "elo": 6228,
@@ -135,18 +147,6 @@
       "club": "FoW Warmonger Bulls",
       "clubCode": "SQBDQT",
       "president": "WarHawk"
-    },
-    {
-      "elo": 6206,
-      "club": "FoW Eternal Crown",
-      "clubCode": "NFLDLC",
-      "president": "MY-6"
-    },
-    {
-      "elo": 6204,
-      "club": "FoW Jewelry Brigade",
-      "clubCode": "QCLNMD",
-      "president": "BP-2"
     },
     {
       "elo": 6203,
