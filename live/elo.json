@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-23T05:32:52.636Z",
+  "generated_at": "2026-10-23T05:33:25.180Z",
   "count": 88,
   "clubs": [
     {
@@ -23,16 +23,16 @@
       "president": "Evo Prez"
     },
     {
+      "elo": 6846,
+      "club": "FoW Sobrenatural BR1",
+      "clubCode": "KRMHFN",
+      "president": "M 26"
+    },
+    {
       "elo": 6837,
       "club": "Force Of Warmongers",
       "clubCode": "KQLLHJ",
       "president": "Warmongers Prez"
-    },
-    {
-      "elo": 6816,
-      "club": "FoW Sobrenatural BR1",
-      "clubCode": "KRMHFN",
-      "president": "M 26"
     },
     {
       "elo": 6752,
@@ -51,12 +51,6 @@
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
-    },
-    {
-      "elo": 6606,
-      "club": "FoW Sobrenatural BR3",
-      "clubCode": "TGPNJJ",
-      "president": "RLG 337"
     },
     {
       "elo": 6526,
@@ -93,6 +87,12 @@
       "club": "FoW Sobrenatural BR7",
       "clubCode": "HQLHFK",
       "president": "Full Moon 1"
+    },
+    {
+      "elo": 6332,
+      "club": "FoW Sobrenatural BR3",
+      "clubCode": "TGPNJJ",
+      "president": "RLG 337"
     },
     {
       "elo": 6297,
