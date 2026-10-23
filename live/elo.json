@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-23T05:33:25.180Z",
+  "generated_at": "2026-10-23T05:35:01.525Z",
   "count": 88,
   "clubs": [
     {
@@ -53,6 +53,12 @@
       "president": "FKR 25"
     },
     {
+      "elo": 6606,
+      "club": "FoW Sobrenatural BR3",
+      "clubCode": "TGPNJJ",
+      "president": "RLG 337"
+    },
+    {
       "elo": 6526,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
@@ -87,12 +93,6 @@
       "club": "FoW Sobrenatural BR7",
       "clubCode": "HQLHFK",
       "president": "Full Moon 1"
-    },
-    {
-      "elo": 6332,
-      "club": "FoW Sobrenatural BR3",
-      "clubCode": "TGPNJJ",
-      "president": "RLG 337"
     },
     {
       "elo": 6297,
