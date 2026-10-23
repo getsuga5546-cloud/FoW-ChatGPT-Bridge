@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-23T05:30:47.658Z",
+  "generated_at": "2026-10-23T05:32:52.636Z",
   "count": 88,
   "clubs": [
     {
@@ -35,13 +35,13 @@
       "president": "M 26"
     },
     {
-      "elo": 6782,
+      "elo": 6752,
       "club": "FoW Mystic Mages",
       "clubCode": "NGTHMT",
       "president": "Skorvazon"
     },
     {
-      "elo": 6709,
+      "elo": 6681,
       "club": "FoW Ordem e Progresso",
       "clubCode": "QTTKPC",
       "president": "OC270"
@@ -59,7 +59,7 @@
       "president": "RLG 337"
     },
     {
-      "elo": 6556,
+      "elo": 6526,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
@@ -77,7 +77,7 @@
       "president": "OC269"
     },
     {
-      "elo": 6428,
+      "elo": 6397,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
@@ -95,7 +95,7 @@
       "president": "Full Moon 1"
     },
     {
-      "elo": 6328,
+      "elo": 6297,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
@@ -173,22 +173,22 @@
       "president": "AK-131"
     },
     {
-      "elo": 6107,
+      "elo": 6101,
+      "club": "FoW Icebears Drei",
+      "clubCode": "CCGQHQ",
+      "president": "MRH2"
+    },
+    {
+      "elo": 6079,
       "club": "Twist Of Fate",
       "clubCode": "MNGBBC",
       "president": "n28.10 Oolong"
     },
     {
-      "elo": 6106,
+      "elo": 6078,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
-    },
-    {
-      "elo": 6101,
-      "club": "FoW Icebears Drei",
-      "clubCode": "CCGQHQ",
-      "president": "MRH2"
     },
     {
       "elo": 6026,
