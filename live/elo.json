@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-23T05:47:53.574Z",
+  "generated_at": "2026-10-23T05:52:24.832Z",
   "count": 88,
   "clubs": [
     {
@@ -275,16 +275,16 @@
       "president": "BarBerry"
     },
     {
-      "elo": 5659,
-      "club": "FoW Neverland II",
-      "clubCode": "BTDMNB",
-      "president": "Ash-13"
-    },
-    {
       "elo": 5635,
       "club": "FoW Sentinel 3",
       "clubCode": "GMPLQL",
       "president": "Hokusai 20"
+    },
+    {
+      "elo": 5630,
+      "club": "FoW Neverland II",
+      "clubCode": "BTDMNB",
+      "president": "Ash-13"
     },
     {
       "elo": 5597,
