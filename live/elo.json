@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-23T05:41:02.331Z",
+  "generated_at": "2026-10-23T05:44:50.189Z",
   "count": 88,
   "clubs": [
     {
@@ -359,16 +359,16 @@
       "president": "NightBloom"
     },
     {
+      "elo": 5373,
+      "club": "FoW Scorpion XX",
+      "clubCode": "RNCPLJ",
+      "president": "OC400"
+    },
+    {
       "elo": 5370,
       "club": "FoW Tutelaries",
       "clubCode": "PRNNGT",
       "president": "MN13"
-    },
-    {
-      "elo": 5345,
-      "club": "FoW Scorpion XX",
-      "clubCode": "RNCPLJ",
-      "president": "OC400"
     },
     {
       "elo": 5344,
@@ -425,12 +425,6 @@
       "president": "X13"
     },
     {
-      "elo": 5245,
-      "club": "FoW IceBears Deux",
-      "clubCode": "FDJKGL",
-      "president": "IBS 8"
-    },
-    {
       "elo": 5242,
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
@@ -447,6 +441,12 @@
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
       "president": "Mahkota 5"
+    },
+    {
+      "elo": 5217,
+      "club": "FoW IceBears Deux",
+      "clubCode": "FDJKGL",
+      "president": "IBS 8"
     },
     {
       "elo": 5216,
