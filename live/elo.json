@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-23T14:55:34.122Z",
+  "generated_at": "2026-10-23T16:07:06.274Z",
   "count": 88,
   "clubs": [
     {
@@ -437,12 +437,6 @@
       "president": "OC20"
     },
     {
-      "elo": 5217,
-      "club": "FoW IceBears Deux",
-      "clubCode": "FDJKGL",
-      "president": "IBS 8"
-    },
-    {
       "elo": 5216,
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
@@ -471,6 +465,12 @@
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
       "president": "Mahkota 5"
+    },
+    {
+      "elo": 5188,
+      "club": "FoW IceBears Deux",
+      "clubCode": "FDJKGL",
+      "president": "IBS 8"
     },
     {
       "elo": 5144,
