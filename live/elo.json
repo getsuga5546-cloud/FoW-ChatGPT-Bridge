@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-22T22:03:48.437Z",
+  "generated_at": "2026-10-23T01:11:39.521Z",
   "count": 88,
   "clubs": [
     {
@@ -287,7 +287,7 @@
       "president": "Ash-13"
     },
     {
-      "elo": 5627,
+      "elo": 5568,
       "club": "FoW Blue Crown",
       "clubCode": "MGRRNS",
       "president": "QC-1"
