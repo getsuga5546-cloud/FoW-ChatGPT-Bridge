@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-24T14:38:38.741Z",
+  "generated_at": "2026-10-24T15:22:54.310Z",
   "count": 88,
   "clubs": [
     {
@@ -251,12 +251,6 @@
       "president": "IRIS-3"
     },
     {
-      "elo": 5705,
-      "club": "FoW Adeptus Astartes",
-      "clubCode": "HTMGCD",
-      "president": "Issac 27"
-    },
-    {
       "elo": 5694,
       "club": "FoW Minotaurs",
       "clubCode": "DLBMTN",
@@ -267,6 +261,12 @@
       "club": "FoW Soul Guard",
       "clubCode": "BBGPGR",
       "president": "June 2"
+    },
+    {
+      "elo": 5670,
+      "club": "FoW Adeptus Astartes",
+      "clubCode": "HTMGCD",
+      "president": "Issac 27"
     },
     {
       "elo": 5666,
