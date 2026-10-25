@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-25T03:46:49.480Z",
+  "generated_at": "2026-10-25T03:48:39.360Z",
   "count": 88,
   "clubs": [
     {
@@ -473,16 +473,16 @@
       "president": "Mahkota 5"
     },
     {
+      "elo": 5153,
+      "club": "The Drain",
+      "clubCode": "MQFPBN",
+      "president": "July-12"
+    },
+    {
       "elo": 5144,
       "club": "FoW Firebirds",
       "clubCode": "MRRDRS",
       "president": "Altair"
-    },
-    {
-      "elo": 5122,
-      "club": "The Drain",
-      "clubCode": "MQFPBN",
-      "president": "July-12"
     },
     {
       "elo": 4896,
