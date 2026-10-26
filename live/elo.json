@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-26T05:00:19.189Z",
+  "generated_at": "2026-10-26T05:02:35.627Z",
   "count": 88,
   "clubs": [
     {
@@ -41,67 +41,67 @@
       "president": "Skorvazon"
     },
     {
-      "elo": 6712,
+      "elo": 6740,
       "club": "FoW Ordem e Progresso",
       "clubCode": "QTTKPC",
       "president": "OC270"
     },
     {
-      "elo": 6634,
-      "club": "FoW Sobrenatural BR3",
-      "clubCode": "TGPNJJ",
-      "president": "RLG 337"
-    },
-    {
-      "elo": 6628,
+      "elo": 6656,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6535,
-      "club": "FoW Made In Brazil",
-      "clubCode": "JJTDHF",
-      "president": "OC269"
+      "elo": 6606,
+      "club": "FoW Sobrenatural BR3",
+      "clubCode": "TGPNJJ",
+      "president": "RLG 337"
     },
     {
-      "elo": 6487,
+      "elo": 6515,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6463,
+      "elo": 6507,
+      "club": "FoW Made In Brazil",
+      "clubCode": "JJTDHF",
+      "president": "OC269"
+    },
+    {
+      "elo": 6491,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6399,
-      "club": "FoW Flower Garden",
-      "clubCode": "NJPHDJ",
-      "president": "1445"
-    },
-    {
-      "elo": 6363,
-      "club": "FoW Empress Enclave",
-      "clubCode": "LDTRJR",
-      "president": "Hot 2"
-    },
-    {
-      "elo": 6356,
+      "elo": 6388,
       "club": "FoW Sobrenatural BR7",
       "clubCode": "HQLHFK",
       "president": "Full Moon 1"
     },
     {
-      "elo": 6353,
+      "elo": 6371,
+      "club": "FoW Flower Garden",
+      "clubCode": "NJPHDJ",
+      "president": "1445"
+    },
+    {
+      "elo": 6335,
+      "club": "FoW Empress Enclave",
+      "clubCode": "LDTRJR",
+      "president": "Hot 2"
+    },
+    {
+      "elo": 6321,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
     },
     {
-      "elo": 6263,
+      "elo": 6294,
       "club": "FoW RingoRacoons",
       "clubCode": "PLCJKH",
       "president": "SP-2"
@@ -111,12 +111,6 @@
       "club": "FoW Sentinels 4",
       "clubCode": "TNJJCH",
       "president": "Mrh 9"
-    },
-    {
-      "elo": 6235,
-      "club": "FoW Warmonger Bulls",
-      "clubCode": "SQBDQT",
-      "president": "WarHawk"
     },
     {
       "elo": 6216,
@@ -135,6 +129,12 @@
       "club": "FoW Eternal Crown",
       "clubCode": "NFLDLC",
       "president": "MY-6"
+    },
+    {
+      "elo": 6204,
+      "club": "FoW Warmonger Bulls",
+      "clubCode": "SQBDQT",
+      "president": "WarHawk"
     },
     {
       "elo": 6204,
