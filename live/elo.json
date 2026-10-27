@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-27T02:06:01.030Z",
+  "generated_at": "2026-10-27T03:11:59.517Z",
   "count": 88,
   "clubs": [
     {
@@ -209,16 +209,16 @@
       "president": "CoCoa Peeble"
     },
     {
+      "elo": 5919,
+      "club": "FoW Encore Racoons",
+      "clubCode": "DRCQRR",
+      "president": "Wn-3"
+    },
+    {
       "elo": 5918,
       "club": "Force of War IX",
       "clubCode": "HGNMSM",
       "president": "Uranium"
-    },
-    {
-      "elo": 5884,
-      "club": "FoW Encore Racoons",
-      "clubCode": "DRCQRR",
-      "president": "Wn-3"
     },
     {
       "elo": 5781,
@@ -395,6 +395,12 @@
       "president": "Navy"
     },
     {
+      "elo": 5282,
+      "club": "FoW Bartenders",
+      "clubCode": "QDJMRH",
+      "president": "FL-2"
+    },
+    {
       "elo": 5281,
       "club": "FoW Shooters",
       "clubCode": "MMPTBB",
@@ -411,12 +417,6 @@
       "club": "FoW Soul Society",
       "clubCode": "LQNTCH",
       "president": "Amethys"
-    },
-    {
-      "elo": 5248,
-      "club": "FoW Bartenders",
-      "clubCode": "QDJMRH",
-      "president": "FL-2"
     },
     {
       "elo": 5248,
