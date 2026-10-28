@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-28T13:37:39.907Z",
+  "generated_at": "2026-10-28T13:45:53.232Z",
   "count": 88,
   "clubs": [
     {
@@ -341,16 +341,16 @@
       "president": "Ingot Landing"
     },
     {
+      "elo": 5428,
+      "club": "FoW Rocket Racoons",
+      "clubCode": "GBCMTG",
+      "president": "Queen Champ"
+    },
+    {
       "elo": 5427,
       "club": "FoW Tutelaries",
       "clubCode": "PRNNGT",
       "president": "MN13"
-    },
-    {
-      "elo": 5394,
-      "club": "FoW Rocket Racoons",
-      "clubCode": "GBCMTG",
-      "president": "Queen Champ"
     },
     {
       "elo": 5375,
