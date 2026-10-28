@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-28T13:45:53.232Z",
+  "generated_at": "2026-10-28T14:31:17.442Z",
   "count": 88,
   "clubs": [
     {
@@ -437,6 +437,12 @@
       "president": "OC20"
     },
     {
+      "elo": 5227,
+      "club": "FoW CodeX",
+      "clubCode": "QQTFQL",
+      "president": "NightScorpion"
+    },
+    {
       "elo": 5216,
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
@@ -447,12 +453,6 @@
       "club": "FoW Whitecap Bay",
       "clubCode": "TKPBKN",
       "president": "Lady Of Lightning"
-    },
-    {
-      "elo": 5203,
-      "club": "FoW CodeX",
-      "clubCode": "QQTFQL",
-      "president": "NightScorpion"
     },
     {
       "elo": 5197,
