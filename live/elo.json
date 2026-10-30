@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-30T07:43:25.656Z",
+  "generated_at": "2026-10-30T07:43:50.506Z",
   "count": 88,
   "clubs": [
     {
@@ -341,6 +341,12 @@
       "president": "Jan 9"
     },
     {
+      "elo": 5406,
+      "club": "The FoW Beach House",
+      "clubCode": "QMGGFC",
+      "president": "MN 2"
+    },
+    {
       "elo": 5403,
       "club": "FoW Fyr",
       "clubCode": "DRRSHC",
@@ -381,12 +387,6 @@
       "club": "FoW Trailblazers",
       "clubCode": "GMQJNC",
       "president": "Jan 3"
-    },
-    {
-      "elo": 5311,
-      "club": "The FoW Beach House",
-      "clubCode": "QMGGFC",
-      "president": "MN 2"
     },
     {
       "elo": 5297,
