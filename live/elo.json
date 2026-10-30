@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-10-30T06:59:59.683Z",
+  "generated_at": "2026-10-30T07:43:25.656Z",
   "count": 88,
   "clubs": [
     {
@@ -449,6 +449,12 @@
       "president": "Lady Of Lightning"
     },
     {
+      "elo": 5192,
+      "club": "FoW IceBears Deux",
+      "clubCode": "FDJKGL",
+      "president": "IBS 8"
+    },
+    {
       "elo": 5185,
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
@@ -459,12 +465,6 @@
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
       "president": "Pearl"
-    },
-    {
-      "elo": 5159,
-      "club": "FoW IceBears Deux",
-      "clubCode": "FDJKGL",
-      "president": "IBS 8"
     },
     {
       "elo": 5153,
