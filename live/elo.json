@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-01T11:54:02.552Z",
+  "generated_at": "2026-11-01T18:39:11.863Z",
   "count": 88,
   "clubs": [
     {
@@ -41,61 +41,61 @@
       "president": "Skorvazon"
     },
     {
-      "elo": 6712,
+      "elo": 6743,
       "club": "FoW Ordem e Progresso",
       "clubCode": "QTTKPC",
       "president": "OC270"
     },
     {
-      "elo": 6685,
+      "elo": 6654,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6602,
+      "elo": 6633,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6575,
+      "elo": 6544,
       "club": "FoW Sobrenatural BR3",
       "clubCode": "TGPNJJ",
       "president": "RLG 337"
     },
     {
-      "elo": 6461,
+      "elo": 6492,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6461,
+      "elo": 6489,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6450,
+      "elo": 6419,
       "club": "FoW Made In Brazil",
       "clubCode": "JJTDHF",
       "president": "OC269"
     },
     {
-      "elo": 6361,
-      "club": "FoW Empress Enclave",
-      "clubCode": "LDTRJR",
-      "president": "Hot 2"
-    },
-    {
-      "elo": 6328,
+      "elo": 6360,
       "club": "FoW Sobrenatural BR7",
       "clubCode": "HQLHFK",
       "president": "Full Moon 1"
     },
     {
-      "elo": 6321,
+      "elo": 6333,
+      "club": "FoW Empress Enclave",
+      "clubCode": "LDTRJR",
+      "president": "Hot 2"
+    },
+    {
+      "elo": 6289,
       "club": "FoW Neverland",
       "clubCode": "SFBLPJ",
       "president": "ASH2"
