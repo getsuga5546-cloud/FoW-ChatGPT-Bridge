@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-01T20:15:46.643Z",
+  "generated_at": "2026-11-02T07:16:32.789Z",
   "count": 88,
   "clubs": [
     {
@@ -359,6 +359,12 @@
       "president": "Queen Champ"
     },
     {
+      "elo": 5363,
+      "club": "FoW Space Sheep",
+      "clubCode": "DRKJDP",
+      "president": "Navy"
+    },
+    {
       "elo": 5346,
       "club": "FoW Sentinels 5",
       "clubCode": "JFPTQP",
@@ -381,12 +387,6 @@
       "club": "Road to FoW",
       "clubCode": "BHJJDD",
       "president": "NightBloom"
-    },
-    {
-      "elo": 5327,
-      "club": "FoW Space Sheep",
-      "clubCode": "DRKJDP",
-      "president": "Navy"
     },
     {
       "elo": 5326,
