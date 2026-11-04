@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-04T07:06:36.832Z",
+  "generated_at": "2026-11-04T16:19:31.585Z",
   "count": 88,
   "clubs": [
     {
@@ -329,6 +329,12 @@
       "president": "764"
     },
     {
+      "elo": 5435,
+      "club": "The FoW Beach House",
+      "clubCode": "QMGGFC",
+      "president": "MN 2"
+    },
+    {
       "elo": 5433,
       "club": "FoW Fyr",
       "clubCode": "DRRSHC",
@@ -351,12 +357,6 @@
       "club": "FoW Rocket Racoons",
       "clubCode": "GBCMTG",
       "president": "Queen Champ"
-    },
-    {
-      "elo": 5406,
-      "club": "The FoW Beach House",
-      "clubCode": "QMGGFC",
-      "president": "MN 2"
     },
     {
       "elo": 5363,
