@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-06T20:00:54.428Z",
+  "generated_at": "2026-11-06T20:01:14.697Z",
   "count": 88,
   "clubs": [
     {
@@ -377,6 +377,12 @@
       "president": "S5 Prez"
     },
     {
+      "elo": 5317,
+      "club": "FoW CodeX",
+      "clubCode": "QQTFQL",
+      "president": "NightScorpion"
+    },
+    {
       "elo": 5282,
       "club": "FoW Tutelaries",
       "clubCode": "PRNNGT",
@@ -417,12 +423,6 @@
       "club": "FoW Rhaezalix",
       "clubCode": "SJJJTR",
       "president": "OC20"
-    },
-    {
-      "elo": 5259,
-      "club": "FoW CodeX",
-      "clubCode": "QQTFQL",
-      "president": "NightScorpion"
     },
     {
       "elo": 5242,
