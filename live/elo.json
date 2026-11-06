@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-06T22:13:51.819Z",
+  "generated_at": "2026-11-06T22:14:09.378Z",
   "count": 88,
   "clubs": [
     {
@@ -419,6 +419,12 @@
       "president": "Jan 3"
     },
     {
+      "elo": 5263,
+      "club": "FoW Soul Society",
+      "clubCode": "LQNTCH",
+      "president": "Amethys"
+    },
+    {
       "elo": 5262,
       "club": "FoW Rhaezalix",
       "clubCode": "SJJJTR",
@@ -429,12 +435,6 @@
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
-    },
-    {
-      "elo": 5230,
-      "club": "FoW Soul Society",
-      "clubCode": "LQNTCH",
-      "president": "Amethys"
     },
     {
       "elo": 5215,
