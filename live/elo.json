@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-06T22:14:09.378Z",
+  "generated_at": "2026-11-06T22:14:31.637Z",
   "count": 88,
   "clubs": [
     {
@@ -251,16 +251,16 @@
       "president": "June 2"
     },
     {
-      "elo": 5758,
-      "club": "FoW Stranger Things",
-      "clubCode": "NHTMMJ",
-      "president": "Rigel"
-    },
-    {
       "elo": 5736,
       "club": "FoW Ice Bears",
       "clubCode": "DFTHCS",
       "president": "July-1"
+    },
+    {
+      "elo": 5725,
+      "club": "FoW Stranger Things",
+      "clubCode": "NHTMMJ",
+      "president": "Rigel"
     },
     {
       "elo": 5637,
