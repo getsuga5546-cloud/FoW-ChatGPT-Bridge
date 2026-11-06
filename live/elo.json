@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-06T20:00:33.501Z",
+  "generated_at": "2026-11-06T20:00:54.428Z",
   "count": 88,
   "clubs": [
     {
@@ -401,7 +401,7 @@
       "president": "NightBloom"
     },
     {
-      "elo": 5266,
+      "elo": 5268,
       "club": "FoW Cheers!",
       "clubCode": "KCJNLD",
       "president": "Melo's Warehouse"
