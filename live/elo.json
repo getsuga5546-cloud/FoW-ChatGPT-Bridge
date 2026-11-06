@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-06T18:21:16.781Z",
+  "generated_at": "2026-11-06T18:24:58.062Z",
   "count": 88,
   "clubs": [
     {
@@ -173,49 +173,49 @@
       "president": "CranBerry"
     },
     {
-      "elo": 6167,
+      "elo": 6195,
       "club": "FoW Blood Legion",
       "clubCode": "BTMMNQ",
       "president": "Casablanca"
     },
     {
-      "elo": 6089,
+      "elo": 6117,
       "club": "Twist Of Fate",
       "clubCode": "MNGBBC",
       "president": "n28.10 Oolong"
     },
     {
-      "elo": 6067,
-      "club": "FoW Icebears Drei",
-      "clubCode": "CCGQHQ",
-      "president": "MRH2"
-    },
-    {
-      "elo": 6049,
+      "elo": 6078,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
     },
     {
-      "elo": 6009,
+      "elo": 6039,
+      "club": "FoW Icebears Drei",
+      "clubCode": "CCGQHQ",
+      "president": "MRH2"
+    },
+    {
+      "elo": 5981,
       "club": "FoW Encore Racoons",
       "clubCode": "DRCQRR",
       "president": "Wn-3"
     },
     {
-      "elo": 5983,
+      "elo": 5954,
       "club": "FoW Regalia Realms",
       "clubCode": "RTMJML",
       "president": "CoCoa Peeble"
     },
     {
-      "elo": 5916,
+      "elo": 5944,
       "club": "Force of War IX",
       "clubCode": "HGNMSM",
       "president": "Uranium"
     },
     {
-      "elo": 5900,
+      "elo": 5929,
       "club": "Force Of War II",
       "clubCode": "CGBHTG",
       "president": "BarBerry"
@@ -227,16 +227,28 @@
       "president": "11.25"
     },
     {
-      "elo": 5839,
+      "elo": 5810,
       "club": "FoW Hellblade",
       "clubCode": "QPNJJH",
       "president": "Auralis"
     },
     {
-      "elo": 5822,
+      "elo": 5794,
       "club": "FoW Diamond Dust",
       "clubCode": "CSDCQC",
       "president": "IRIS-3"
+    },
+    {
+      "elo": 5781,
+      "club": "FoW Bope",
+      "clubCode": "HDDKRN",
+      "president": "Issac 32"
+    },
+    {
+      "elo": 5772,
+      "club": "FoW Soul Guard",
+      "clubCode": "BBGPGR",
+      "president": "June 2"
     },
     {
       "elo": 5758,
@@ -245,52 +257,40 @@
       "president": "Rigel"
     },
     {
-      "elo": 5753,
-      "club": "FoW Bope",
-      "clubCode": "HDDKRN",
-      "president": "Issac 32"
-    },
-    {
-      "elo": 5744,
-      "club": "FoW Soul Guard",
-      "clubCode": "BBGPGR",
-      "president": "June 2"
-    },
-    {
-      "elo": 5706,
+      "elo": 5736,
       "club": "FoW Ice Bears",
       "clubCode": "DFTHCS",
       "president": "July-1"
     },
     {
-      "elo": 5665,
-      "club": "FoW Neverland II",
-      "clubCode": "BTDMNB",
-      "president": "Ash-13"
-    },
-    {
-      "elo": 5665,
+      "elo": 5637,
       "club": "FoW Minotaurs",
       "clubCode": "DLBMTN",
       "president": "Pricess Melo"
     },
     {
-      "elo": 5663,
+      "elo": 5635,
+      "club": "FoW Neverland II",
+      "clubCode": "BTDMNB",
+      "president": "Ash-13"
+    },
+    {
+      "elo": 5635,
       "club": "FoW Sentinel 3",
       "clubCode": "GMPLQL",
       "president": "Hokusai 20"
+    },
+    {
+      "elo": 5620,
+      "club": "FoW Adeptus Astartes",
+      "clubCode": "HTMGCD",
+      "president": "Issac 27"
     },
     {
       "elo": 5593,
       "club": "FoW Sentinels",
       "clubCode": "LNDGDP",
       "president": "Mahkota 3"
-    },
-    {
-      "elo": 5592,
-      "club": "FoW Adeptus Astartes",
-      "clubCode": "HTMGCD",
-      "president": "Issac 27"
     },
     {
       "elo": 5543,
@@ -311,12 +311,6 @@
       "president": "Apr-3"
     },
     {
-      "elo": 5511,
-      "club": "FoW Blue Crown",
-      "clubCode": "MGRRNS",
-      "president": "QC-1"
-    },
-    {
       "elo": 5491,
       "club": "The FoW Beach House",
       "clubCode": "QMGGFC",
@@ -327,6 +321,12 @@
       "club": "FoW Destruction inc",
       "clubCode": "QHJCSB",
       "president": "MN9"
+    },
+    {
+      "elo": 5483,
+      "club": "FoW Blue Crown",
+      "clubCode": "MGRRNS",
+      "president": "QC-1"
     },
     {
       "elo": 5481,
