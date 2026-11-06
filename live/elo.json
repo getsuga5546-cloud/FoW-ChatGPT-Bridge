@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-06T20:01:14.697Z",
+  "generated_at": "2026-11-06T20:01:47.694Z",
   "count": 88,
   "clubs": [
     {
@@ -449,6 +449,12 @@
       "president": "Lady Of Lightning"
     },
     {
+      "elo": 5196,
+      "club": "FoW IceBears Deux",
+      "clubCode": "FDJKGL",
+      "president": "IBS 8"
+    },
+    {
       "elo": 5170,
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
@@ -471,12 +477,6 @@
       "club": "FoW Scorpion XX",
       "clubCode": "RNCPLJ",
       "president": "OC400"
-    },
-    {
-      "elo": 5133,
-      "club": "FoW IceBears Deux",
-      "clubCode": "FDJKGL",
-      "president": "IBS 8"
     },
     {
       "elo": 5115,
