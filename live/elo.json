@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-06T18:24:58.062Z",
+  "generated_at": "2026-11-06T20:00:33.501Z",
   "count": 88,
   "clubs": [
     {
@@ -437,16 +437,16 @@
       "president": "Amethys"
     },
     {
+      "elo": 5215,
+      "club": "FoW Twin Essence",
+      "clubCode": "BTPPKS",
+      "president": "X10"
+    },
+    {
       "elo": 5205,
       "club": "FoW Whitecap Bay",
       "clubCode": "TKPBKN",
       "president": "Lady Of Lightning"
-    },
-    {
-      "elo": 5185,
-      "club": "FoW Twin Essence",
-      "clubCode": "BTPPKS",
-      "president": "X10"
     },
     {
       "elo": 5170,
