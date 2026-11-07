@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-07T01:04:45.238Z",
+  "generated_at": "2026-11-07T01:08:00.489Z",
   "count": 88,
   "clubs": [
     {
@@ -269,6 +269,12 @@
       "president": "Ash-13"
     },
     {
+      "elo": 5622,
+      "club": "FoW Sentinels",
+      "clubCode": "LNDGDP",
+      "president": "Mahkota 3"
+    },
+    {
       "elo": 5609,
       "club": "FoW Minotaurs",
       "clubCode": "DLBMTN",
@@ -281,19 +287,13 @@
       "president": "Hokusai 20"
     },
     {
-      "elo": 5593,
-      "club": "FoW Sentinels",
-      "clubCode": "LNDGDP",
-      "president": "Mahkota 3"
-    },
-    {
       "elo": 5589,
       "club": "FoW Adeptus Astartes",
       "clubCode": "HTMGCD",
       "president": "Issac 27"
     },
     {
-      "elo": 5543,
+      "elo": 5571,
       "club": "FoW Eternal Wanderer ",
       "clubCode": "RMRRCH",
       "president": "42 Ingot"
@@ -305,16 +305,22 @@
       "president": "s76 Honeysuckle"
     },
     {
-      "elo": 5520,
-      "club": "FoW Fyr",
-      "clubCode": "DRRSHC",
-      "president": "Apr-3"
-    },
-    {
-      "elo": 5491,
+      "elo": 5519,
       "club": "The FoW Beach House",
       "clubCode": "QMGGFC",
       "president": "MN 2"
+    },
+    {
+      "elo": 5509,
+      "club": "FoW Eternal Wanderer 2",
+      "clubCode": "RBLGNS",
+      "president": "764"
+    },
+    {
+      "elo": 5491,
+      "club": "FoW Fyr",
+      "clubCode": "DRRSHC",
+      "president": "Apr-3"
     },
     {
       "elo": 5485,
@@ -329,43 +335,37 @@
       "president": "QC-1"
     },
     {
-      "elo": 5481,
-      "club": "FoW Eternal Wanderer 2",
-      "clubCode": "RBLGNS",
-      "president": "764"
-    },
-    {
-      "elo": 5460,
+      "elo": 5432,
       "club": "FoW Eternal Wanderer 3",
       "clubCode": "SDKHRT",
       "president": "Ingot Landing"
     },
     {
-      "elo": 5399,
-      "club": "FoW Imperial Legacy",
-      "clubCode": "HCFCRD",
-      "president": "May 2"
-    },
-    {
-      "elo": 5398,
-      "club": "FoW Rocket Racoons",
-      "clubCode": "GBCMTG",
-      "president": "Queen Champ"
-    },
-    {
-      "elo": 5379,
+      "elo": 5407,
       "club": "FoW Shooters",
       "clubCode": "MMPTBB",
       "president": "shot 7"
     },
     {
-      "elo": 5376,
+      "elo": 5404,
       "club": "FoW Synédrion Xenon",
       "clubCode": "NFFJCN",
       "president": "Jan 9"
     },
     {
-      "elo": 5336,
+      "elo": 5371,
+      "club": "FoW Imperial Legacy",
+      "clubCode": "HCFCRD",
+      "president": "May 2"
+    },
+    {
+      "elo": 5370,
+      "club": "FoW Rocket Racoons",
+      "clubCode": "GBCMTG",
+      "president": "Queen Champ"
+    },
+    {
+      "elo": 5365,
       "club": "FoW Space Sheep",
       "clubCode": "DRKJDP",
       "president": "Navy"
@@ -381,18 +381,6 @@
       "club": "FoW CodeX",
       "clubCode": "QQTFQL",
       "president": "NightScorpion"
-    },
-    {
-      "elo": 5282,
-      "club": "FoW Tutelaries",
-      "clubCode": "PRNNGT",
-      "president": "MN13"
-    },
-    {
-      "elo": 5281,
-      "club": "FoW Bartenders",
-      "clubCode": "QDJMRH",
-      "president": "FL-2"
     },
     {
       "elo": 5279,
@@ -413,12 +401,6 @@
       "president": "Melo's Warehouse"
     },
     {
-      "elo": 5265,
-      "club": "FoW Trailblazers",
-      "clubCode": "GMQJNC",
-      "president": "Jan 3"
-    },
-    {
       "elo": 5263,
       "club": "FoW Soul Society",
       "clubCode": "LQNTCH",
@@ -431,10 +413,28 @@
       "president": "OC20"
     },
     {
+      "elo": 5254,
+      "club": "FoW Tutelaries",
+      "clubCode": "PRNNGT",
+      "president": "MN13"
+    },
+    {
+      "elo": 5253,
+      "club": "FoW Bartenders",
+      "clubCode": "QDJMRH",
+      "president": "FL-2"
+    },
+    {
       "elo": 5242,
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
+    },
+    {
+      "elo": 5236,
+      "club": "FoW Trailblazers",
+      "clubCode": "GMQJNC",
+      "president": "Jan 3"
     },
     {
       "elo": 5215,
