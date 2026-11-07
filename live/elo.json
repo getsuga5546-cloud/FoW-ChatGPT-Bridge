@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-07T20:34:42.976Z",
+  "generated_at": "2026-11-07T20:34:49.879Z",
   "count": 88,
   "clubs": [
     {
@@ -401,6 +401,12 @@
       "president": "Melo's Warehouse"
     },
     {
+      "elo": 5264,
+      "club": "FoW Trailblazers",
+      "clubCode": "GMQJNC",
+      "president": "Jan 3"
+    },
+    {
       "elo": 5262,
       "club": "FoW Rhaezalix",
       "clubCode": "SJJJTR",
@@ -429,12 +435,6 @@
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
-    },
-    {
-      "elo": 5236,
-      "club": "FoW Trailblazers",
-      "clubCode": "GMQJNC",
-      "president": "Jan 3"
     },
     {
       "elo": 5215,
