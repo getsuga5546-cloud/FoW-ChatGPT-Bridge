@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-07T20:26:47.378Z",
+  "generated_at": "2026-11-07T20:34:42.976Z",
   "count": 88,
   "clubs": [
     {
@@ -305,7 +305,7 @@
       "president": "s76 Honeysuckle"
     },
     {
-      "elo": 5519,
+      "elo": 5552,
       "club": "The FoW Beach House",
       "clubCode": "QMGGFC",
       "president": "MN 2"
