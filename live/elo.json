@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-08T01:38:17.031Z",
+  "generated_at": "2026-11-08T02:41:41.712Z",
   "count": 88,
   "clubs": [
     {
@@ -341,6 +341,12 @@
       "president": "764"
     },
     {
+      "elo": 5434,
+      "club": "FoW Rocket Racoons",
+      "clubCode": "GBCMTG",
+      "president": "Queen Champ"
+    },
+    {
       "elo": 5432,
       "club": "FoW Eternal Wanderer 3",
       "clubCode": "SDKHRT",
@@ -351,12 +357,6 @@
       "club": "FoW Blue Crown",
       "clubCode": "MGRRNS",
       "president": "QC-1"
-    },
-    {
-      "elo": 5398,
-      "club": "FoW Rocket Racoons",
-      "clubCode": "GBCMTG",
-      "president": "Queen Champ"
     },
     {
       "elo": 5352,
