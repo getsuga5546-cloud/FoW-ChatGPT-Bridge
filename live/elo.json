@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-08T02:41:41.712Z",
+  "generated_at": "2026-11-08T02:41:49.050Z",
   "count": 88,
   "clubs": [
     {
@@ -455,6 +455,12 @@
       "president": "IBS 8"
     },
     {
+      "elo": 5172,
+      "club": "Force Of War V",
+      "clubCode": "HRQQNR",
+      "president": "Mahkota 5"
+    },
+    {
       "elo": 5171,
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
@@ -465,12 +471,6 @@
       "club": "The Drain",
       "clubCode": "MQFPBN",
       "president": "July-12"
-    },
-    {
-      "elo": 5142,
-      "club": "Force Of War V",
-      "clubCode": "HRQQNR",
-      "president": "Mahkota 5"
     },
     {
       "elo": 5136,
