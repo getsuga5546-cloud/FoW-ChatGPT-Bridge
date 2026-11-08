@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-08T11:03:31.793Z",
+  "generated_at": "2026-11-08T13:19:43.690Z",
   "count": 88,
   "clubs": [
     {
@@ -203,16 +203,16 @@
       "president": "Auralis"
     },
     {
-      "elo": 5954,
-      "club": "FoW Regalia Realms",
-      "clubCode": "RTMJML",
-      "president": "CoCoa Peeble"
-    },
-    {
       "elo": 5948,
       "club": "FoW Icebears Drei",
       "clubCode": "CCGQHQ",
       "president": "MRH2"
+    },
+    {
+      "elo": 5924,
+      "club": "FoW Regalia Realms",
+      "clubCode": "RTMJML",
+      "president": "CoCoa Peeble"
     },
     {
       "elo": 5916,
