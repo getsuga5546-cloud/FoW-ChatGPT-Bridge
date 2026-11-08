@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-08T17:30:03.530Z",
+  "generated_at": "2026-11-08T17:31:09.474Z",
   "count": 88,
   "clubs": [
     {
@@ -41,19 +41,19 @@
       "president": "Skorvazon"
     },
     {
-      "elo": 6771,
+      "elo": 6799,
       "club": "FoW Ordem e Progresso",
       "clubCode": "QTTKPC",
       "president": "OC270"
     },
     {
-      "elo": 6691,
+      "elo": 6663,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6596,
+      "elo": 6627,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
@@ -65,13 +65,13 @@
       "president": "FL 13"
     },
     {
-      "elo": 6573,
+      "elo": 6542,
       "club": "FoW Sobrenatural BR3",
       "clubCode": "TGPNJJ",
       "president": "RLG 337"
     },
     {
-      "elo": 6431,
+      "elo": 6462,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
@@ -83,22 +83,16 @@
       "president": "OC269"
     },
     {
-      "elo": 6414,
+      "elo": 6383,
       "club": "FoW Sobrenatural BR7",
       "clubCode": "HQLHFK",
       "president": "Full Moon 1"
     },
     {
-      "elo": 6280,
+      "elo": 6312,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
-    },
-    {
-      "elo": 6272,
-      "club": "Force of War VIII",
-      "clubCode": "MQKJMK",
-      "president": "At-2"
     },
     {
       "elo": 6269,
@@ -141,6 +135,12 @@
       "club": "FoW RascalRacoons",
       "clubCode": "GLTKGG",
       "president": "Mercury"
+    },
+    {
+      "elo": 6240,
+      "club": "Force of War VIII",
+      "clubCode": "MQKJMK",
+      "president": "At-2"
     },
     {
       "elo": 6227,
