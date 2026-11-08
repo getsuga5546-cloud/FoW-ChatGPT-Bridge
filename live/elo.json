@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-07T20:34:49.879Z",
+  "generated_at": "2026-11-08T01:15:28.274Z",
   "count": 88,
   "clubs": [
     {
@@ -71,16 +71,16 @@
       "president": "RLG 337"
     },
     {
+      "elo": 6446,
+      "club": "FoW Made In Brazil",
+      "clubCode": "JJTDHF",
+      "president": "OC269"
+    },
+    {
       "elo": 6428,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
-    },
-    {
-      "elo": 6418,
-      "club": "FoW Made In Brazil",
-      "clubCode": "JJTDHF",
-      "president": "OC269"
     },
     {
       "elo": 6417,
