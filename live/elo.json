@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-09T03:57:39.807Z",
+  "generated_at": "2026-11-09T05:03:02.144Z",
   "count": 88,
   "clubs": [
     {
@@ -197,16 +197,16 @@
       "president": "Wn-3"
     },
     {
-      "elo": 5984,
-      "club": "FoW Hellblade",
-      "clubCode": "QPNJJH",
-      "president": "Auralis"
-    },
-    {
       "elo": 5972,
       "club": "FoW Berserker",
       "clubCode": "NFPJCN",
       "president": "11.25"
+    },
+    {
+      "elo": 5955,
+      "club": "FoW Hellblade",
+      "clubCode": "QPNJJH",
+      "president": "Auralis"
     },
     {
       "elo": 5953,
