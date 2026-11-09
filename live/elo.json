@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-09T22:04:24.340Z",
+  "generated_at": "2026-11-09T22:05:53.464Z",
   "count": 88,
   "clubs": [
     {
@@ -137,12 +137,6 @@
       "president": "Celestra"
     },
     {
-      "elo": 6243,
-      "club": "FoW RascalRacoons",
-      "clubCode": "GLTKGG",
-      "president": "Mercury"
-    },
-    {
       "elo": 6240,
       "club": "Force of War VIII",
       "clubCode": "MQKJMK",
@@ -177,6 +171,12 @@
       "club": "FoW Blood Legion",
       "clubCode": "BTMMNQ",
       "president": "Casablanca"
+    },
+    {
+      "elo": 6212,
+      "club": "FoW RascalRacoons",
+      "clubCode": "GLTKGG",
+      "president": "Mercury"
     },
     {
       "elo": 6129,
