@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-09T11:29:28.110Z",
+  "generated_at": "2026-11-09T11:32:40.155Z",
   "count": 88,
   "clubs": [
     {
@@ -425,6 +425,12 @@
       "president": "Jan 3"
     },
     {
+      "elo": 5228,
+      "club": "FoW Tutelaries",
+      "clubCode": "PRNNGT",
+      "president": "MN13"
+    },
+    {
       "elo": 5225,
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
@@ -447,12 +453,6 @@
       "club": "FoW IceBears Deux",
       "clubCode": "FDJKGL",
       "president": "IBS 8"
-    },
-    {
-      "elo": 5194,
-      "club": "FoW Tutelaries",
-      "clubCode": "PRNNGT",
-      "president": "MN13"
     },
     {
       "elo": 5171,
