@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-09T21:26:53.430Z",
+  "generated_at": "2026-11-09T22:04:24.340Z",
   "count": 88,
   "clubs": [
     {
@@ -95,6 +95,12 @@
       "president": "SP-2"
     },
     {
+      "elo": 6296,
+      "club": "FoW Eternal Crown",
+      "clubCode": "NFLDLC",
+      "president": "MY-6"
+    },
+    {
       "elo": 6282,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
@@ -105,12 +111,6 @@
       "club": "FoW Sentinels 4",
       "clubCode": "TNJJCH",
       "president": "Mrh 9"
-    },
-    {
-      "elo": 6265,
-      "club": "FoW Eternal Crown",
-      "clubCode": "NFLDLC",
-      "president": "MY-6"
     },
     {
       "elo": 6264,
