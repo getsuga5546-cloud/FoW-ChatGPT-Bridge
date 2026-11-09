@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-09T11:32:40.155Z",
+  "generated_at": "2026-11-09T11:32:46.414Z",
   "count": 88,
   "clubs": [
     {
@@ -353,6 +353,12 @@
       "president": "Ingot Landing"
     },
     {
+      "elo": 5356,
+      "club": "FoW Sentinels 5",
+      "clubCode": "JFPTQP",
+      "president": "S5 Prez"
+    },
+    {
       "elo": 5343,
       "club": "FoW Imperial Legacy",
       "clubCode": "HCFCRD",
@@ -363,12 +369,6 @@
       "club": "FoW Blue Crown",
       "clubCode": "MGRRNS",
       "president": "QC-1"
-    },
-    {
-      "elo": 5324,
-      "club": "FoW Sentinels 5",
-      "clubCode": "JFPTQP",
-      "president": "S5 Prez"
     },
     {
       "elo": 5320,
