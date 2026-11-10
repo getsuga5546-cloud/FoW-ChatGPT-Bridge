@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-10T05:27:26.773Z",
+  "generated_at": "2026-11-10T06:00:26.474Z",
   "count": 88,
   "clubs": [
     {
@@ -41,58 +41,58 @@
       "president": "Skorvazon"
     },
     {
-      "elo": 6799,
+      "elo": 6827,
       "club": "FoW Ordem e Progresso",
       "clubCode": "QTTKPC",
       "president": "OC270"
     },
     {
-      "elo": 6716,
+      "elo": 6688,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6632,
+      "elo": 6662,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6580,
-      "club": "Force of War IV",
-      "clubCode": "RLBLPB",
-      "president": "FL 13"
-    },
-    {
-      "elo": 6542,
+      "elo": 6570,
       "club": "FoW Sobrenatural BR3",
       "clubCode": "TGPNJJ",
       "president": "RLG 337"
     },
     {
-      "elo": 6450,
-      "club": "FoW Made In Brazil",
-      "clubCode": "JJTDHF",
-      "president": "OC269"
+      "elo": 6550,
+      "club": "Force of War IV",
+      "clubCode": "RLBLPB",
+      "president": "FL 13"
     },
     {
-      "elo": 6434,
+      "elo": 6462,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
     },
     {
-      "elo": 6352,
-      "club": "FoW Sobrenatural BR7",
-      "clubCode": "HQLHFK",
-      "president": "Full Moon 1"
+      "elo": 6422,
+      "club": "FoW Made In Brazil",
+      "clubCode": "JJTDHF",
+      "president": "OC269"
     },
     {
       "elo": 6325,
       "club": "FoW Eternal Crown",
       "clubCode": "NFLDLC",
       "president": "MY-6"
+    },
+    {
+      "elo": 6324,
+      "club": "FoW Sobrenatural BR7",
+      "clubCode": "HQLHFK",
+      "president": "Full Moon 1"
     },
     {
       "elo": 6312,
