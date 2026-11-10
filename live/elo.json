@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-10T20:02:40.881Z",
+  "generated_at": "2026-11-10T20:08:59.087Z",
   "count": 88,
   "clubs": [
     {
@@ -443,12 +443,6 @@
       "president": "MN13"
     },
     {
-      "elo": 5197,
-      "club": "FoW Bartenders",
-      "clubCode": "QDJMRH",
-      "president": "FL-2"
-    },
-    {
       "elo": 5196,
       "club": "FoW IceBears Deux",
       "clubCode": "FDJKGL",
@@ -459,6 +453,12 @@
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
       "president": "Pearl"
+    },
+    {
+      "elo": 5169,
+      "club": "FoW Bartenders",
+      "clubCode": "QDJMRH",
+      "president": "FL-2"
     },
     {
       "elo": 5153,
