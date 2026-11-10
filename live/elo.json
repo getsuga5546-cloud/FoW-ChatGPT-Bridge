@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-10T20:08:59.087Z",
+  "generated_at": "2026-11-10T21:25:26.104Z",
   "count": 88,
   "clubs": [
     {
@@ -53,25 +53,25 @@
       "president": "FKR 25"
     },
     {
-      "elo": 6603,
+      "elo": 6635,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6601,
-      "club": "FoW Sobrenatural BR3",
-      "clubCode": "TGPNJJ",
-      "president": "RLG 337"
-    },
-    {
-      "elo": 6550,
+      "elo": 6578,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6461,
+      "elo": 6569,
+      "club": "FoW Sobrenatural BR3",
+      "clubCode": "TGPNJJ",
+      "president": "RLG 337"
+    },
+    {
+      "elo": 6433,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
@@ -83,16 +83,16 @@
       "president": "OC269"
     },
     {
+      "elo": 6350,
+      "club": "FoW Sobrenatural BR7",
+      "clubCode": "HQLHFK",
+      "president": "Full Moon 1"
+    },
+    {
       "elo": 6325,
       "club": "FoW Eternal Crown",
       "clubCode": "NFLDLC",
       "president": "MY-6"
-    },
-    {
-      "elo": 6322,
-      "club": "FoW Sobrenatural BR7",
-      "clubCode": "HQLHFK",
-      "president": "Full Moon 1"
     },
     {
       "elo": 6312,
@@ -137,12 +137,6 @@
       "president": "Celestra"
     },
     {
-      "elo": 6239,
-      "club": "Force of War VIII",
-      "clubCode": "MQKJMK",
-      "president": "At-2"
-    },
-    {
       "elo": 6227,
       "club": "FoW Peace Keeper",
       "clubCode": "CFSNDK",
@@ -177,6 +171,12 @@
       "club": "FoW RascalRacoons",
       "clubCode": "GLTKGG",
       "president": "Mercury"
+    },
+    {
+      "elo": 6211,
+      "club": "Force of War VIII",
+      "clubCode": "MQKJMK",
+      "president": "At-2"
     },
     {
       "elo": 6129,
