@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-10T10:41:06.728Z",
+  "generated_at": "2026-11-10T15:01:41.748Z",
   "count": 88,
   "clubs": [
     {
@@ -191,7 +191,7 @@
       "president": "Aug-2"
     },
     {
-      "elo": 6073,
+      "elo": 6041,
       "club": "FoW Regalia Realms",
       "clubCode": "RTMJML",
       "president": "CoCoa Peeble"
