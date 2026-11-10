@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-10T17:39:58.151Z",
+  "generated_at": "2026-11-10T19:23:44.172Z",
   "count": 88,
   "clubs": [
     {
@@ -467,6 +467,12 @@
       "president": "July-12"
     },
     {
+      "elo": 5143,
+      "club": "Force Of War V",
+      "clubCode": "HRQQNR",
+      "president": "Mahkota 5"
+    },
+    {
       "elo": 5136,
       "club": "FoW Scorpion XX",
       "clubCode": "RNCPLJ",
@@ -477,12 +483,6 @@
       "club": "FoW Firebirds",
       "clubCode": "MRRDRS",
       "president": "Altair"
-    },
-    {
-      "elo": 5113,
-      "club": "Force Of War V",
-      "clubCode": "HRQQNR",
-      "president": "Mahkota 5"
     },
     {
       "elo": 4896,
