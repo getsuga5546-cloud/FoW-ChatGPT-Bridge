@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-11T02:35:48.832Z",
+  "generated_at": "2026-11-11T02:37:20.015Z",
   "count": 88,
   "clubs": [
     {
@@ -53,7 +53,7 @@
       "president": "FKR 25"
     },
     {
-      "elo": 6635,
+      "elo": 6664,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
@@ -65,13 +65,13 @@
       "president": "FL 13"
     },
     {
-      "elo": 6569,
+      "elo": 6540,
       "club": "FoW Sobrenatural BR3",
       "clubCode": "TGPNJJ",
       "president": "RLG 337"
     },
     {
-      "elo": 6433,
+      "elo": 6461,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
@@ -83,16 +83,16 @@
       "president": "OC269"
     },
     {
-      "elo": 6350,
-      "club": "FoW Sobrenatural BR7",
-      "clubCode": "HQLHFK",
-      "president": "Full Moon 1"
-    },
-    {
       "elo": 6325,
       "club": "FoW Eternal Crown",
       "clubCode": "NFLDLC",
       "president": "MY-6"
+    },
+    {
+      "elo": 6322,
+      "club": "FoW Sobrenatural BR7",
+      "clubCode": "HQLHFK",
+      "president": "Full Moon 1"
     },
     {
       "elo": 6312,
