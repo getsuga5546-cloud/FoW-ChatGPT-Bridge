@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-11T14:32:00.764Z",
+  "generated_at": "2026-11-11T14:33:00.628Z",
   "count": 88,
   "clubs": [
     {
@@ -347,7 +347,7 @@
       "president": "Jan 9"
     },
     {
-      "elo": 5431,
+      "elo": 5399,
       "club": "FoW Eternal Wanderer 3",
       "clubCode": "SDKHRT",
       "president": "Ingot Landing"
