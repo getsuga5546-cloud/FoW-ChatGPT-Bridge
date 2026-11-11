@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-11T14:33:00.628Z",
+  "generated_at": "2026-11-11T14:34:29.079Z",
   "count": 88,
   "clubs": [
     {
@@ -288,15 +288,15 @@
     },
     {
       "elo": 5567,
-      "club": "FoW Adeptus Astartes",
-      "clubCode": "HTMGCD",
-      "president": "Issac 27"
-    },
-    {
-      "elo": 5567,
       "club": "FoW S34h3hs77u2h",
       "clubCode": "LMKCMP",
       "president": "s76 Honeysuckle"
+    },
+    {
+      "elo": 5538,
+      "club": "FoW Adeptus Astartes",
+      "clubCode": "HTMGCD",
+      "president": "Issac 27"
     },
     {
       "elo": 5493,
