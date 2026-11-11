@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-10T23:48:11.904Z",
+  "generated_at": "2026-11-11T01:06:09.585Z",
   "count": 88,
   "clubs": [
     {
@@ -227,16 +227,16 @@
       "president": "Auralis"
     },
     {
-      "elo": 5828,
-      "club": "Force of War IX",
-      "clubCode": "HGNMSM",
-      "president": "Uranium"
-    },
-    {
       "elo": 5812,
       "club": "FoW Stranger Things",
       "clubCode": "NHTMMJ",
       "president": "Rigel"
+    },
+    {
+      "elo": 5800,
+      "club": "Force of War IX",
+      "clubCode": "HGNMSM",
+      "president": "Uranium"
     },
     {
       "elo": 5785,
