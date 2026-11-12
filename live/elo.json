@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-12T14:51:34.724Z",
+  "generated_at": "2026-11-12T18:18:39.546Z",
   "count": 88,
   "clubs": [
     {
@@ -53,25 +53,25 @@
       "president": "FKR 25"
     },
     {
-      "elo": 6667,
+      "elo": 6695,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6577,
-      "club": "Force of War IV",
-      "clubCode": "RLBLPB",
-      "president": "FL 13"
-    },
-    {
-      "elo": 6541,
+      "elo": 6569,
       "club": "FoW Sobrenatural BR3",
       "clubCode": "TGPNJJ",
       "president": "RLG 337"
     },
     {
-      "elo": 6460,
+      "elo": 6549,
+      "club": "Force of War IV",
+      "clubCode": "RLBLPB",
+      "president": "FL 13"
+    },
+    {
+      "elo": 6432,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
