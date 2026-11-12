@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-12T03:24:53.766Z",
+  "generated_at": "2026-11-12T14:51:14.550Z",
   "count": 88,
   "clubs": [
     {
@@ -251,7 +251,7 @@
       "president": "July-1"
     },
     {
-      "elo": 5726,
+      "elo": 5698,
       "club": "Force Of War II",
       "clubCode": "CGBHTG",
       "president": "BarBerry"
