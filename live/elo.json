@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-12T14:51:14.550Z",
+  "generated_at": "2026-11-12T14:51:34.724Z",
   "count": 88,
   "clubs": [
     {
@@ -275,16 +275,16 @@
       "president": "42 Ingot"
     },
     {
-      "elo": 5600,
-      "club": "FoW Sentinels",
-      "clubCode": "LNDGDP",
-      "president": "Mahkota 3"
-    },
-    {
       "elo": 5575,
       "club": "FoW Minotaurs",
       "clubCode": "DLBMTN",
       "president": "Pricess Melo"
+    },
+    {
+      "elo": 5571,
+      "club": "FoW Sentinels",
+      "clubCode": "LNDGDP",
+      "president": "Mahkota 3"
     },
     {
       "elo": 5567,
