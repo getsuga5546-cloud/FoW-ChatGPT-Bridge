@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-15T04:40:50.911Z",
-  "count": 88,
+  "generated_at": "2026-11-15T06:23:06.423Z",
+  "count": 87,
   "clubs": [
     {
       "elo": 7066,
@@ -153,12 +153,6 @@
       "club": "Force of War III",
       "clubCode": "BKGGJL",
       "president": "Celestra"
-    },
-    {
-      "elo": 6227,
-      "club": "FoW Iron Horn Brigade",
-      "clubCode": "GFKJFN",
-      "president": "AK-131"
     },
     {
       "elo": 6226,
