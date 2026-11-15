@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-15T17:34:22.695Z",
+  "generated_at": "2026-11-15T17:34:59.060Z",
   "count": 86,
   "clubs": [
     {
@@ -257,7 +257,7 @@
       "president": "Issac 32"
     },
     {
-      "elo": 5613,
+      "elo": 5584,
       "club": "FoW Sentinel 3",
       "clubCode": "GMPLQL",
       "president": "Hokusai 20"
