@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-15T17:34:59.060Z",
+  "generated_at": "2026-11-15T17:35:25.628Z",
   "count": 86,
   "clubs": [
     {
@@ -467,7 +467,7 @@
       "president": "Altair"
     },
     {
-      "elo": 5115,
+      "elo": 5080,
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
       "president": "Mahkota 5"
