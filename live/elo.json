@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-15T06:23:06.423Z",
-  "count": 87,
+  "generated_at": "2026-11-15T06:24:10.220Z",
+  "count": 86,
   "clubs": [
     {
       "elo": 7066,
@@ -303,12 +303,6 @@
       "club": "FoW Neverland II",
       "clubCode": "BTDMNB",
       "president": "Ash-13"
-    },
-    {
-      "elo": 5485,
-      "club": "FoW Destruction inc",
-      "clubCode": "QHJCSB",
-      "president": "MN9"
     },
     {
       "elo": 5480,
