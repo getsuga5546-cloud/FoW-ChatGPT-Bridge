@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-17T16:35:22.574Z",
+  "generated_at": "2026-11-17T17:04:57.403Z",
   "count": 86,
   "clubs": [
     {
@@ -419,12 +419,6 @@
       "president": "X10"
     },
     {
-      "elo": 5214,
-      "club": "The Drain",
-      "clubCode": "MQFPBN",
-      "president": "July-12"
-    },
-    {
       "elo": 5211,
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
@@ -453,6 +447,12 @@
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
       "president": "Pearl"
+    },
+    {
+      "elo": 5153,
+      "club": "The Drain",
+      "clubCode": "MQFPBN",
+      "president": "July-12"
     },
     {
       "elo": 5136,
