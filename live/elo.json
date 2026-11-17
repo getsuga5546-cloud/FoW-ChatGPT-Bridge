@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-16T07:01:54.152Z",
+  "generated_at": "2026-11-17T02:12:44.890Z",
   "count": 86,
   "clubs": [
     {
@@ -401,12 +401,6 @@
       "president": "OC20"
     },
     {
-      "elo": 5242,
-      "club": "FoW Sweet Garden",
-      "clubCode": "TMRTCR",
-      "president": "PawStormX"
-    },
-    {
       "elo": 5239,
       "club": "Road to FoW",
       "clubCode": "BHJJDD",
@@ -423,6 +417,12 @@
       "club": "FoW Whitecap Bay",
       "clubCode": "TKPBKN",
       "president": "Lady Of Lightning"
+    },
+    {
+      "elo": 5179,
+      "club": "FoW Sweet Garden",
+      "clubCode": "TMRTCR",
+      "president": "PawStormX"
     },
     {
       "elo": 5178,
