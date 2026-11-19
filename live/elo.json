@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-19T04:09:56.492Z",
+  "generated_at": "2026-11-19T12:07:33.365Z",
   "count": 86,
   "clubs": [
     {
@@ -317,7 +317,7 @@
       "president": "MN 2"
     },
     {
-      "elo": 5426,
+      "elo": 5457,
       "club": "FoW Eternal Wanderer 3",
       "clubCode": "SDKHRT",
       "president": "Ingot Landing"
@@ -329,16 +329,16 @@
       "president": "764"
     },
     {
-      "elo": 5408,
-      "club": "FoW Soul Society",
-      "clubCode": "LQNTCH",
-      "president": "Amethys"
-    },
-    {
       "elo": 5388,
       "club": "FoW Sentinels 5",
       "clubCode": "JFPTQP",
       "president": "S5 Prez"
+    },
+    {
+      "elo": 5377,
+      "club": "FoW Soul Society",
+      "clubCode": "LQNTCH",
+      "president": "Amethys"
     },
     {
       "elo": 5374,
@@ -353,22 +353,22 @@
       "president": "Queen Champ"
     },
     {
-      "elo": 5311,
-      "club": "FoW IceBears Deux",
-      "clubCode": "FDJKGL",
-      "president": "IBS 8"
-    },
-    {
-      "elo": 5289,
+      "elo": 5317,
       "club": "FoW CodeX",
       "clubCode": "QQTFQL",
       "president": "NightScorpion"
     },
     {
-      "elo": 5286,
+      "elo": 5316,
       "club": "FoW Imperial Legacy",
       "clubCode": "HCFCRD",
       "president": "May 2"
+    },
+    {
+      "elo": 5311,
+      "club": "FoW IceBears Deux",
+      "clubCode": "FDJKGL",
+      "president": "IBS 8"
     },
     {
       "elo": 5279,
@@ -395,12 +395,6 @@
       "president": "OC20"
     },
     {
-      "elo": 5253,
-      "club": "FoW Space Sheep",
-      "clubCode": "DRKJDP",
-      "president": "Navy"
-    },
-    {
       "elo": 5252,
       "club": "FoW Blue Crown",
       "clubCode": "MGRRNS",
@@ -411,6 +405,12 @@
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
       "president": "FL-2"
+    },
+    {
+      "elo": 5223,
+      "club": "FoW Space Sheep",
+      "clubCode": "DRKJDP",
+      "president": "Navy"
     },
     {
       "elo": 5215,
@@ -425,16 +425,16 @@
       "president": "Lady Of Lightning"
     },
     {
-      "elo": 5202,
-      "club": "FoW Tutelaries",
-      "clubCode": "PRNNGT",
-      "president": "MN13"
-    },
-    {
       "elo": 5181,
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
+    },
+    {
+      "elo": 5174,
+      "club": "FoW Tutelaries",
+      "clubCode": "PRNNGT",
+      "president": "MN13"
     },
     {
       "elo": 5171,
