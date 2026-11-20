@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-19T14:35:00.352Z",
+  "generated_at": "2026-11-20T12:32:09.945Z",
   "count": 86,
   "clubs": [
     {
@@ -401,6 +401,12 @@
       "president": "QC-1"
     },
     {
+      "elo": 5248,
+      "club": "The Drain",
+      "clubCode": "MQFPBN",
+      "president": "July-12"
+    },
+    {
       "elo": 5235,
       "club": "FoW Bartenders",
       "clubCode": "QDJMRH",
@@ -441,12 +447,6 @@
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
       "president": "Pearl"
-    },
-    {
-      "elo": 5153,
-      "club": "The Drain",
-      "clubCode": "MQFPBN",
-      "president": "July-12"
     },
     {
       "elo": 5136,
