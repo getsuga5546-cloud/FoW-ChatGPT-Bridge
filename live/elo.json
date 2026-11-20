@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-20T12:32:09.945Z",
+  "generated_at": "2026-11-20T13:51:14.597Z",
   "count": 86,
   "clubs": [
     {
@@ -371,16 +371,16 @@
       "president": "IBS 8"
     },
     {
+      "elo": 5305,
+      "club": "Road to FoW",
+      "clubCode": "BHJJDD",
+      "president": "NightBloom"
+    },
+    {
       "elo": 5279,
       "club": "FoW SunWings",
       "clubCode": "DQLBCD",
       "president": "X13"
-    },
-    {
-      "elo": 5272,
-      "club": "Road to FoW",
-      "clubCode": "BHJJDD",
-      "president": "NightBloom"
     },
     {
       "elo": 5268,
