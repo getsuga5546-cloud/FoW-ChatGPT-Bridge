@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-21T00:47:27.647Z",
+  "generated_at": "2026-11-21T02:13:29.501Z",
   "count": 86,
   "clubs": [
     {
@@ -323,16 +323,16 @@
       "president": "764"
     },
     {
+      "elo": 5417,
+      "club": "FoW Sentinels 5",
+      "clubCode": "JFPTQP",
+      "president": "S5 Prez"
+    },
+    {
       "elo": 5399,
       "club": "The FoW Beach House",
       "clubCode": "QMGGFC",
       "president": "MN 2"
-    },
-    {
-      "elo": 5388,
-      "club": "FoW Sentinels 5",
-      "clubCode": "JFPTQP",
-      "president": "S5 Prez"
     },
     {
       "elo": 5377,
@@ -347,7 +347,7 @@
       "president": "Jan 9"
     },
     {
-      "elo": 5317,
+      "elo": 5345,
       "club": "FoW CodeX",
       "clubCode": "QQTFQL",
       "president": "NightScorpion"
@@ -357,12 +357,6 @@
       "club": "FoW Imperial Legacy",
       "clubCode": "HCFCRD",
       "president": "May 2"
-    },
-    {
-      "elo": 5312,
-      "club": "FoW Rocket Racoons",
-      "clubCode": "GBCMTG",
-      "president": "Queen Champ"
     },
     {
       "elo": 5311,
@@ -375,6 +369,12 @@
       "club": "Road to FoW",
       "clubCode": "BHJJDD",
       "president": "NightBloom"
+    },
+    {
+      "elo": 5283,
+      "club": "FoW Rocket Racoons",
+      "clubCode": "GBCMTG",
+      "president": "Queen Champ"
     },
     {
       "elo": 5279,
@@ -413,12 +413,6 @@
       "president": "FL-2"
     },
     {
-      "elo": 5223,
-      "club": "FoW Space Sheep",
-      "clubCode": "DRKJDP",
-      "president": "Navy"
-    },
-    {
       "elo": 5215,
       "club": "FoW Twin Essence",
       "clubCode": "BTPPKS",
@@ -429,6 +423,12 @@
       "club": "FoW Whitecap Bay",
       "clubCode": "TKPBKN",
       "president": "Lady Of Lightning"
+    },
+    {
+      "elo": 5195,
+      "club": "FoW Space Sheep",
+      "clubCode": "DRKJDP",
+      "president": "Navy"
     },
     {
       "elo": 5181,
