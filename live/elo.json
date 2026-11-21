@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-21T02:21:17.172Z",
+  "generated_at": "2026-11-21T02:21:30.470Z",
   "count": 86,
   "clubs": [
     {
@@ -449,6 +449,12 @@
       "president": "Pearl"
     },
     {
+      "elo": 5143,
+      "club": "Force Of War V",
+      "clubCode": "HRQQNR",
+      "president": "Mahkota 5"
+    },
+    {
       "elo": 5136,
       "club": "FoW Scorpion XX",
       "clubCode": "RNCPLJ",
@@ -465,12 +471,6 @@
       "club": "FoW Trailblazers",
       "clubCode": "GMQJNC",
       "president": "Jan 3"
-    },
-    {
-      "elo": 5080,
-      "club": "Force Of War V",
-      "clubCode": "HRQQNR",
-      "president": "Mahkota 5"
     },
     {
       "elo": 4896,
