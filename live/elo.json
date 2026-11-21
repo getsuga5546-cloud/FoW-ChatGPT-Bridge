@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-21T15:18:41.829Z",
+  "generated_at": "2026-11-21T15:56:12.297Z",
   "count": 86,
   "clubs": [
     {
@@ -281,52 +281,52 @@
       "president": "BarBerry"
     },
     {
-      "elo": 5552,
+      "elo": 5584,
       "club": "FoW Shooters",
       "clubCode": "MMPTBB",
       "president": "shot 7"
     },
     {
-      "elo": 5550,
+      "elo": 5518,
       "club": "FoW Neverland II",
       "clubCode": "BTDMNB",
       "president": "Ash-13"
     },
     {
-      "elo": 5465,
+      "elo": 5496,
       "club": "FoW Fyr",
       "clubCode": "DRRSHC",
       "president": "Apr-3"
     },
     {
-      "elo": 5457,
+      "elo": 5487,
       "club": "FoW Eternal Wanderer 3",
       "clubCode": "SDKHRT",
       "president": "Ingot Landing"
     },
     {
-      "elo": 5452,
-      "club": "FoW Adeptus Astartes",
-      "clubCode": "HTMGCD",
-      "president": "Issac 27"
-    },
-    {
-      "elo": 5452,
+      "elo": 5484,
       "club": "FoW S34h3hs77u2h",
       "clubCode": "LMKCMP",
       "president": "s76 Honeysuckle"
     },
     {
-      "elo": 5451,
+      "elo": 5441,
+      "club": "FoW Soul Society",
+      "clubCode": "LQNTCH",
+      "president": "Amethys"
+    },
+    {
+      "elo": 5421,
+      "club": "FoW Adeptus Astartes",
+      "clubCode": "HTMGCD",
+      "president": "Issac 27"
+    },
+    {
+      "elo": 5419,
       "club": "FoW Eternal Wanderer 2",
       "clubCode": "RBLGNS",
       "president": "764"
-    },
-    {
-      "elo": 5417,
-      "club": "FoW Sentinels 5",
-      "clubCode": "JFPTQP",
-      "president": "S5 Prez"
     },
     {
       "elo": 5399,
@@ -335,10 +335,10 @@
       "president": "MN 2"
     },
     {
-      "elo": 5377,
-      "club": "FoW Soul Society",
-      "clubCode": "LQNTCH",
-      "president": "Amethys"
+      "elo": 5387,
+      "club": "FoW Sentinels 5",
+      "clubCode": "JFPTQP",
+      "president": "S5 Prez"
     },
     {
       "elo": 5374,
@@ -353,10 +353,10 @@
       "president": "NightScorpion"
     },
     {
-      "elo": 5316,
-      "club": "FoW Imperial Legacy",
-      "clubCode": "HCFCRD",
-      "president": "May 2"
+      "elo": 5312,
+      "club": "FoW Rocket Racoons",
+      "clubCode": "GBCMTG",
+      "president": "Queen Champ"
     },
     {
       "elo": 5311,
@@ -371,10 +371,16 @@
       "president": "NightBloom"
     },
     {
-      "elo": 5283,
-      "club": "FoW Rocket Racoons",
-      "clubCode": "GBCMTG",
-      "president": "Queen Champ"
+      "elo": 5288,
+      "club": "FoW Imperial Legacy",
+      "clubCode": "HCFCRD",
+      "president": "May 2"
+    },
+    {
+      "elo": 5281,
+      "club": "FoW Blue Crown",
+      "clubCode": "MGRRNS",
+      "president": "QC-1"
     },
     {
       "elo": 5279,
@@ -401,12 +407,6 @@
       "president": "OC20"
     },
     {
-      "elo": 5252,
-      "club": "FoW Blue Crown",
-      "clubCode": "MGRRNS",
-      "president": "QC-1"
-    },
-    {
       "elo": 5248,
       "club": "The Drain",
       "clubCode": "MQFPBN",
@@ -419,22 +419,16 @@
       "president": "X10"
     },
     {
-      "elo": 5211,
-      "club": "FoW Sweet Garden",
-      "clubCode": "TMRTCR",
-      "president": "PawStormX"
-    },
-    {
       "elo": 5205,
       "club": "FoW Whitecap Bay",
       "clubCode": "TKPBKN",
       "president": "Lady Of Lightning"
     },
     {
-      "elo": 5195,
-      "club": "FoW Space Sheep",
-      "clubCode": "DRKJDP",
-      "president": "Navy"
+      "elo": 5182,
+      "club": "FoW Sweet Garden",
+      "clubCode": "TMRTCR",
+      "president": "PawStormX"
     },
     {
       "elo": 5174,
@@ -453,6 +447,12 @@
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
       "president": "Pearl"
+    },
+    {
+      "elo": 5166,
+      "club": "FoW Space Sheep",
+      "clubCode": "DRKJDP",
+      "president": "Navy"
     },
     {
       "elo": 5143,
