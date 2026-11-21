@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-21T19:42:27.061Z",
+  "generated_at": "2026-11-21T20:05:14.452Z",
   "count": 86,
   "clubs": [
     {
@@ -341,16 +341,16 @@
       "president": "S5 Prez"
     },
     {
+      "elo": 5375,
+      "club": "FoW CodeX",
+      "clubCode": "QQTFQL",
+      "president": "NightScorpion"
+    },
+    {
       "elo": 5374,
       "club": "FoW Synédrion Xenon",
       "clubCode": "NFFJCN",
       "president": "Jan 9"
-    },
-    {
-      "elo": 5345,
-      "club": "FoW CodeX",
-      "clubCode": "QQTFQL",
-      "president": "NightScorpion"
     },
     {
       "elo": 5312,
