@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-22T01:06:15.194Z",
+  "generated_at": "2026-11-22T01:06:32.900Z",
   "count": 86,
   "clubs": [
     {
@@ -425,6 +425,12 @@
       "president": "Lady Of Lightning"
     },
     {
+      "elo": 5201,
+      "club": "FoW Scorpion XX",
+      "clubCode": "RNCPLJ",
+      "president": "OC400"
+    },
+    {
       "elo": 5182,
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
@@ -441,12 +447,6 @@
       "club": "Force Of War V",
       "clubCode": "HRQQNR",
       "president": "Mahkota 5"
-    },
-    {
-      "elo": 5171,
-      "club": "FoW Scorpion XX",
-      "clubCode": "RNCPLJ",
-      "president": "OC400"
     },
     {
       "elo": 5171,
