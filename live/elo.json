@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-22T17:01:29.625Z",
+  "generated_at": "2026-11-22T17:32:22.503Z",
   "count": 86,
   "clubs": [
     {
@@ -425,6 +425,12 @@
       "president": "Lady Of Lightning"
     },
     {
+      "elo": 5204,
+      "club": "FoW Tutelaries",
+      "clubCode": "PRNNGT",
+      "president": "MN13"
+    },
+    {
       "elo": 5201,
       "club": "FoW Scorpion XX",
       "clubCode": "RNCPLJ",
@@ -435,12 +441,6 @@
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
       "president": "PawStormX"
-    },
-    {
-      "elo": 5174,
-      "club": "FoW Tutelaries",
-      "clubCode": "PRNNGT",
-      "president": "MN13"
     },
     {
       "elo": 5173,
