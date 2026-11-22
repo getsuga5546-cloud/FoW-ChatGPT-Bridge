@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-22T14:37:07.791Z",
+  "generated_at": "2026-11-22T14:54:54.316Z",
   "count": 86,
   "clubs": [
     {
@@ -371,6 +371,12 @@
       "president": "NightBloom"
     },
     {
+      "elo": 5296,
+      "club": "FoW Bartenders",
+      "clubCode": "QDJMRH",
+      "president": "FL-2"
+    },
+    {
       "elo": 5288,
       "club": "FoW Imperial Legacy",
       "clubCode": "HCFCRD",
@@ -393,12 +399,6 @@
       "club": "FoW Cheers!",
       "clubCode": "KCJNLD",
       "president": "Melo's Warehouse"
-    },
-    {
-      "elo": 5267,
-      "club": "FoW Bartenders",
-      "clubCode": "QDJMRH",
-      "president": "FL-2"
     },
     {
       "elo": 5262,
