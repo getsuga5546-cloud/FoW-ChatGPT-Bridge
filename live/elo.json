@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-22T05:54:32.074Z",
+  "generated_at": "2026-11-22T05:55:09.632Z",
   "count": 86,
   "clubs": [
     {
@@ -173,16 +173,16 @@
       "president": "Casablanca"
     },
     {
+      "elo": 6146,
+      "club": "Force Of War VII",
+      "clubCode": "GPDKRS",
+      "president": "Aug-2"
+    },
+    {
       "elo": 6133,
       "club": "Twist Of Fate",
       "clubCode": "MNGBBC",
       "president": "n28.10 Oolong"
-    },
-    {
-      "elo": 6116,
-      "club": "Force Of War VII",
-      "clubCode": "GPDKRS",
-      "president": "Aug-2"
     },
     {
       "elo": 6042,
