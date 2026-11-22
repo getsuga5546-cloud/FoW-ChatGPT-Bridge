@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-22T04:32:54.054Z",
+  "generated_at": "2026-11-22T05:54:32.074Z",
   "count": 86,
   "clubs": [
     {
@@ -137,6 +137,12 @@
       "president": "Celestra"
     },
     {
+      "elo": 6268,
+      "club": "Force of War VIII",
+      "clubCode": "MQKJMK",
+      "president": "At-2"
+    },
+    {
       "elo": 6264,
       "club": "FoW Warmonger Bulls",
       "clubCode": "SQBDQT",
@@ -165,12 +171,6 @@
       "club": "FoW Blood Legion",
       "clubCode": "BTMMNQ",
       "president": "Casablanca"
-    },
-    {
-      "elo": 6146,
-      "club": "Force of War VIII",
-      "clubCode": "MQKJMK",
-      "president": "At-2"
     },
     {
       "elo": 6133,
