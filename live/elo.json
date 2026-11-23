@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-23T04:26:58.026Z",
+  "generated_at": "2026-11-23T04:27:06.670Z",
   "count": 86,
   "clubs": [
     {
@@ -143,6 +143,12 @@
       "president": "At-2"
     },
     {
+      "elo": 6252,
+      "club": "FoW Neverland",
+      "clubCode": "SFBLPJ",
+      "president": "ASH2"
+    },
+    {
       "elo": 6248,
       "club": "FoW Blood Legion",
       "clubCode": "BTMMNQ",
@@ -167,13 +173,7 @@
       "president": "Dec-2"
     },
     {
-      "elo": 6223,
-      "club": "FoW Neverland",
-      "clubCode": "SFBLPJ",
-      "president": "ASH2"
-    },
-    {
-      "elo": 6146,
+      "elo": 6117,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
