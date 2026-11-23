@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-23T04:26:45.259Z",
+  "generated_at": "2026-11-23T04:26:58.026Z",
   "count": 86,
   "clubs": [
     {
@@ -335,7 +335,7 @@
       "president": "S5 Prez"
     },
     {
-      "elo": 5399,
+      "elo": 5367,
       "club": "The FoW Beach House",
       "clubCode": "QMGGFC",
       "president": "MN 2"
