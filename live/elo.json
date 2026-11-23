@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-23T05:21:02.015Z",
+  "generated_at": "2026-11-23T06:59:45.814Z",
   "count": 86,
   "clubs": [
     {
@@ -431,6 +431,12 @@
       "president": "OC400"
     },
     {
+      "elo": 5196,
+      "club": "FoW Space Sheep",
+      "clubCode": "DRKJDP",
+      "president": "Navy"
+    },
+    {
       "elo": 5182,
       "club": "FoW Sweet Garden",
       "clubCode": "TMRTCR",
@@ -453,12 +459,6 @@
       "club": "FoW BlackSite",
       "clubCode": "DRTNBL",
       "president": "Pearl"
-    },
-    {
-      "elo": 5166,
-      "club": "FoW Space Sheep",
-      "clubCode": "DRKJDP",
-      "president": "Navy"
     },
     {
       "elo": 5115,
