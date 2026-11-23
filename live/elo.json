@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-23T04:27:06.670Z",
+  "generated_at": "2026-11-23T05:21:02.015Z",
   "count": 86,
   "clubs": [
     {
@@ -359,6 +359,12 @@
       "president": "Queen Champ"
     },
     {
+      "elo": 5330,
+      "club": "FoW Bartenders",
+      "clubCode": "QDJMRH",
+      "president": "FL-2"
+    },
+    {
       "elo": 5311,
       "club": "FoW IceBears Deux",
       "clubCode": "FDJKGL",
@@ -369,12 +375,6 @@
       "club": "Road to FoW",
       "clubCode": "BHJJDD",
       "president": "NightBloom"
-    },
-    {
-      "elo": 5296,
-      "club": "FoW Bartenders",
-      "clubCode": "QDJMRH",
-      "president": "FL-2"
     },
     {
       "elo": 5279,
