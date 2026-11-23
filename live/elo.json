@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-23T06:59:45.814Z",
+  "generated_at": "2026-11-23T09:32:58.488Z",
   "count": 86,
   "clubs": [
     {
@@ -425,6 +425,12 @@
       "president": "Lady Of Lightning"
     },
     {
+      "elo": 5216,
+      "club": "FoW Sweet Garden",
+      "clubCode": "TMRTCR",
+      "president": "PawStormX"
+    },
+    {
       "elo": 5201,
       "club": "FoW Scorpion XX",
       "clubCode": "RNCPLJ",
@@ -435,12 +441,6 @@
       "club": "FoW Space Sheep",
       "clubCode": "DRKJDP",
       "president": "Navy"
-    },
-    {
-      "elo": 5182,
-      "club": "FoW Sweet Garden",
-      "clubCode": "TMRTCR",
-      "president": "PawStormX"
     },
     {
       "elo": 5174,
