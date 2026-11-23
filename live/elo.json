@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-23T11:20:05.059Z",
+  "generated_at": "2026-11-23T11:29:49.179Z",
   "count": 86,
   "clubs": [
     {
@@ -173,25 +173,25 @@
       "president": "Dec-2"
     },
     {
-      "elo": 6117,
+      "elo": 6147,
       "club": "Force Of War VII",
       "clubCode": "GPDKRS",
       "president": "Aug-2"
     },
     {
-      "elo": 6105,
+      "elo": 6135,
       "club": "Twist Of Fate",
       "clubCode": "MNGBBC",
       "president": "n28.10 Oolong"
     },
     {
-      "elo": 6074,
+      "elo": 6044,
       "club": "FoW Berserker",
       "clubCode": "NFPJCN",
       "president": "11.25"
     },
     {
-      "elo": 6063,
+      "elo": 6033,
       "club": "FoW Regalia Realms",
       "clubCode": "RTMJML",
       "president": "CoCoa Peeble"
