@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-23T12:07:11.413Z",
+  "generated_at": "2026-11-24T09:06:09.114Z",
   "count": 86,
   "clubs": [
     {
@@ -53,52 +53,40 @@
       "president": "FKR 25"
     },
     {
-      "elo": 6695,
+      "elo": 6696,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6600,
+      "elo": 6571,
       "club": "FoW Sobrenatural BR3",
       "clubCode": "TGPNJJ",
       "president": "RLG 337"
     },
     {
-      "elo": 6518,
+      "elo": 6547,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6460,
-      "club": "FoW Flower Garden",
-      "clubCode": "NJPHDJ",
-      "president": "1445"
-    },
-    {
-      "elo": 6421,
+      "elo": 6449,
       "club": "FoW Made In Brazil",
       "clubCode": "JJTDHF",
       "president": "OC269"
     },
     {
-      "elo": 6326,
-      "club": "FoW Eternal Crown",
-      "clubCode": "NFLDLC",
-      "president": "MY-6"
+      "elo": 6431,
+      "club": "FoW Flower Garden",
+      "clubCode": "NJPHDJ",
+      "president": "1445"
     },
     {
-      "elo": 6326,
+      "elo": 6358,
       "club": "FoW Sobrenatural BR7",
       "clubCode": "HQLHFK",
       "president": "Full Moon 1"
-    },
-    {
-      "elo": 6325,
-      "club": "FoW Jewelry Brigade",
-      "clubCode": "QCLNMD",
-      "president": "BP-2"
     },
     {
       "elo": 6315,
@@ -129,6 +117,18 @@
       "club": "FoW RingoRacoons",
       "clubCode": "PLCJKH",
       "president": "SP-2"
+    },
+    {
+      "elo": 6297,
+      "club": "FoW Jewelry Brigade",
+      "clubCode": "QCLNMD",
+      "president": "BP-2"
+    },
+    {
+      "elo": 6294,
+      "club": "FoW Eternal Crown",
+      "clubCode": "NFLDLC",
+      "president": "MY-6"
     },
     {
       "elo": 6268,
