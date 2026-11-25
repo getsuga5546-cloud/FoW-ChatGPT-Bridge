@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-24T22:55:57.404Z",
+  "generated_at": "2026-11-25T16:51:17.477Z",
   "count": 86,
   "clubs": [
     {
@@ -59,25 +59,25 @@
       "president": "Steakopolis"
     },
     {
-      "elo": 6571,
+      "elo": 6602,
       "club": "FoW Sobrenatural BR3",
       "clubCode": "TGPNJJ",
       "president": "RLG 337"
     },
     {
-      "elo": 6547,
+      "elo": 6516,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6449,
+      "elo": 6480,
       "club": "FoW Made In Brazil",
       "clubCode": "JJTDHF",
       "president": "OC269"
     },
     {
-      "elo": 6431,
+      "elo": 6400,
       "club": "FoW Flower Garden",
       "clubCode": "NJPHDJ",
       "president": "1445"
