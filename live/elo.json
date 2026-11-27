@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-27T05:21:06.690Z",
+  "generated_at": "2026-11-27T12:20:20.634Z",
   "count": 86,
   "clubs": [
     {
@@ -260,7 +260,7 @@
       "elo": 5632,
       "club": "FoW Minotaurs",
       "clubCode": "DLBMTN",
-      "president": "Pricess Melo"
+      "president": "Princess Melo"
     },
     {
       "elo": 5590,
