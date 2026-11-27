@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-27T12:20:20.634Z",
+  "generated_at": "2026-11-27T12:29:06.790Z",
   "count": 86,
   "clubs": [
     {
@@ -32,7 +32,7 @@
       "elo": 6846,
       "club": "FoW Sobrenatural BR1",
       "clubCode": "KRMHFN",
-      "president": "M 26"
+      "president": "M 62"
     },
     {
       "elo": 6841,
