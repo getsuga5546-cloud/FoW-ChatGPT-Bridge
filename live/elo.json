@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-27T12:29:06.790Z",
+  "generated_at": "2026-11-28T17:36:17.883Z",
   "count": 86,
   "clubs": [
     {
@@ -89,31 +89,31 @@
       "president": "Full Moon 1"
     },
     {
-      "elo": 6315,
+      "elo": 6345,
       "club": "FoW Fero's Legacy",
       "clubCode": "QTTBRF",
       "president": "CranBerry"
     },
     {
-      "elo": 6311,
+      "elo": 6340,
       "club": "FoW Empress Enclave",
       "clubCode": "LDTRJR",
       "president": "Hot 2"
     },
     {
-      "elo": 6301,
-      "club": "FoW RascalRacoons",
-      "clubCode": "GLTKGG",
-      "president": "Mercury"
-    },
-    {
-      "elo": 6300,
+      "elo": 6331,
       "club": "FoW Sentinels 4",
       "clubCode": "TNJJCH",
       "president": "Mrh 9"
     },
     {
-      "elo": 6300,
+      "elo": 6331,
+      "club": "FoW RascalRacoons",
+      "clubCode": "GLTKGG",
+      "president": "Mercury"
+    },
+    {
+      "elo": 6330,
       "club": "FoW RingoRacoons",
       "clubCode": "PLCJKH",
       "president": "SP-2"
@@ -131,46 +131,46 @@
       "president": "MY-6"
     },
     {
-      "elo": 6268,
-      "club": "Force of War III",
-      "clubCode": "BKGGJL",
-      "president": "Celestra"
-    },
-    {
-      "elo": 6268,
-      "club": "Force of War VIII",
-      "clubCode": "MQKJMK",
-      "president": "At-2"
-    },
-    {
-      "elo": 6253,
-      "club": "FoW Peace Keeper",
-      "clubCode": "CFSNDK",
-      "president": "Mahkota 2"
-    },
-    {
-      "elo": 6252,
-      "club": "FoW Neverland",
-      "clubCode": "SFBLPJ",
-      "president": "ASH2"
-    },
-    {
-      "elo": 6252,
-      "club": "Force of War VI",
-      "clubCode": "DNPGNR",
-      "president": "Dec-2"
-    },
-    {
       "elo": 6248,
       "club": "FoW Blood Legion",
       "clubCode": "BTMMNQ",
       "president": "Casablanca"
     },
     {
+      "elo": 6238,
+      "club": "Force of War III",
+      "clubCode": "BKGGJL",
+      "president": "Celestra"
+    },
+    {
+      "elo": 6237,
+      "club": "Force of War VIII",
+      "clubCode": "MQKJMK",
+      "president": "At-2"
+    },
+    {
       "elo": 6232,
       "club": "FoW Warmonger Bulls",
       "clubCode": "SQBDQT",
       "president": "WarHawk"
+    },
+    {
+      "elo": 6223,
+      "club": "FoW Neverland",
+      "clubCode": "SFBLPJ",
+      "president": "ASH2"
+    },
+    {
+      "elo": 6223,
+      "club": "FoW Peace Keeper",
+      "clubCode": "CFSNDK",
+      "president": "Mahkota 2"
+    },
+    {
+      "elo": 6222,
+      "club": "Force of War VI",
+      "clubCode": "DNPGNR",
+      "president": "Dec-2"
     },
     {
       "elo": 6148,
