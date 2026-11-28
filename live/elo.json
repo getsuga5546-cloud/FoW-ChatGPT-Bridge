@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source": "fow-production",
-  "generated_at": "2026-11-28T17:37:54.667Z",
+  "generated_at": "2026-11-28T18:30:52.386Z",
   "count": 86,
   "clubs": [
     {
@@ -17,6 +17,18 @@
       "president": "X2"
     },
     {
+      "elo": 6876,
+      "club": "FoW Sobrenatural BR1",
+      "clubCode": "KRMHFN",
+      "president": "M 62"
+    },
+    {
+      "elo": 6872,
+      "club": "FoW Mystic Mages",
+      "clubCode": "NGTHMT",
+      "president": "Skorvazon"
+    },
+    {
       "elo": 6865,
       "club": "Force Of Warmongers",
       "clubCode": "KQLLHJ",
@@ -29,49 +41,37 @@
       "president": "Evo Prez"
     },
     {
-      "elo": 6846,
-      "club": "FoW Sobrenatural BR1",
-      "clubCode": "KRMHFN",
-      "president": "M 62"
-    },
-    {
-      "elo": 6841,
-      "club": "FoW Mystic Mages",
-      "clubCode": "NGTHMT",
-      "president": "Skorvazon"
-    },
-    {
-      "elo": 6827,
+      "elo": 6796,
       "club": "FoW Ordem e Progresso",
       "clubCode": "QTTKPC",
       "president": "OC270"
     },
     {
-      "elo": 6803,
+      "elo": 6773,
       "club": "FoW Magslingers",
       "clubCode": "JCTQHD",
       "president": "FKR 25"
     },
     {
-      "elo": 6696,
+      "elo": 6724,
       "club": "FoW Royal Abattoir",
       "clubCode": "LDQSQM",
       "president": "Steakopolis"
     },
     {
-      "elo": 6602,
+      "elo": 6574,
       "club": "FoW Sobrenatural BR3",
       "clubCode": "TGPNJJ",
       "president": "RLG 337"
     },
     {
-      "elo": 6516,
+      "elo": 6546,
       "club": "Force of War IV",
       "clubCode": "RLBLPB",
       "president": "FL 13"
     },
     {
-      "elo": 6480,
+      "elo": 6450,
       "club": "FoW Made In Brazil",
       "clubCode": "JJTDHF",
       "president": "OC269"
